@@ -11,6 +11,7 @@ struct MaintenanceEnergySettings: View {
     @State var useHealthKitActiveEnergy: Bool = true
     @State var manuallyEnterBMR: Bool = false
     @State var manuallyEnterTDEE: Bool = false
+    @State var applyActivityScaleFactor: Bool = true
     @State var manuallyEnteredBMR: String = ""
     @State var manuallyEnteredTDEE: String = ""
 
@@ -22,6 +23,7 @@ struct MaintenanceEnergySettings: View {
                     bmrSection
                     tdeeSection
                 }
+                activeEnergySection
             }
             .navigationTitle("2,250 kcal")
             .navigationBarTitleDisplayMode(.large)
@@ -92,13 +94,25 @@ struct MaintenanceEnergySettings: View {
     
     var tdeeSection: some View {
         Section(header: tdeeHeader) {
-            Picker(selection: $activityLevel) {
-                ForEach(BMRActivityLevel.allCases, id: \.self) {
-                    Text($0.description).tag($0)
+            Toggle(isOn: $applyActivityScaleFactor) {
+                VStack(alignment: .leading) {
+                    Text("Apply Activity Scale Factor")
                 }
-            } label: {
-                Text("Activity Level")
             }
+            if applyActivityScaleFactor {
+                Picker(selection: $activityLevel) {
+                    ForEach(BMRActivityLevel.allCases, id: \.self) {
+                        Text($0.description).tag($0)
+                    }
+                } label: {
+                    Text("Activity Level")
+                }
+            }
+        }
+    }
+    
+    var activeEnergySection: some View {
+        Section("Active Energy") {
             Toggle(isOn: $useHealthKitActiveEnergy) {
                 VStack(alignment: .leading) {
                     Text("HealthKit Active Energy")
@@ -118,7 +132,7 @@ struct MaintenanceEnergySettings: View {
                 }
             }
             if manuallyEnterTDEE {
-                TextField("Enter TDEE in kcal", text: $manuallyEnteredBMR)
+                TextField("Enter TDEE in kcal", text: $manuallyEnteredTDEE)
             }
         }
     }
