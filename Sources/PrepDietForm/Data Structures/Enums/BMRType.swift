@@ -2,5 +2,5 @@ import PrepDataTypes
 
 public enum BMRType: Hashable, Codable {
     case userEntered(Double, EnergyUnit)
-    case calculated(BMRFormula)
+    case calculated(BMREquation)
 }

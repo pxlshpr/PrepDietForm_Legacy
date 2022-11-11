@@ -22,7 +22,7 @@ struct EnergyGoalForm: View {
     }
     
     var maintenanceCalculator: some View {
-        Text("Maintenance Calculator goes here")
+        MaintenanceEnergySettings()
             .presentationDetents([.medium, .large])
     }
 
