@@ -26,7 +26,7 @@ struct EnergyGoalForm: View {
         MaintenanceEnergySettings()
             .presentationDetents([.medium, .large])
     }
-
+    
     var unitSection: some View {
         FormStyledSection(header: Text("Unit"), verticalPadding: 0) {
             HStack {
@@ -109,23 +109,23 @@ struct EnergyGoalForm: View {
         } else {
             dietTypePicker
         }
-//        Menu {
-//            typeOptions
-//        } label: {
-//            HStack(spacing: 5) {
-//                Text(goal.energyGoalType?.shortDescription ?? "")
-//                    .frame(maxHeight: .infinity)
-//                    .fixedSize()
-//                Image(systemName: "chevron.up.chevron.down")
-//                    .imageScale(.small)
-//            }
-//            .frame(maxHeight: .infinity)
-//            .frame(maxWidth: .infinity, alignment: .leading)
-//        }
-//        .contentShape(Rectangle())
-//        .simultaneousGesture(TapGesture().onEnded {
-//            Haptics.feedback(style: .soft)
-//        })
+        //        Menu {
+        //            typeOptions
+        //        } label: {
+        //            HStack(spacing: 5) {
+        //                Text(goal.energyGoalType?.shortDescription ?? "")
+        //                    .frame(maxHeight: .infinity)
+        //                    .fixedSize()
+        //                Image(systemName: "chevron.up.chevron.down")
+        //                    .imageScale(.small)
+        //            }
+        //            .frame(maxHeight: .infinity)
+        //            .frame(maxWidth: .infinity, alignment: .leading)
+        //        }
+        //        .contentShape(Rectangle())
+        //        .simultaneousGesture(TapGesture().onEnded {
+        //            Haptics.feedback(style: .soft)
+        //        })
     }
     
     enum MealTypePickerOption: CaseIterable {
@@ -157,76 +157,96 @@ struct EnergyGoalForm: View {
     enum DietTypePickerOption: CaseIterable {
         
         case fixed
-        case percentage
+        case fromMaintenance
+        case percentageFromMaintenance
         
         func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
             switch self {
-            case .fixed: return energyUnit.shortDescription
-            case .percentage: return "%"
+            case .fixed:
+                return energyUnit.shortDescription
+            case .fromMaintenance:
+                return energyUnit.shortDescription + " from maintenance"
+            case .percentageFromMaintenance:
+                return "% from maintenance"
+            }
+        }
+        
+        func shortDescription(userEnergyUnit energyUnit: EnergyUnit) -> String {
+            switch self {
+            case .fixed, .fromMaintenance:
+                return energyUnit.shortDescription
+            case .percentageFromMaintenance:
+                return "%"
             }
         }
     }
     
-    @State var pickedDietType: DietTypePickerOption = .fixed
+    @State var pickedDietType: DietTypePickerOption = .fromMaintenance
     
     var dietTypePicker: some View {
-        Picker("", selection: $pickedDietType) {
-            ForEach(DietTypePickerOption.allCases, id: \.self) {
-                Text($0.description(userEnergyUnit: .kcal)).tag($0)
+        Menu {
+            Picker(selection: $pickedDietType, label: EmptyView()) {
+                ForEach(DietTypePickerOption.allCases, id: \.self) {
+                    Text($0.description(userEnergyUnit: .kcal)).tag($0)
+                }
             }
+        } label: {
+            HStack(spacing: 5) {
+                Text(pickedDietType.shortDescription(userEnergyUnit: .kcal))
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .fixedSize(horizontal: true, vertical: false)
         }
         .onChange(of: pickedMealType) { newValue in
             print("pickedDietType changed to: \(newValue)")
         }
     }
     
+    enum DeltaPickerOption: CaseIterable {
+        case below
+        case above
+        
+        var description: String {
+            switch self {
+            case .above:
+                return "above"
+            case .below:
+                return "below"
+            }
+        }
+    }
+    
+    @State var pickedDelta: DeltaPickerOption = .below
+    
     @ViewBuilder
     var deltaMenu: some View {
-        if !goal.isForMeal {
-            Text("Delta Menu")
+        if !goal.isForMeal, pickedDietType != .fixed {
+            HStack {
+                Menu {
+                    Picker(selection: $pickedDelta, label: EmptyView()) {
+                        ForEach(DeltaPickerOption.allCases, id: \.self) {
+                            Text($0.description).tag($0)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Text(pickedDelta.description)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .imageScale(.small)
+                    }
+                    .frame(maxHeight: .infinity)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+                .contentShape(Rectangle())
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .soft)
+                })
+                Text("maintenance")
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-//        Menu {
-//            ForEach(EnergyDelta.allCases, id: \.self) { difference in
-//                Button {
-//                    withAnimation {
-//                        goal.energyGoalDifference = difference
-//                    }
-//                } label: {
-//                    Label(difference.description, systemImage: difference.systemImage)
-//                }
-//                .disabled(goal.energyGoalDifference == difference)
-//            }
-//            if goal.energyGoalDifference != nil, goal.energyGoalType == .fixed {
-//                Divider()
-//                Button(role: .destructive) {
-//                    withAnimation {
-//                        goal.energyGoalDifference = nil
-//                    }
-//                } label: {
-//                    Label("Remove", systemImage: "minus.circle")
-//                }
-//            }
-//        } label: {
-//            HStack {
-//                Group {
-//                    if let difference = goal.energyGoalDifference {
-//                        Text(difference.description)
-//                    } else {
-//                        Text("relative to maintenance")
-//                            .foregroundColor(Color(.quaternaryLabel))
-//                    }
-//                }
-//                .fixedSize()
-//                Image(systemName: "chevron.up.chevron.down")
-//                    .imageScale(.small)
-//            }
-//            .frame(maxHeight: .infinity)
-//            .frame(maxWidth: .infinity)
-//        }
-//        .contentShape(Rectangle())
-//        .simultaneousGesture(TapGesture().onEnded {
-//            Haptics.feedback(style: .soft)
-//        })
     }
     
     
