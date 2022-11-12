@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 
 public enum GoalType: Hashable, Codable {
-    case energy(EnergyGoalUnit, EnergyGoalDifference?)
+    case energy(EnergyGoalUnit, EnergyDelta?)
     case macro(MacroGoalType, Macro)
     case micro(MicroGoalType, NutrientType, NutrientUnit)
     

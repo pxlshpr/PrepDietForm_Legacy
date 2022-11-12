@@ -1,7 +1,10 @@
 import PrepDataTypes
 
 public enum MacroGoalType: Codable, Hashable {
+    
     case fixed
+    
+    /// Only used with Diets
     case gramsPerBodyMass(BodyMassType, WeightUnit)
     case percentageOfEnergy
     

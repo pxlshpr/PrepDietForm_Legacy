@@ -135,7 +135,7 @@ struct EnergyGoalForm: View {
     
     var differenceMenu: some View {
         Menu {
-            ForEach(EnergyGoalDifference.allCases, id: \.self) { difference in
+            ForEach(EnergyDelta.allCases, id: \.self) { difference in
                 Button {
                     withAnimation {
                         goal.energyGoalDifference = difference

@@ -43,7 +43,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var energyGoalDifference: EnergyGoalDifference? {
+    var energyGoalDifference: EnergyDelta? {
         get {
             switch type {
             case .energy(_, let difference):
