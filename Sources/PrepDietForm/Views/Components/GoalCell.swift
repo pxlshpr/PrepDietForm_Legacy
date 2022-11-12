@@ -116,7 +116,7 @@ struct GoalCell: View {
                     .font(.system(size: isEmpty ? 20 : 28, weight: .medium, design: .rounded))
             }
             if let upperBound = goal.upperBound {
-                accessoryText(goal.lowerBound == nil ? "not more than" : "to")
+                accessoryText(goal.lowerBound == nil ? "up to" : "to")
                 amountAndUnitTexts(upperBound, goal.type.unitString)
             }
             Spacer()

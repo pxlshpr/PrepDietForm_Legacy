@@ -15,6 +15,7 @@ let package = Package(
             targets: ["PrepDietForm"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.174"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.47"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
@@ -26,6 +27,7 @@ let package = Package(
         .target(
             name: "PrepDietForm",
             dependencies: [
+                .product(name: "EmojiPicker", package: "emojipicker"),
                 .product(name: "PrepDataTypes", package: "prepdatatypes"),
                 .product(name: "PrepViews", package: "prepviews"),
                 .product(name: "SwiftHaptics", package: "swifthaptics"),

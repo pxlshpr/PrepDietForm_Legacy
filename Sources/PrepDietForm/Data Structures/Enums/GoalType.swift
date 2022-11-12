@@ -17,6 +17,13 @@ public enum GoalType: Hashable, Codable {
             return "macro_\(nutrientType.rawValue)"
         }
     }
+    var isMacro: Bool {
+        macro != nil
+    }
+    var isMicro: Bool {
+        nutrientType != nil
+    }
+
     var isEnergy: Bool {
         switch self {
         case .energy:   return true

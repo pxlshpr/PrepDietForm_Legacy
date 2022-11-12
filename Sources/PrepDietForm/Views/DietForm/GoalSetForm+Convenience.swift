@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepDataTypes
 
-extension DietForm {
+extension GoalSetForm {
     func shouldShowMacro(_ macro: Macro) -> Bool {
         !viewModel.containsMacro(macro)
     }

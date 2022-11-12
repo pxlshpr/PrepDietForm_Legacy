@@ -21,6 +21,7 @@ struct MaintenanceEnergySettings: View {
                 manualEntrySection
                 if !manuallyEnterTDEE {
                     bmrSection
+                    bodyMeasurementsSection
                     tdeeSection
                 }
                 activeEnergySection
@@ -45,7 +46,7 @@ struct MaintenanceEnergySettings: View {
     
     var principalContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            Text("Maintenance Energy")
+            Text("Maintenance  Calculator")
 //                .font(.headline)
                 .foregroundColor(.secondary)
         }
@@ -71,6 +72,14 @@ struct MaintenanceEnergySettings: View {
         }
     }
 
+    var bodyMeasurementsSection: some View {
+        Section("Body Measurements") {
+            Text("Gender")
+            Text("Weight")
+            Text("Height")
+        }
+    }
+    
     var bmrSection: some View {
         Section(header: bmrHeader) {
             if manuallyEnterBMR {
