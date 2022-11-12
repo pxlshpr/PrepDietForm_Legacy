@@ -6,7 +6,21 @@ import PrepDataTypes
 struct EnergyGoalForm: View {
     
     @ObservedObject var goal: GoalViewModel
+    @State var pickedMealEnergyGoalType: MealEnergyGoalTypePickerOption
+    @State var pickedDietEnergyGoalType: DietEnergyGoalTypePickerOption
+    @State var pickedDelta: DeltaPickerOption
+
     @State var showingMaintenanceCalculator: Bool = false
+    
+    init(goal: GoalViewModel) {
+        self.goal = goal
+        let mealEnergyGoalType = MealEnergyGoalTypePickerOption(goalViewModel: goal)
+        let dietEnergyGoalType = DietEnergyGoalTypePickerOption(goalViewModel: goal)
+        let delta = DeltaPickerOption(goalViewModel: goal)
+        _pickedMealEnergyGoalType = State(initialValue: mealEnergyGoalType)
+        _pickedDietEnergyGoalType = State(initialValue: dietEnergyGoalType)
+        _pickedDelta = State(initialValue: delta)
+    }
     
     var body: some View {
         FormStyledScrollView {
@@ -128,100 +142,40 @@ struct EnergyGoalForm: View {
         //        })
     }
     
-    enum MealTypePickerOption: CaseIterable {
-        
-        case fixed
-        case percentageOfDailyTotal
-        
-        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed: return energyUnit.shortDescription
-            case .percentageOfDailyTotal: return "% of daily total"
-            }
-        }
-    }
-    
-    @State var pickedMealType: MealTypePickerOption = .fixed
-    
     var mealTypePicker: some View {
-        Picker("", selection: $pickedMealType) {
-            ForEach(MealTypePickerOption.allCases, id: \.self) {
+        Picker("", selection: $pickedMealEnergyGoalType) {
+            ForEach(MealEnergyGoalTypePickerOption.allCases, id: \.self) {
                 Text($0.description(userEnergyUnit: .kcal)).tag($0)
             }
         }
-        .onChange(of: pickedMealType) { newValue in
+        .onChange(of: pickedMealEnergyGoalType) { newValue in
             print("pickedMealType changed to: \(newValue)")
         }
     }
     
-    enum DietTypePickerOption: CaseIterable {
-        
-        case fixed
-        case fromMaintenance
-        case percentageFromMaintenance
-        
-        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed:
-                return energyUnit.shortDescription
-            case .fromMaintenance:
-                return energyUnit.shortDescription + " from maintenance"
-            case .percentageFromMaintenance:
-                return "% from maintenance"
-            }
-        }
-        
-        func shortDescription(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed, .fromMaintenance:
-                return energyUnit.shortDescription
-            case .percentageFromMaintenance:
-                return "%"
-            }
-        }
-    }
-    
-    @State var pickedDietType: DietTypePickerOption = .fromMaintenance
-    
     var dietTypePicker: some View {
         Menu {
-            Picker(selection: $pickedDietType, label: EmptyView()) {
-                ForEach(DietTypePickerOption.allCases, id: \.self) {
+            Picker(selection: $pickedDietEnergyGoalType, label: EmptyView()) {
+                ForEach(DietEnergyGoalTypePickerOption.allCases, id: \.self) {
                     Text($0.description(userEnergyUnit: .kcal)).tag($0)
                 }
             }
         } label: {
             HStack(spacing: 5) {
-                Text(pickedDietType.shortDescription(userEnergyUnit: .kcal))
+                Text(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: .kcal))
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
             .fixedSize(horizontal: true, vertical: false)
         }
-        .onChange(of: pickedMealType) { newValue in
+        .onChange(of: pickedDietEnergyGoalType) { newValue in
             print("pickedDietType changed to: \(newValue)")
         }
     }
     
-    enum DeltaPickerOption: CaseIterable {
-        case below
-        case above
-        
-        var description: String {
-            switch self {
-            case .above:
-                return "above"
-            case .below:
-                return "below"
-            }
-        }
-    }
-    
-    @State var pickedDelta: DeltaPickerOption = .below
-    
     @ViewBuilder
     var deltaMenu: some View {
-        if !goal.isForMeal, pickedDietType != .fixed {
+        if !goal.isForMeal, pickedDietEnergyGoalType != .fixed {
             HStack {
                 Menu {
                     Picker(selection: $pickedDelta, label: EmptyView()) {
@@ -261,6 +215,73 @@ struct EnergyGoalForm: View {
                         .multilineTextAlignment(.leading)
                 }
             }
+        }
+    }
+}
+
+extension EnergyGoalForm {
+    enum MealEnergyGoalTypePickerOption: CaseIterable {
+        
+        case fixed
+        case percentageOfDailyTotal
+        
+        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
+            switch self {
+            case .fixed: return energyUnit.shortDescription
+            case .percentageOfDailyTotal: return "% of daily total"
+            }
+        }
+        
+        init(goalViewModel: GoalViewModel) {
+            self = .fixed
+        }
+    }
+    enum DietEnergyGoalTypePickerOption: CaseIterable {
+        
+        case fixed
+        case fromMaintenance
+        case percentageFromMaintenance
+        
+        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
+            switch self {
+            case .fixed:
+                return energyUnit.shortDescription
+            case .fromMaintenance:
+                return energyUnit.shortDescription + " from maintenance"
+            case .percentageFromMaintenance:
+                return "% from maintenance"
+            }
+        }
+        
+        func shortDescription(userEnergyUnit energyUnit: EnergyUnit) -> String {
+            switch self {
+            case .fixed, .fromMaintenance:
+                return energyUnit.shortDescription
+            case .percentageFromMaintenance:
+                return "%"
+            }
+        }
+        
+        init(goalViewModel: GoalViewModel) {
+            self = .fixed
+        }
+    }
+    
+    enum DeltaPickerOption: CaseIterable {
+        case below
+        case above
+        
+        var description: String {
+            switch self {
+            case .above:
+                return "above"
+            case .below:
+                return "below"
+            }
+        }
+        
+        init(goalViewModel: GoalViewModel) {
+            self = .below
         }
     }
 }

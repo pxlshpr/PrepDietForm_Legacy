@@ -1,12 +1,111 @@
 import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
+import PrepDataTypes
 
+extension WeightUnit {
+    var menuDescription: String {
+        switch self {
+        case .kg:
+            return "kilogram"
+        case .lb:
+            return "pound"
+        default:
+            return "unsupported"
+        }
+    }
+    
+    var pickerDescription: String {
+        switch self {
+        case .kg:
+            return "per kilogram"
+        case .lb:
+            return "per pound"
+        default:
+            return "unsupported"
+        }
+    }
+}
 struct MacroGoalForm: View {
+    
+    enum MealMacroGoalTypePickerOption: CaseIterable {
+        case fixed
+        case gramsPerMinutesOfActivity
+        
+        init(goalViewModel: GoalViewModel) {
+            self = .fixed
+        }
+        
+        var menuDescription: String {
+            switch self {
+            case .fixed:
+                return "grams"
+            case .gramsPerMinutesOfActivity:
+                return "grams / mins of exercise"
+            }
+        }
+        
+        var pickerDescription: String {
+            switch self {
+            case .fixed:
+                return "g"
+            case .gramsPerMinutesOfActivity:
+                return "g / mins of exercise"
+            }
+        }
+    }
+    
+    enum DietMacroGoalTypePickerOption: CaseIterable {
+        case fixed
+        case gramsPerBodyMass
+        case percentageOfEnergy
+        
+        init(goalViewModel: GoalViewModel) {
+            self = .fixed
+        }
+        
+        var menuDescription: String {
+            switch self {
+            case .fixed:
+                return "grams"
+            case .gramsPerBodyMass:
+                return "grams / body mass"
+            case .percentageOfEnergy:
+                return "% of energy"
+            }
+        }
+        
+        var pickerDescription: String {
+            switch self {
+            case .fixed, .gramsPerBodyMass:
+                return "g"
+            case .percentageOfEnergy:
+                return "% of energy"
+            }
+        }
+    }
     
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
+    
+    @State var pickedMealMacroGoalType: MealMacroGoalTypePickerOption
+    @State var pickedDietMacroGoalType: DietMacroGoalTypePickerOption
+    @State var pickedBodyMassType: BodyMassType
+    @State var pickedBodyMassUnit: WeightUnit
+    
     @State var showingMaintenanceCalculator: Bool = false
+    
+    init(goal: GoalViewModel) {
+        self.goal = goal
+        let pickedMealMacroGoalType = MealMacroGoalTypePickerOption(goalViewModel: goal)
+        let pickedDietMacroGoalType = DietMacroGoalTypePickerOption(goalViewModel: goal)
+        let bodyMassType = goal.bodyMassType ?? .weight
+        let bodyMassUnit = goal.bodyMassUnit ?? .kg // TODO: User's default unit here
+        _pickedMealMacroGoalType = State(initialValue: pickedMealMacroGoalType)
+        _pickedDietMacroGoalType = State(initialValue: pickedDietMacroGoalType)
+        _pickedBodyMassType = State(initialValue: bodyMassType)
+        _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
+    }
     
     var body: some View {
         FormStyledScrollView {
@@ -30,10 +129,10 @@ struct MacroGoalForm: View {
     var unitSection: some View {
         FormStyledSection(header: Text("Unit"), verticalPadding: 0) {
             HStack {
-                typeMenu
-                perMenu
-                weightUnitMenu
-//                Spacer()
+                typePicker
+                bodyMassUnitPicker
+                bodyMassTypePicker
+                Spacer()
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
@@ -91,86 +190,93 @@ struct MacroGoalForm: View {
         }
     }
 
-    var typeMenu: some View {
+    @ViewBuilder
+    var typePicker: some View {
+        if goal.isForMeal {
+            mealTypePicker
+        } else {
+            dietTypePicker
+        }
+    }
+    
+    var mealTypePicker: some View {
         Menu {
-//            ForEach(MacroGoalType.units, id: \.self.0) { (unit, systemImage) in
-                Button {
-                    goal.macroGoalType = .fixed
-                } label: {
-                    Text("grams")
+            Picker(selection: $pickedMealMacroGoalType, label: EmptyView()) {
+                ForEach(MealMacroGoalTypePickerOption.allCases, id: \.self) {
+                    Text($0.menuDescription).tag($0)
                 }
-                Button {
-                    goal.macroGoalType = .percentageOfEnergy
-                } label: {
-                    Text("% of energy goal")
-                }
-                .disabled(!goalSet.goals.containsEnergy)
-//            }
+            }
         } label: {
             HStack(spacing: 5) {
-                Group {
-                    switch goal.macroGoalType {
-                    case .percentageOfEnergy:
-                        Text("% of energy goal")
-                    default:
-                        Text("g")
-                    }
-                }
-                .frame(maxHeight: .infinity)
-                .fixedSize()
+                Text(pickedMealMacroGoalType.pickerDescription)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
             .frame(maxHeight: .infinity)
-            .frame(maxWidth: .infinity)
+            .fixedSize(horizontal: true, vertical: false)
         }
-        .contentShape(Rectangle())
-        .simultaneousGesture(TapGesture().onEnded {
-            Haptics.feedback(style: .soft)
-        })
     }
     
+    var dietTypePicker: some View {
+        Menu {
+            Picker(selection: $pickedDietMacroGoalType, label: EmptyView()) {
+                ForEach(DietMacroGoalTypePickerOption.allCases, id: \.self) {
+                    Text($0.menuDescription).tag($0)
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Text(pickedDietMacroGoalType.pickerDescription)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .frame(maxHeight: .infinity)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+    }
     
     @ViewBuilder
-    var perMenu: some View {
-        if goal.macroGoalType?.isPercent == false {
+    var bodyMassTypePicker: some View {
+        if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
             Menu {
-                Button {
-                    goal.macroGoalType = .gramsPerBodyMass(.weight, .kg) //TODO: Use the user's default weight here
-                } label: {
-                    Text("per weight")
-                }
-                Button {
-                    goal.macroGoalType = .gramsPerBodyMass(.leanMass, .kg) //TODO: Use the user's default weight here
-                } label: {
-                    Text("per lean body mass")
-                }
-                if goalSet.isMealProfile {
-                    Button {
-                        goal.macroGoalType = .gramsPerMinutesOfActivity
-                    } label: {
-                        Text("per minutes of workout")
+                Picker(selection: $pickedBodyMassType, label: EmptyView()) {
+                    ForEach(BodyMassType.allCases, id: \.self) {
+                        Text($0.menuDescription).tag($0)
                     }
                 }
             } label: {
-                HStack {
-                    Group {
-                        switch goal.macroGoalType {
-                        case .gramsPerBodyMass(let bodyMassType, _):
-                            Text("per \(bodyMassType.description)")
-                        case .gramsPerMinutesOfActivity:
-                            Text("per minutes of exercise")
-                        default:
-                            Text("per")
-                                .foregroundColor(Color(.quaternaryLabel))
-                        }
-                    }
-                    .fixedSize()
+                HStack(spacing: 5) {
+                    Text(pickedBodyMassType.pickerDescription)
                     Image(systemName: "chevron.up.chevron.down")
                         .imageScale(.small)
                 }
                 .frame(maxHeight: .infinity)
-                .frame(maxWidth: .infinity)
+                .fixedSize(horizontal: true, vertical: false)
+            }
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+    }
+    
+    @ViewBuilder
+    var bodyMassUnitPicker: some View {
+        if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
+            Menu {
+                Picker(selection: $pickedBodyMassUnit, label: EmptyView()) {
+                    ForEach([WeightUnit.kg, WeightUnit.lb], id: \.self) {
+                        Text($0.menuDescription).tag($0)
+                    }
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Text(pickedBodyMassUnit.pickerDescription)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .frame(maxHeight: .infinity)
+                .fixedSize(horizontal: true, vertical: false)
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {

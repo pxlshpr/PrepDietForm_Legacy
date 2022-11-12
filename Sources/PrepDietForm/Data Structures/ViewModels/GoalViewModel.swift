@@ -140,6 +140,34 @@ public class GoalViewModel: ObservableObject {
             }
         }
     }
+
+    var bodyMassUnit: WeightUnit? {
+        switch type {
+        case .macro(let macroGoalType, _):
+            switch macroGoalType {
+            case .gramsPerBodyMass(_, let weightUnit):
+                return weightUnit
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
+    
+    var bodyMassType: BodyMassType? {
+        switch type {
+        case .macro(let macroGoalType, _):
+            switch macroGoalType {
+            case .gramsPerBodyMass(let bodyMassType, _):
+                return bodyMassType
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
 }
 
 extension GoalViewModel: Hashable {
