@@ -14,7 +14,9 @@ struct EnergyGoalForm: View {
     
     init(goal: GoalViewModel) {
         self.goal = goal
-        let mealEnergyGoalType = MealEnergyGoalTypePickerOption(goalViewModel: goal)
+        //TODO: This isn't called after creating it and going back to the GoalSetForm
+        // We may need to use a binding to the goal here instead and have bindings on the `GoalViewModel` that set and return the picker options (like MealEnergyGoalTypePickerOption). That would also make things cleaner and move it to the view model.
+        let mealEnergyGoalType = MealEnergyGoalTypePickerOption(goalViewModel: goal) ?? .fixed
         let dietEnergyGoalType = DietEnergyGoalTypePickerOption(goalViewModel: goal)
         let delta = DeltaPickerOption(goalViewModel: goal)
         _pickedMealEnergyGoalType = State(initialValue: mealEnergyGoalType)
@@ -222,10 +224,18 @@ extension EnergyGoalForm {
             }
         }
         
-        init(goalViewModel: GoalViewModel) {
-            self = .fixed
+        init?(goalViewModel: GoalViewModel) {
+            switch goalViewModel.energyGoalType {
+            case .percentOfDietGoal:
+                self = .percentageOfDailyTotal
+            case .fixed:
+                self = .fixed
+            default:
+                return nil
+            }
         }
     }
+    
     enum DietEnergyGoalTypePickerOption: CaseIterable {
         
         case fixed
@@ -296,7 +306,12 @@ extension EnergyGoalForm {
     }
     
     var energyDelta: EnergyDelta {
-        goal.energyGoalDelta ?? .deficit
+        switch pickedDelta {
+        case .below:
+            return .deficit
+        case .above:
+            return .surplus
+        }
     }
     
     var energyGoalType: EnergyGoalType? {

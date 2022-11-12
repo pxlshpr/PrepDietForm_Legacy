@@ -33,7 +33,7 @@ public struct GoalSetForm: View {
     }
     
     var title: String {
-        let typeName = viewModel.isMealProfile ? "Meal Profile": "Diet"
+        let typeName = viewModel.isMealProfile ? "Meal Type": "Diet"
         return viewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
     }
     
