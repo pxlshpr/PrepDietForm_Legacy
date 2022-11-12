@@ -17,8 +17,8 @@ struct MacroGoalForm: View {
             unitSection
             equivalentSection
         }
-        .navigationTitle("\(goal.macro?.description ?? "Macro") Goal")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("\(goal.macro?.description ?? "Macro")")
+        .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingMaintenanceCalculator) { maintenanceCalculator }
     }
     
@@ -33,7 +33,7 @@ struct MacroGoalForm: View {
                 typeMenu
                 perMenu
                 weightUnitMenu
-                Spacer()
+//                Spacer()
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
@@ -122,7 +122,7 @@ struct MacroGoalForm: View {
                     .imageScale(.small)
             }
             .frame(maxHeight: .infinity)
-//            .frame(maxWidth: 60, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
@@ -130,49 +130,53 @@ struct MacroGoalForm: View {
         })
     }
     
+    
+    @ViewBuilder
     var perMenu: some View {
-        Menu {
-            Button {
-                goal.macroGoalType = .gramsPerBodyMass(.weight, .kg) //TODO: Use the user's default weight here
-            } label: {
-                Text("per weight")
-            }
-            Button {
-                goal.macroGoalType = .gramsPerBodyMass(.leanMass, .kg) //TODO: Use the user's default weight here
-            } label: {
-                Text("per lean body mass")
-            }
-            if goalSet.isMealProfile {
+        if goal.macroGoalType?.isPercent == false {
+            Menu {
                 Button {
-                    goal.macroGoalType = .gramsPerMinutesOfActivity
+                    goal.macroGoalType = .gramsPerBodyMass(.weight, .kg) //TODO: Use the user's default weight here
                 } label: {
-                    Text("per minutes of workout")
+                    Text("per weight")
                 }
-            }
-        } label: {
-            HStack {
-                Group {
-                    switch goal.macroGoalType {
-                    case .gramsPerBodyMass(let bodyMassType, _):
-                        Text("per \(bodyMassType.description)")
-                    case .gramsPerMinutesOfActivity:
-                        Text("per minutes of exercise")
-                    default:
-                        Text("per")
-                            .foregroundColor(Color(.quaternaryLabel))
+                Button {
+                    goal.macroGoalType = .gramsPerBodyMass(.leanMass, .kg) //TODO: Use the user's default weight here
+                } label: {
+                    Text("per lean body mass")
+                }
+                if goalSet.isMealProfile {
+                    Button {
+                        goal.macroGoalType = .gramsPerMinutesOfActivity
+                    } label: {
+                        Text("per minutes of workout")
                     }
                 }
-                .fixedSize()
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
+            } label: {
+                HStack {
+                    Group {
+                        switch goal.macroGoalType {
+                        case .gramsPerBodyMass(let bodyMassType, _):
+                            Text("per \(bodyMassType.description)")
+                        case .gramsPerMinutesOfActivity:
+                            Text("per minutes of exercise")
+                        default:
+                            Text("per")
+                                .foregroundColor(Color(.quaternaryLabel))
+                        }
+                    }
+                    .fixedSize()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .frame(maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxHeight: .infinity)
-//            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
         }
-        .contentShape(Rectangle())
-        .simultaneousGesture(TapGesture().onEnded {
-            Haptics.feedback(style: .soft)
-        })
     }
     
     @ViewBuilder
@@ -212,7 +216,7 @@ struct MacroGoalForm: View {
                         .imageScale(.small)
                 }
                 .frame(maxHeight: .infinity)
-    //            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {

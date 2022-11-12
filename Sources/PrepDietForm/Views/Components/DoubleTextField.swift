@@ -8,10 +8,13 @@ struct DoubleTextField: View {
     @FocusState var isFocused: Bool    
     @State var internalString: String
     
-    init(double: Binding<Double?>, placeholder: String) {
+    let focusOnAppear: Bool
+    
+    init(double: Binding<Double?>, placeholder: String, focusOnAppear: Bool = false) {
         _double = double
         _internalString = State(initialValue: double.wrappedValue?.cleanAmount ?? "")
         self.placeholder = placeholder
+        self.focusOnAppear = focusOnAppear
     }
     
     var body: some View {
@@ -49,6 +52,11 @@ struct DoubleTextField: View {
             }
             .onTapGesture {
                 isFocused = true
+            }
+            .onAppear {
+                if focusOnAppear {
+                    self.isFocused = true
+                }
             }
     }
     

@@ -1,7 +1,10 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 public struct GoalSetForm: View {
+    
+    @Environment(\.dismiss) var dismiss
     
     @StateObject var viewModel: ViewModel
     @State var showingNutrientsPicker: Bool = false
@@ -22,6 +25,7 @@ public struct GoalSetForm: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar { trailingContent }
+            .toolbar { leadingContent }
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
         }
@@ -147,6 +151,17 @@ public struct GoalSetForm: View {
                 Spacer()
             }
             Spacer().frame(height: 7)
+        }
+    }
+    
+    var leadingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                Haptics.feedback(style: .soft)
+                dismiss()
+            } label: {
+                closeButtonLabel
+            }
         }
     }
 }

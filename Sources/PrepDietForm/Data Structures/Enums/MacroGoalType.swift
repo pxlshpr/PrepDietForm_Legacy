@@ -25,6 +25,38 @@ extension MacroGoalType {
             return false
         }
     }
+    
+    var isPercent: Bool {
+        switch self {
+        case .percentageOfEnergy:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var isGrams: Bool {
+        isFixedGrams || isGramsPerBodyMass
+    }
+    
+    var isGramsPerBodyMass: Bool {
+        switch self {
+        case .gramsPerBodyMass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var isFixedGrams: Bool {
+        switch self {
+        case .fixed:
+            return true
+        default:
+            return false
+        }
+    }
+
 }
 
 extension MacroGoalType {

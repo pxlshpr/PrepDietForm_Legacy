@@ -125,7 +125,7 @@ struct EnergyGoalForm: View {
                     .imageScale(.small)
             }
             .frame(maxHeight: .infinity)
-//            .frame(maxWidth: 60, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
@@ -161,7 +161,7 @@ struct EnergyGoalForm: View {
                     if let difference = goal.energyGoalDifference {
                         Text(difference.description)
                     } else {
-                        Text("above / below maintenance")
+                        Text("relative to maintenance")
                             .foregroundColor(Color(.quaternaryLabel))
                     }
                 }
@@ -170,7 +170,7 @@ struct EnergyGoalForm: View {
                     .imageScale(.small)
             }
             .frame(maxHeight: .infinity)
-//            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
