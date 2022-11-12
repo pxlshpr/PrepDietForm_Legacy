@@ -2,9 +2,15 @@ import SwiftUI
 import PrepDataTypes
 
 extension Array where Element == Goal {
-    var goalViewModels: [GoalViewModel] {
+    func goalViewModels(isForMeal: Bool) -> [GoalViewModel] {
         map {
-            GoalViewModel(id: $0.id, type: $0.type, lowerBound: $0.lowerBound, upperBound: $0.upperBound)
+            GoalViewModel(
+                isForMeal: isForMeal,
+                id: $0.id,
+                type: $0.type,
+                lowerBound: $0.lowerBound,
+                upperBound: $0.upperBound
+            )
         }
     }
 }
@@ -22,7 +28,7 @@ extension GoalSetForm {
             self.existingGoalSet = existing
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""
-            self.goals = existing?.goals.goalViewModels ?? []
+            self.goals = existing?.goals.goalViewModels(isForMeal: isMealProfile) ?? []
         }
     }
 }
@@ -38,16 +44,24 @@ extension GoalSetForm.ViewModel {
     
     func didAddNutrients(pickedEnergy: Bool, pickedMacros: [Macro], pickedMicros: [NutrientType]) {
         if pickedEnergy, !goals.containsEnergy {
-            goals.append(.init(type: .energy(.kcal, nil)))
+            goals.append(GoalViewModel(
+                isForMeal: isMealProfile, type: .energy(.fixed(.kcal))
+            ))
         }
         for macro in pickedMacros {
             if !goals.containsMacro(macro) {
-                goals.append(.init(type:.macro(.fixed, macro)))
+                goals.append(GoalViewModel(
+                    isForMeal: isMealProfile,
+                    type: .macro(.fixed, macro)
+                ))
             }
         }
         for nutrientType in pickedMicros {
             if !goals.containsMicro(nutrientType) {
-                goals.append(.init(type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)))
+                goals.append(GoalViewModel(
+                    isForMeal: isMealProfile,
+                    type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
+                ))
             }
         }
     }

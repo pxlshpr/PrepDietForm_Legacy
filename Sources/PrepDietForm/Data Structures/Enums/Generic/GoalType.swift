@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 
 public enum GoalType: Hashable, Codable {
-    case energy(EnergyGoalUnit, EnergyDelta?)
+    case energy(EnergyGoalType)
     case macro(MacroGoalType, Macro)
     case micro(MicroGoalType, NutrientType, NutrientUnit)
     
@@ -80,8 +80,8 @@ public enum GoalType: Hashable, Codable {
     
     var unitString: String {
         switch self {
-        case .energy(let unit, _):
-            return unit.shortDescription
+        case .energy(let type):
+            return type.shortDescription
         case .macro:
             return "g"
         case .micro(_, _, let nutrientUnit):
@@ -91,12 +91,8 @@ public enum GoalType: Hashable, Codable {
     
     var relativeString: String? {
         switch self {
-        case .energy(_, let difference):
-            if let difference {
-                return "\(difference.description)"
-            } else {
-                return nil
-            }
+        case .energy(let type):
+            return type.deltaDescription
         case .macro:
             return nil
         case .micro:
@@ -106,12 +102,8 @@ public enum GoalType: Hashable, Codable {
     
     var differenceSystemImage: String? {
         switch self {
-        case .energy(_, let difference):
-            if let difference {
-                return difference.systemImage
-            } else {
-                return nil
-            }
+        case .energy(let type):
+            return type.deltaSystemImage
         default:
             return nil
         }

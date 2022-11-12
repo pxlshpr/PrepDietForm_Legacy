@@ -6,7 +6,7 @@ public struct Diet: Identifiable, Hashable, Codable {
 
     public var name: String
     public var emoji: String
-    public var goals: [Goal] = []
+    public var goals: [DietGoal] = []
 
     public let isPreset: Bool
     public var isMealProfile: Bool
@@ -19,7 +19,7 @@ public struct Diet: Identifiable, Hashable, Codable {
         id: UUID = UUID(),
         name: String,
         emoji: String,
-        goals: [Goal] = [],
+        goals: [DietGoal] = [],
         isMealProfile: Bool = false,
         isPreset: Bool = false,
         syncStatus: SyncStatus = .notSynced,

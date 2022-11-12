@@ -58,7 +58,7 @@ struct MacroGoalForm: View {
     
     @ViewBuilder
     var equivalentSection: some View {
-        if goal.energyGoalDifference != nil {
+        if goal.energyGoalDelta != nil {
             FormStyledSection(header: Text("which Works out to be"), footer: footer) {
                 Group {
                     Text("1570")
@@ -227,7 +227,7 @@ struct MacroGoalForm: View {
     
     @ViewBuilder
     var footer: some View {
-        if goal.energyGoalDifference != nil {
+        if goal.energyGoalDelta != nil {
             HStack {
                 Button {
                     showingMaintenanceCalculator = true
@@ -246,7 +246,7 @@ struct MacroGoalFormPreview: View {
     @StateObject var goalSetViewModel = GoalSetForm.ViewModel(
         isMealProfile: true,
         existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
-            Goal(type: .energy(.kcal, .deficit), lowerBound: 500)
+            Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
         ])
     )
     @StateObject var goalViewModel = GoalViewModel(type: .macro(.fixed, .carb))

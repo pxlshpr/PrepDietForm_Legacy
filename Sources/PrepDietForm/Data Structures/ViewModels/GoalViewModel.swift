@@ -2,17 +2,22 @@ import SwiftUI
 import PrepDataTypes
 
 public class GoalViewModel: ObservableObject {
-    @Published var id: UUID
+    
+    let isForMeal: Bool
+    
+    let id: UUID
     @Published var type: GoalType
     @Published var lowerBound: Double?
     @Published var upperBound: Double?
     
     public init(
+        isForMeal: Bool = false,
         id: UUID = UUID(),
         type: GoalType,
         lowerBound: Double? = nil,
         upperBound: Double? = nil
     ) {
+        self.isForMeal = isForMeal
         self.id = id
         self.type = type
         self.lowerBound = lowerBound
@@ -23,8 +28,8 @@ public class GoalViewModel: ObservableObject {
     var energyGoalType: EnergyGoalType? {
         get {
             switch type {
-            case .energy(let energyGoalUnit, _):
-                return energyGoalUnit.energyGoalType
+            case .energy(let type):
+                return type
             default:
                 return nil
             }
@@ -32,30 +37,30 @@ public class GoalViewModel: ObservableObject {
         set {
             guard let newValue else { return }
             switch type {
-            case .energy(_, let energyGoalDifference):
-                self.type = .energy(
-                    EnergyGoalUnit(energyGoalType: newValue),
-                    energyGoalDifference
-                )
+            case .energy:
+                self.type = .energy(newValue)
             default:
                 break
             }
         }
     }
     
-    var energyGoalDifference: EnergyDelta? {
+    var energyGoalDelta: EnergyDelta? {
         get {
             switch type {
-            case .energy(_, let difference):
-                return difference
+            case .energy(let type):
+                return type.delta
             default:
                 return nil
             }
         }
         set {
             switch type {
-            case .energy(let unit, _):
-                self.type = .energy(unit, newValue)
+            case .energy(let type):
+                //TODO: Set the type here
+                var new = type
+                new.delta = newValue
+                self.type = .energy(new)
             default:
                 break
             }

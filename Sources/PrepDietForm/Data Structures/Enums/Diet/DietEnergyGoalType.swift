@@ -12,12 +12,6 @@ public enum MealEnergyGoalType: Hashable, Codable {
     case percentOfDietGoal
 }
 
-public enum DietMacroGoalType: Codable, Hashable {
-    case fixed
-    case gramsPerBodyMass(BodyMassType, WeightUnit)
-    case percentageOfEnergy
-}
-
 public enum MealMacroGoalType: Codable, Hashable {
     case fixed
     case gramsPerMinutesOfActivity
