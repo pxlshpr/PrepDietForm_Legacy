@@ -16,10 +16,14 @@ public enum BodyMassType: Int16, Hashable, Codable, CaseIterable {
     var pickerDescription: String {
         switch self {
         case .weight:
-            return "of body weight"
+            return "body weight"
         case .leanMass:
-            return "of lean body mass"
+            return "lean body mass"
         }
+    }
+    
+    var pickerPrefix: String {
+        "of "
     }
     
     var  menuDescription: String {

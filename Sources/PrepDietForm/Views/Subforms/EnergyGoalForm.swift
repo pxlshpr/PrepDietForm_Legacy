@@ -143,10 +143,14 @@ struct EnergyGoalForm: View {
     }
     
     var mealTypePicker: some View {
-        Picker("", selection: $pickedMealEnergyGoalType) {
-            ForEach(MealEnergyGoalTypePickerOption.allCases, id: \.self) {
-                Text($0.description(userEnergyUnit: .kcal)).tag($0)
+        Menu {
+            Picker("", selection: $pickedMealEnergyGoalType) {
+                ForEach(MealEnergyGoalTypePickerOption.allCases, id: \.self) {
+                    Text($0.description(userEnergyUnit: .kcal)).tag($0)
+                }
             }
+        } label: {
+            PickerLabel(pickedMealEnergyGoalType.description(userEnergyUnit: .kcal))
         }
         .onChange(of: pickedMealEnergyGoalType) { newValue in
             print("pickedMealType changed to: \(newValue)")
@@ -161,12 +165,7 @@ struct EnergyGoalForm: View {
                 }
             }
         } label: {
-            HStack(spacing: 5) {
-                Text(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: .kcal))
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-            .fixedSize(horizontal: true, vertical: false)
+            PickerLabel(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: .kcal))
         }
         .onChange(of: pickedDietEnergyGoalType) { newValue in
             print("pickedDietType changed to: \(newValue)")
@@ -184,13 +183,7 @@ struct EnergyGoalForm: View {
                         }
                     }
                 } label: {
-                    HStack(spacing: 5) {
-                        Text(pickedDelta.description)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .fixedSize(horizontal: true, vertical: false)
+                    PickerLabel(pickedDelta.description)
                 }
                 .contentShape(Rectangle())
                 .simultaneousGesture(TapGesture().onEnded {
@@ -285,6 +278,7 @@ extension EnergyGoalForm {
         }
     }
 }
+
 
 
 struct EnergyGoalFormPreview: View {

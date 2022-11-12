@@ -18,12 +18,16 @@ extension WeightUnit {
     var pickerDescription: String {
         switch self {
         case .kg:
-            return "per kilogram"
+            return "kilogram"
         case .lb:
-            return "per pound"
+            return "pound"
         default:
             return "unsupported"
         }
+    }
+    
+    var pickerPrefix: String {
+        "per "
     }
 }
 struct MacroGoalForm: View {
@@ -127,12 +131,15 @@ struct MacroGoalForm: View {
     }
 
     var unitSection: some View {
-        FormStyledSection(header: Text("Unit"), footer: footer, verticalPadding: 0) {
-            HStack {
-                typePicker
-                bodyMassUnitPicker
-                bodyMassTypePicker
-                Spacer()
+        FormStyledSection(header: Text("Unit"), footer: footer, horizontalPadding: 0, verticalPadding: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    typePicker
+                    bodyMassUnitPicker
+                    bodyMassTypePicker
+                    Spacer()
+                }
+                .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
@@ -214,13 +221,7 @@ struct MacroGoalForm: View {
                 }
             }
         } label: {
-            HStack(spacing: 5) {
-                Text(pickedMealMacroGoalType.pickerDescription)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-            .frame(maxHeight: .infinity)
-            .fixedSize(horizontal: true, vertical: false)
+            PickerLabel(pickedMealMacroGoalType.pickerDescription)
         }
     }
     
@@ -232,13 +233,7 @@ struct MacroGoalForm: View {
                 }
             }
         } label: {
-            HStack(spacing: 5) {
-                Text(pickedDietMacroGoalType.pickerDescription)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-            .frame(maxHeight: .infinity)
-            .fixedSize(horizontal: true, vertical: false)
+            PickerLabel(pickedDietMacroGoalType.pickerDescription)
         }
     }
     
@@ -252,13 +247,10 @@ struct MacroGoalForm: View {
                     }
                 }
             } label: {
-                HStack(spacing: 5) {
-                    Text(pickedBodyMassType.pickerDescription)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .imageScale(.small)
-                }
-                .frame(maxHeight: .infinity)
-                .fixedSize(horizontal: true, vertical: false)
+                PickerLabel(
+                    pickedBodyMassType.pickerDescription,
+                    prefix: pickedBodyMassType.pickerPrefix
+                )
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {
@@ -277,13 +269,10 @@ struct MacroGoalForm: View {
                     }
                 }
             } label: {
-                HStack(spacing: 5) {
-                    Text(pickedBodyMassUnit.pickerDescription)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .imageScale(.small)
-                }
-                .frame(maxHeight: .infinity)
-                .fixedSize(horizontal: true, vertical: false)
+                PickerLabel(
+                    pickedBodyMassUnit.pickerDescription,
+                    prefix: pickedBodyMassUnit.pickerPrefix
+                )
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {
@@ -353,6 +342,40 @@ struct MacroGoalForm: View {
 //    }
 }
 
+
+struct PickerLabel: View {
+    
+    let string: String
+    let prefix: String?
+    
+    init(_ string: String, prefix: String? = nil) {
+        self.string = string
+        self.prefix = prefix
+    }
+    
+    var body: some View {
+        ZStack {
+            Capsule(style: .continuous)
+                .foregroundColor(Color(.secondarySystemFill))
+            HStack(spacing: 5) {
+                if let prefix {
+                    Text(prefix)
+                        .foregroundColor(.secondary)
+                }
+                Text(string)
+                    .foregroundColor(.primary)
+                Image(systemName: "chevron.up.chevron.down")
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .imageScale(.small)
+            }
+            .frame(height: 25)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+        }
+        .fixedSize(horizontal: true, vertical: true)
+        .frame(maxHeight: .infinity)
+    }
+}
 
 struct MacroGoalFormPreview: View {
     
