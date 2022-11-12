@@ -127,7 +127,7 @@ struct MacroGoalForm: View {
     }
 
     var unitSection: some View {
-        FormStyledSection(header: Text("Unit"), verticalPadding: 0) {
+        FormStyledSection(header: Text("Unit"), footer: footer, verticalPadding: 0) {
             HStack {
                 typePicker
                 bodyMassUnitPicker
@@ -136,6 +136,13 @@ struct MacroGoalForm: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
+        }
+    }
+    
+    @ViewBuilder
+    var footer: some View {
+        if goal.macroGoalType == .gramsPerMinutesOfActivity {
+            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
         }
     }
     
@@ -331,19 +338,19 @@ struct MacroGoalForm: View {
         }
     }
     
-    @ViewBuilder
-    var footer: some View {
-        if goal.energyGoalDelta != nil {
-            HStack {
-                Button {
-                    showingMaintenanceCalculator = true
-                } label: {
-                    Text("Your maintenance calories are 2,250 kcal.")
-                        .multilineTextAlignment(.leading)
-                }
-            }
-        }
-    }
+//    @ViewBuilder
+//    var footer: some View {
+//        if goal.energyGoalDelta != nil {
+//            HStack {
+//                Button {
+//                    showingMaintenanceCalculator = true
+//                } label: {
+//                    Text("Your maintenance calories are 2,250 kcal.")
+//                        .multilineTextAlignment(.leading)
+//                }
+//            }
+//        }
+//    }
 }
 
 
