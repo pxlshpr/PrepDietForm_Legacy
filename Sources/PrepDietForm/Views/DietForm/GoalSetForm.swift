@@ -9,6 +9,7 @@ public struct GoalSetForm: View {
     @StateObject var viewModel: ViewModel
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
+    @State var showingCalculated = false
     
     public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil) {
         let viewModel = ViewModel(
@@ -163,33 +164,5 @@ public struct GoalSetForm: View {
                 closeButtonLabel
             }
         }
-    }
-}
-
-//MARK: - Previews
-
-struct GoalSetFormPreview: View {
-    
-    let existing = GoalSet(
-        name: "Bulking",
-        emoji: "🏋🏼‍♂️",
-        goals: [
-//            Goal(type: .energy(.kcal, .surplus), lowerBound: 500, upperBound: 750),
-//            Goal(type: .macro(.fixed, .protein), lowerBound: 200, upperBound: 250),
-//            Goal(type: .micro(.fixed, .magnesium, .mg), lowerBound: 400),
-//            Goal(type: .macro(.fixed, .carb), upperBound: 220),
-//            Goal(type: .macro(.fixed, .fat), upperBound: 90),
-        ]
-    )
-    
-    var body: some View {
-//        GoalSetForm(isMealProfile: false, existingGoalSet: existing)
-        GoalSetForm(isMealProfile: false)
-    }
-}
-
-struct GoalSetForm_Previews: PreviewProvider {
-    static var previews: some View {
-        GoalSetFormPreview()
     }
 }

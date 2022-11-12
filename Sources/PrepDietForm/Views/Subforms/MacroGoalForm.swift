@@ -148,9 +148,10 @@ struct MacroGoalForm: View {
     
     @ViewBuilder
     var footer: some View {
-        if goal.macroGoalType == .gramsPerMinutesOfActivity {
-            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
-        }
+        Color.clear
+//        if goal.macroGoalType == .gramsPerMinutesOfActivity {
+//            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
+//        }
     }
     
     var lowerBoundSection: some View {

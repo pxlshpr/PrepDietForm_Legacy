@@ -9,7 +9,7 @@ public enum MacroGoalType: Codable, Hashable {
     case percentageOfEnergy
     
     /// Only used for meal profiles, for things like pre-workout meals. The planned activity duration is included so that we can make this calculation.
-    case gramsPerMinutesOfActivity
+    case gramsPerMinutesOfActivity(Double)
     
     static var units: [(NutrientUnit, String)] {
         [

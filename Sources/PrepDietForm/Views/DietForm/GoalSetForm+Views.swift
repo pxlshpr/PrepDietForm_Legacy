@@ -40,13 +40,33 @@ extension GoalSetForm {
     
     
     var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            if !viewModel.goals.isEmpty {
-                Button {
-                    showingNutrientsPicker = true
-                } label: {
-                    Image(systemName: "plus")
-                }
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            HStack {
+                calculatedButton
+                addButton
+            }
+        }
+    }
+    
+    //TODO: Get view model to only show this if we have goals that aren't fixed
+    var calculatedButton: some View {
+        Button {
+            //TODO: Toggle a bool that shows calculated values, and removes
+            // the type descriptors at top right of cell
+//            showingNutrientsPicker = true
+            showingCalculated.toggle()
+        } label: {
+            Image(systemName: "equal.circle\(showingCalculated ? ".fill" : "")")
+        }
+    }
+    
+    @ViewBuilder
+    var addButton: some View {
+        if !viewModel.goals.isEmpty {
+            Button {
+                showingNutrientsPicker = true
+            } label: {
+                Image(systemName: "plus")
             }
         }
     }
@@ -109,5 +129,33 @@ extension GoalSetForm {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
+    }
+}
+
+//MARK: - Previews
+
+struct GoalSetFormPreview: View {
+    
+    let existing = GoalSet(
+        name: "Bulking",
+        emoji: "🏋🏼‍♂️",
+        goals: [
+            Goal(type: .energy(.fromMaintenance(.kcal, .surplus)), lowerBound: 500, upperBound: 750),
+            Goal(type: .macro(.fixed, .protein), lowerBound: 200, upperBound: 250),
+            Goal(type: .micro(.fixed, .magnesium, .mg), lowerBound: 400),
+            Goal(type: .macro(.fixed, .carb), upperBound: 220),
+            Goal(type: .macro(.fixed, .fat), upperBound: 90),
+        ]
+    )
+    
+    var body: some View {
+        GoalSetForm(isMealProfile: false, existingGoalSet: existing)
+//        GoalSetForm(isMealProfile: false)
+    }
+}
+
+struct GoalSetForm_Previews: PreviewProvider {
+    static var previews: some View {
+        GoalSetFormPreview()
     }
 }

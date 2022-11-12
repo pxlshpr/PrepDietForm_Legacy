@@ -33,6 +33,9 @@ struct EnergyGoalForm: View {
         }
         .navigationTitle("Energy")
         .navigationBarTitleDisplayMode(.large)
+        .onChange(of: pickedMealEnergyGoalType, perform: mealEnergyGoalChanged)
+        .onChange(of: pickedDietEnergyGoalType, perform: dietEnergyGoalChanged)
+        .onChange(of: pickedDelta, perform: deltaChanged)
         .sheet(isPresented: $showingMaintenanceCalculator) { maintenanceCalculator }
     }
     
@@ -152,9 +155,6 @@ struct EnergyGoalForm: View {
         } label: {
             PickerLabel(pickedMealEnergyGoalType.description(userEnergyUnit: .kcal))
         }
-        .onChange(of: pickedMealEnergyGoalType) { newValue in
-            print("pickedMealType changed to: \(newValue)")
-        }
     }
     
     var dietTypePicker: some View {
@@ -166,9 +166,6 @@ struct EnergyGoalForm: View {
             }
         } label: {
             PickerLabel(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: .kcal))
-        }
-        .onChange(of: pickedDietEnergyGoalType) { newValue in
-            print("pickedDietType changed to: \(newValue)")
         }
     }
     
@@ -279,7 +276,65 @@ extension EnergyGoalForm {
     }
 }
 
+extension GoalViewModel {
+    var energyUnit: EnergyUnit? {
+        switch energyGoalType {
+        case .fixed(let energyUnit):
+            return energyUnit
+        case .fromMaintenance(let energyUnit, _):
+            return energyUnit
+        default:
+            return nil
+        }
+    }
+}
+//MARK: - Convenience
+extension EnergyGoalForm {
+    
+    var energyUnit: EnergyUnit {
+        goal.energyUnit ?? .kcal
+    }
+    
+    var energyDelta: EnergyDelta {
+        goal.energyGoalDelta ?? .deficit
+    }
+    
+    var energyGoalType: EnergyGoalType? {
+        if goal.isForMeal {
+            switch pickedMealEnergyGoalType {
+            case .fixed:
+                return .fixed(energyUnit)
+            case .percentageOfDailyTotal:
+                return .percentOfDietGoal
+            }
+        } else {
+            switch pickedDietEnergyGoalType {
+            case .fixed:
+                return .fixed(energyUnit)
+            case .fromMaintenance:
+                return .fromMaintenance(energyUnit, energyDelta)
+            case .percentageFromMaintenance:
+                return .percentFromMaintenance(energyDelta)
+            }
+        }
+    }
+}
 
+//MARK: - Actions
+extension EnergyGoalForm {
+    
+    func dietEnergyGoalChanged(_ newValue: DietEnergyGoalTypePickerOption) {
+        goal.energyGoalType = self.energyGoalType
+    }
+    
+    func mealEnergyGoalChanged(_ newValue: MealEnergyGoalTypePickerOption) {
+        
+    }
+    
+    func deltaChanged(to newValue: DeltaPickerOption) {
+        goal.energyGoalType = self.energyGoalType
+    }
+}
 
 struct EnergyGoalFormPreview: View {
     
@@ -300,3 +355,4 @@ struct EnergyGoalForm_Previews: PreviewProvider {
         EnergyGoalFormPreview()
     }
 }
+
