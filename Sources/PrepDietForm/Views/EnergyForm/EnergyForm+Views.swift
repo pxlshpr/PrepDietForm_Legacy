@@ -17,7 +17,7 @@ extension EnergyForm {
         .onChange(of: pickedDietEnergyGoalType, perform: dietEnergyGoalChanged)
         .onChange(of: pickedDelta, perform: deltaChanged)
         .onAppear(perform: appeared)
-        .sheet(isPresented: $showingMaintenanceEnergyForm) { maintenanceCalculator }
+        .sheet(isPresented: $showingTDEEForm) { tdeeForm }
     }
     
     var unitSection: some View {
@@ -26,7 +26,7 @@ extension EnergyForm {
                 HStack {
                     typePicker
                     deltaPicker
-                    maintenanceButton
+                    tdeeButton
                 }
                 .padding(.horizontal, 10)
             }
@@ -36,8 +36,8 @@ extension EnergyForm {
         }
     }
     
-    var maintenanceCalculator: some View {
-        MaintenanceEnergyForm()
+    var tdeeForm: some View {
+        TDEEForm()
             .presentationDetents([.medium, .large])
     }
 }

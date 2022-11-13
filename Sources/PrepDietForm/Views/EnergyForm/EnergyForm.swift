@@ -10,7 +10,7 @@ struct EnergyForm: View {
     @State var pickedDietEnergyGoalType: DietEnergyTypeOption
     @State var pickedDelta: EnergyDeltaOption
     
-    @State var showingMaintenanceEnergyForm: Bool = false
+    @State var showingTDEEForm: Bool = false
     @State var refreshBool = false
     
     init(goal: GoalViewModel) {

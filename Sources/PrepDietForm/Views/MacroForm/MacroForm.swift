@@ -41,11 +41,11 @@ extension MacroForm {
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(isPresented: $showingMaintenanceCalculator) { maintenanceCalculator }
+        .sheet(isPresented: $showingMaintenanceCalculator) { tdeeForm }
     }
     
-    var maintenanceCalculator: some View {
-        MaintenanceEnergyForm()
+    var tdeeForm: some View {
+        TDEEForm()
             .presentationDetents([.medium, .large])
     }
 

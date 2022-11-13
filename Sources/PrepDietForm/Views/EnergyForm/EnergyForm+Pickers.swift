@@ -13,10 +13,10 @@ extension EnergyForm {
     }
     
     @ViewBuilder
-    var maintenanceButton: some View {
+    var tdeeButton: some View {
         if shouldShowEnergyDeltaElements {
             Button {
-                showingMaintenanceEnergyForm = true
+                showingTDEEForm = true
             } label: {
                 PickerLabel(
                     "maintenance",

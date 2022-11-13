@@ -48,7 +48,7 @@ extension EnergyForm {
         if goal.energyGoalDelta != nil {
             HStack {
                 Button {
-                    showingMaintenanceEnergyForm = true
+                    showingTDEEForm = true
                 } label: {
                     Text("Your maintenance calories are 2,250 kcal.")
                         .multilineTextAlignment(.leading)
