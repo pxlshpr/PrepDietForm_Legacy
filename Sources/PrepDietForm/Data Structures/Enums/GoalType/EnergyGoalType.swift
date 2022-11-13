@@ -5,12 +5,14 @@ public enum EnergyGoalType: Hashable, Codable {
     case fixed(EnergyUnit)
     
     /// Only used with diets
-    case fromMaintenance(EnergyUnit, EnergyDelta)
-    case percentFromMaintenance(EnergyDelta)
+    case fromMaintenance(EnergyUnit, Delta)
+    case percentFromMaintenance(Delta)
         
     /// Only used with meal. Describes the percent of the diet goal to use for this.So that we could indicate we want a meal to be 1/3rd of 1/6th of the day's total.
     case percentOfDietGoal
-    
+}
+
+extension EnergyGoalType {
     static func defaultDietTypes(userEnergyUnit energyUnit: EnergyUnit) -> [EnergyGoalType] {
         [
             .fixed(energyUnit),
@@ -27,10 +29,6 @@ public enum EnergyGoalType: Hashable, Codable {
     }
 }
 
-//    public enum EnergyGoalType: Int16, Hashable, Codable, CaseIterable {
-//    case fixed
-//    case percentage
-    
 public extension EnergyGoalType {
     
     //TODO: Use user's units instead of kcal
@@ -78,7 +76,7 @@ public extension EnergyGoalType {
         delta?.systemImage
     }
     
-    var delta: EnergyDelta? {
+    var delta: Delta? {
         get {
             switch self {
             case .fromMaintenance(_, let energyDelta):
@@ -109,25 +107,6 @@ public extension EnergyGoalType {
             default:
                 break
             }
-        }
-    }
-}
-
-public enum EnergyGoalDifference: Int16, Hashable, Codable, CaseIterable {
-    case surplus
-    case deficit
-    
-    var description: String {
-        switch self {
-        case .deficit:  return "below maintenance"
-        case .surplus:  return "above maintenance"
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .deficit:  return "arrow.turn.right.down" // "minus.diamond"
-        case .surplus:  return "arrow.turn.right.up" //"plus.diamond"
         }
     }
 }

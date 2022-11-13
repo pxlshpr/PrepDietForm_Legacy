@@ -3,14 +3,14 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-struct MacroGoalForm: View {
+struct MacroForm: View {
     
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     
     @State var pickedMealMacroGoalType: MealMacroTypeOption
     @State var pickedDietMacroGoalType: DietMacroTypeOption
-    @State var pickedBodyMassType: BodyMassType
+    @State var pickedBodyMassType: MacroGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
     @State var showingMaintenanceCalculator: Bool = false
@@ -26,6 +26,9 @@ struct MacroGoalForm: View {
         _pickedBodyMassType = State(initialValue: bodyMassType)
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
     }
+}
+
+extension MacroForm {
     
     var body: some View {
         FormStyledScrollView {
@@ -42,7 +45,7 @@ struct MacroGoalForm: View {
     }
     
     var maintenanceCalculator: some View {
-        MaintenanceEnergySettings()
+        MaintenanceEnergyForm()
             .presentationDetents([.medium, .large])
     }
 
@@ -159,7 +162,7 @@ struct MacroGoalForm: View {
         if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
             Menu {
                 Picker(selection: $pickedBodyMassType, label: EmptyView()) {
-                    ForEach(BodyMassType.allCases, id: \.self) {
+                    ForEach(MacroGoalType.BodyMass.allCases, id: \.self) {
                         Text($0.menuDescription).tag($0)
                     }
                 }
@@ -259,42 +262,7 @@ struct MacroGoalForm: View {
 //    }
 }
 
-
-struct PickerLabel: View {
-    
-    let string: String
-    let prefix: String?
-    
-    init(_ string: String, prefix: String? = nil) {
-        self.string = string
-        self.prefix = prefix
-    }
-    
-    var body: some View {
-        ZStack {
-            Capsule(style: .continuous)
-                .foregroundColor(Color(.secondarySystemFill))
-            HStack(spacing: 5) {
-                if let prefix {
-                    Text(prefix)
-                        .foregroundColor(.secondary)
-                }
-                Text(string)
-                    .foregroundColor(.primary)
-                Image(systemName: "chevron.up.chevron.down")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .imageScale(.small)
-            }
-            .frame(height: 25)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 5)
-        }
-        .fixedSize(horizontal: true, vertical: true)
-        .frame(maxHeight: .infinity)
-    }
-}
-
-struct MacroGoalFormPreview: View {
+struct MacroFormPreview: View {
     
     @StateObject var goalSetViewModel = GoalSetForm.ViewModel(
         isMealProfile: true,
@@ -306,7 +274,7 @@ struct MacroGoalFormPreview: View {
     
     var body: some View {
         NavigationView {
-            MacroGoalForm(goal: goalViewModel)
+            MacroForm(goal: goalViewModel)
                 .environmentObject(goalSetViewModel)
         }
     }
@@ -314,9 +282,9 @@ struct MacroGoalFormPreview: View {
 
 
 
-struct MacroGoalForm_Previews: PreviewProvider {
+struct MacroForm_Previews: PreviewProvider {
     
     static var previews: some View {
-        MacroGoalFormPreview()
+        MacroFormPreview()
     }
 }

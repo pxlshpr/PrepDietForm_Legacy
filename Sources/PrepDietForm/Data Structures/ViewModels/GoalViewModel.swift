@@ -45,7 +45,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var energyGoalDelta: EnergyDelta? {
+    var energyGoalDelta: EnergyGoalType.Delta? {
         get {
             switch type {
             case .energy(let type):
@@ -97,7 +97,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var macroBodyMassType: BodyMassType? {
+    var macroBodyMassType: MacroGoalType.BodyMass? {
         get {
             switch type {
             case .macro(let type, _):
@@ -155,7 +155,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var bodyMassType: BodyMassType? {
+    var bodyMassType: MacroGoalType.BodyMass? {
         switch type {
         case .macro(let macroGoalType, _):
             switch macroGoalType {

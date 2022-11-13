@@ -1,9 +1,13 @@
 import Foundation
 
-public enum EnergyDelta: Int16, Hashable, Codable, CaseIterable {
-    case surplus
-    case deficit
-    
+extension EnergyGoalType {
+    public enum Delta: Int16, Hashable, Codable, CaseIterable {
+        case surplus
+        case deficit
+    }
+}
+
+extension EnergyGoalType.Delta {
     var description: String {
         switch self {
         case .deficit:  return "below maintenance"
@@ -17,9 +21,7 @@ public enum EnergyDelta: Int16, Hashable, Codable, CaseIterable {
         case .surplus:  return "arrow.turn.right.up" //"plus.diamond"
         }
     }
-}
 
-extension EnergyDelta {
     var deltaPickerOption: EnergyDeltaOption {
         switch self {
         case .surplus:

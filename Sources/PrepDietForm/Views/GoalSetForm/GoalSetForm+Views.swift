@@ -29,9 +29,9 @@ extension GoalSetForm {
     @ViewBuilder
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
-            EnergyGoalForm(goal: goal)
+            EnergyForm(goal: goal)
         } else if goal.type.isMacro {
-            MacroGoalForm(goal: goal)
+            MacroForm(goal: goal)
                 .environmentObject(viewModel)
         } else {
             Color.blue

@@ -5,7 +5,7 @@ public enum MacroGoalType: Codable, Hashable {
     case fixed
     
     /// Only used with Diets
-    case gramsPerBodyMass(BodyMassType, WeightUnit)
+    case gramsPerBodyMass(BodyMass, WeightUnit)
     case percentageOfEnergy
     
     /// Only used for meal profiles, for things like pre-workout meals. The planned activity duration is included so that we can make this calculation.
@@ -63,7 +63,7 @@ extension MacroGoalType {
 }
 
 extension MacroGoalType {
-    var bodyMassType: BodyMassType? {
+    var bodyMassType: BodyMass? {
         get {
             switch self {
             case .gramsPerBodyMass(let bodyMassType, _):
