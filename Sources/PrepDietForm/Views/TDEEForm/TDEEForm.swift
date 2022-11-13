@@ -49,6 +49,8 @@ struct TDEEForm: View {
     @State var healthKitRestingEnergy: Double? = nil
     @State var healthKitActiveEnergy: Double? = nil
     
+    @State var refreshSource: Bool = false
+    
     @ViewBuilder
     var body: some View {
         if hasAppeared {

@@ -5,18 +5,19 @@ import PrepDataTypes
 extension TDEEForm {
     var manualEntrySection: some View {
         
-        let tdeeSourceBinding = Binding<TDEESourceOption>(
-            get: { tdeeSource },
-            set: { newValue in
-                Haptics.feedback(style: .soft)
-                withAnimation {
-                    tdeeSource = newValue
-                }
-            }
-        )
-        
         var sourcePicker: some View {
-            Menu {
+            let tdeeSourceBinding = Binding<TDEESourceOption>(
+                get: { tdeeSource },
+                set: { newValue in
+                    Haptics.feedback(style: .soft)
+                    withAnimation {
+                        tdeeSource = newValue
+                    }
+                    refreshSource.toggle()
+                }
+            )
+            
+            return Menu {
                 Picker(selection: $tdeeSource, label: EmptyView()) {
                     ForEach(TDEESourceOption.allCases, id: \.self) {
                         Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
@@ -27,12 +28,12 @@ extension TDEEForm {
                     Text(tdeeSource.pickerDescription)
                         .fixedSize(horizontal: true, vertical: true)
                         .multilineTextAlignment(.trailing)
+                        .id(refreshSource)
                     Image(systemName: "chevron.up.chevron.down")
                         .imageScale(.small)
                 }
                 .foregroundColor(.secondary)
                 .animation(.none, value: tdeeSource)
-//                .id(refreshSource)
             }
             .simultaneousGesture(TapGesture().onEnded {
                 Haptics.feedback(style: .soft)
