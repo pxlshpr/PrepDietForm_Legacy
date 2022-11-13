@@ -3,97 +3,13 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-extension WeightUnit {
-    var menuDescription: String {
-        switch self {
-        case .kg:
-            return "kilogram"
-        case .lb:
-            return "pound"
-        default:
-            return "unsupported"
-        }
-    }
-    
-    var pickerDescription: String {
-        switch self {
-        case .kg:
-            return "kilogram"
-        case .lb:
-            return "pound"
-        default:
-            return "unsupported"
-        }
-    }
-    
-    var pickerPrefix: String {
-        "per "
-    }
-}
 struct MacroGoalForm: View {
-    
-    enum MealMacroGoalTypePickerOption: CaseIterable {
-        case fixed
-        case gramsPerMinutesOfActivity
-        
-        init(goalViewModel: GoalViewModel) {
-            self = .fixed
-        }
-        
-        var menuDescription: String {
-            switch self {
-            case .fixed:
-                return "grams"
-            case .gramsPerMinutesOfActivity:
-                return "grams / mins of exercise"
-            }
-        }
-        
-        var pickerDescription: String {
-            switch self {
-            case .fixed:
-                return "g"
-            case .gramsPerMinutesOfActivity:
-                return "g / mins of exercise"
-            }
-        }
-    }
-    
-    enum DietMacroGoalTypePickerOption: CaseIterable {
-        case fixed
-        case gramsPerBodyMass
-        case percentageOfEnergy
-        
-        init(goalViewModel: GoalViewModel) {
-            self = .fixed
-        }
-        
-        var menuDescription: String {
-            switch self {
-            case .fixed:
-                return "grams"
-            case .gramsPerBodyMass:
-                return "grams / body mass"
-            case .percentageOfEnergy:
-                return "% of energy"
-            }
-        }
-        
-        var pickerDescription: String {
-            switch self {
-            case .fixed, .gramsPerBodyMass:
-                return "g"
-            case .percentageOfEnergy:
-                return "% of energy"
-            }
-        }
-    }
     
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     
-    @State var pickedMealMacroGoalType: MealMacroGoalTypePickerOption
-    @State var pickedDietMacroGoalType: DietMacroGoalTypePickerOption
+    @State var pickedMealMacroGoalType: MealMacroTypeOption
+    @State var pickedDietMacroGoalType: DietMacroTypeOption
     @State var pickedBodyMassType: BodyMassType
     @State var pickedBodyMassUnit: WeightUnit
     
@@ -101,8 +17,8 @@ struct MacroGoalForm: View {
     
     init(goal: GoalViewModel) {
         self.goal = goal
-        let pickedMealMacroGoalType = MealMacroGoalTypePickerOption(goalViewModel: goal)
-        let pickedDietMacroGoalType = DietMacroGoalTypePickerOption(goalViewModel: goal)
+        let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal)
+        let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal)
         let bodyMassType = goal.bodyMassType ?? .weight
         let bodyMassUnit = goal.bodyMassUnit ?? .kg // TODO: User's default unit here
         _pickedMealMacroGoalType = State(initialValue: pickedMealMacroGoalType)
@@ -217,7 +133,7 @@ struct MacroGoalForm: View {
     var mealTypePicker: some View {
         Menu {
             Picker(selection: $pickedMealMacroGoalType, label: EmptyView()) {
-                ForEach(MealMacroGoalTypePickerOption.allCases, id: \.self) {
+                ForEach(MealMacroTypeOption.allCases, id: \.self) {
                     Text($0.menuDescription).tag($0)
                 }
             }
@@ -229,7 +145,7 @@ struct MacroGoalForm: View {
     var dietTypePicker: some View {
         Menu {
             Picker(selection: $pickedDietMacroGoalType, label: EmptyView()) {
-                ForEach(DietMacroGoalTypePickerOption.allCases, id: \.self) {
+                ForEach(DietMacroTypeOption.allCases, id: \.self) {
                     Text($0.menuDescription).tag($0)
                 }
             }
