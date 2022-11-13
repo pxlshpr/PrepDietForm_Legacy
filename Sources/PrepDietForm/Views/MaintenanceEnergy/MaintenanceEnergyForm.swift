@@ -14,7 +14,7 @@ struct MaintenanceEnergyForm: View {
     @State var manuallyEnteredBMR: String = ""
     @State var manuallyEnteredTDEE: String = ""
     
-    @State var syncHealthKitMeasurements: Bool = true
+    @State var syncHealthKitMeasurements: Bool = false
     @State var syncHealthKitActiveEnergy: Bool = true
     
     @State var equation: BMREquation = .mifflinStJeor
@@ -177,7 +177,7 @@ struct MaintenanceEnergyForm: View {
         )
         
         var textField: some View {
-            TextField(weightUnit.pickerDescription + "s", text: weightBinding)
+            TextField("weight in", text: weightBinding)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .disabled(syncHealthKitMeasurements)
@@ -258,7 +258,7 @@ struct MaintenanceEnergyForm: View {
         )
         
         var textField: some View {
-            TextField(heightUnit.description, text: heightBinding)
+            TextField("height in", text: heightBinding)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .disabled(syncHealthKitMeasurements)
@@ -285,7 +285,7 @@ struct MaintenanceEnergyForm: View {
             textField
             unitPicker
             if heightUnit == .ft {
-                secondaryTextField("inches")
+                secondaryTextField("in")
                 secondaryUnit("in")
             }
             if heightUnit == .m {
@@ -298,12 +298,12 @@ struct MaintenanceEnergyForm: View {
         var picker: some View {
             Menu {
                 Picker(selection: $biologicalSex, label: EmptyView()) {
-                    Text("Female").tag(HKBiologicalSex.female)
-                    Text("Male").tag(HKBiologicalSex.male)
+                    Text("female").tag(HKBiologicalSex.female)
+                    Text("male").tag(HKBiologicalSex.male)
                 }
             } label: {
                 HStack(spacing: 5) {
-                    Text(biologicalSex.description)
+                    Text(biologicalSex.description.lowercased())
                     if !syncHealthKitMeasurements {
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
