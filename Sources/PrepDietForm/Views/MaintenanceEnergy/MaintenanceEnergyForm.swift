@@ -21,13 +21,17 @@ struct MaintenanceEnergyForm: View {
     @State var equation: BMREquation = .mifflinStJeor
     @State var activityLevel: BMRActivityLevel = .moderatelyActive
     @State var biologicalSex: HKBiologicalSex = .male
-    @State var weight: String = ""
     @State var weightUnit: WeightUnit = .kg
-    @State var height: String = ""
-    @State var heightUnit: HeightUnit = .ft
+    @State var heightUnit: HeightUnit = .cm
     
     @State var weightDouble: Double? = nil
     @State var weightString: String = ""
+
+    @State var heightDouble: Double? = nil
+    @State var heightString: String = ""
+
+    @State var heightSecondaryDouble: Double? = nil
+    @State var heightSecondaryString: String = ""
 
     @State var hasAppeared = false
     
@@ -101,7 +105,18 @@ struct MaintenanceEnergyForm: View {
     }
 
     var bodyMeasurementsSection: some View {
-        Section("Body Measurements") {
+        @ViewBuilder
+        var footer: some View {
+            if syncHealthKitMeasurements {
+                Text("Your HealthKit data will be used to update your maintenance calculation whenever a change is detected.")
+            }
+        }
+        
+        var header: some View {
+            Text("Body Measurements")
+        }
+
+        return Section(header: header, footer: footer) {
             Toggle(isOn: $syncHealthKitMeasurements) {
                 HStack {
                     Image(systemName: "heart.fill")
@@ -132,8 +147,8 @@ struct MaintenanceEnergyForm: View {
                     }
                 }
                 .foregroundColor(.accentColor)
-                .animation(.none, value: weightUnit)
                 .fixedSize(horizontal: true, vertical: true)
+                .animation(.none, value: weightUnit)
             }
             .simultaneousGesture(TapGesture().onEnded {
                 Haptics.feedback(style: .soft)
@@ -193,8 +208,8 @@ struct MaintenanceEnergyForm: View {
                     }
                 }
                 .foregroundColor(.accentColor)
-                .animation(.none, value: heightUnit)
                 .fixedSize(horizontal: true, vertical: true)
+                .animation(.none, value: heightUnit)
             }
             .simultaneousGesture(TapGesture().onEnded {
                 Haptics.feedback(style: .soft)
@@ -202,24 +217,64 @@ struct MaintenanceEnergyForm: View {
             .disabled(syncHealthKitMeasurements)
         }
         
+        let heightBinding = Binding<String>(
+            get: {
+                heightString
+            },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    heightDouble = nil
+                    heightString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.heightDouble = double
+                withAnimation {
+                    self.heightString = newValue
+                }
+            }
+        )
+        
+        let heightSecondaryBinding = Binding<String>(
+            get: {
+                heightSecondaryString
+            },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    heightSecondaryDouble = nil
+                    heightSecondaryString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.heightSecondaryDouble = double
+                withAnimation {
+                    self.heightSecondaryString = newValue
+                }
+            }
+        )
+        
         var textField: some View {
-            TextField(heightUnit.description, text: $height)
+            TextField(heightUnit.description, text: heightBinding)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .disabled(syncHealthKitMeasurements)
         }
 
-        var inchesTextField: some View {
-            TextField("inches", text: $height)
+        func secondaryTextField(_ placeholder: String) -> some View {
+            TextField(placeholder, text: heightSecondaryBinding)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .disabled(syncHealthKitMeasurements)
                 .fixedSize(horizontal: true, vertical: false)
         }
         
-        var inchesUnit: some View {
+        func secondaryUnit(_ string: String) -> some View {
             HStack(spacing: 5) {
-                Text("in")
+                Text(string)
             }
             .foregroundColor(.secondary)
         }
@@ -230,8 +285,12 @@ struct MaintenanceEnergyForm: View {
             textField
             unitPicker
             if heightUnit == .ft {
-                inchesTextField
-                inchesUnit
+                secondaryTextField("inches")
+                secondaryUnit("in")
+            }
+            if heightUnit == .m {
+                secondaryTextField("cm")
+                secondaryUnit("cm")
             }
         }
     }
@@ -315,7 +374,7 @@ struct MaintenanceEnergyForm: View {
         @ViewBuilder
         var footer: some View {
             if syncHealthKitActiveEnergy {
-                Text("Your active energy from HealthKit will be added to your maintenance calories calculation when available.")
+                Text("Your daily active energy from HealthKit will be added to your maintenance calculation whenever available.")
             }
         }
         return Section(header: header, footer: footer) {
