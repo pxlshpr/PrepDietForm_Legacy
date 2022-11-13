@@ -14,9 +14,8 @@ struct MaintenanceEnergyForm: View {
     @State var manuallyEnteredBMR: String = ""
     @State var manuallyEnteredTDEE: String = ""
     
-    @State var syncHealthKitMeasurements: Bool = false
+    @State var syncHealthKitMeasurements: Bool = true
     @State var syncHealthKitActiveEnergy: Bool = true
-
     
     @State var equation: BMREquation = .mifflinStJeor
     @State var activityLevel: BMRActivityLevel = .moderatelyActive
@@ -62,6 +61,7 @@ struct MaintenanceEnergyForm: View {
                 }
                 activeEnergySection
             }
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle("2,250 kcal")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { principalContent }
@@ -108,7 +108,7 @@ struct MaintenanceEnergyForm: View {
         @ViewBuilder
         var footer: some View {
             if syncHealthKitMeasurements {
-                Text("Your HealthKit data will be used to update your maintenance calculation whenever a change is detected.")
+                Text("Your measurements from HealthKit will be kept in sync to keep your maintenance calories up-to-date.")
             }
         }
         
@@ -374,7 +374,7 @@ struct MaintenanceEnergyForm: View {
         @ViewBuilder
         var footer: some View {
             if syncHealthKitActiveEnergy {
-                Text("Your daily active energy from HealthKit will be added to your maintenance calculation whenever available.")
+                Text("Your daily active energy from HealthKit will be added to your maintenance calories whenever available.")
             }
         }
         return Section(header: header, footer: footer) {
