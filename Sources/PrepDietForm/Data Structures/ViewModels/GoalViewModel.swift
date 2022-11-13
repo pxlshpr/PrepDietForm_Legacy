@@ -168,6 +168,17 @@ public class GoalViewModel: ObservableObject {
             return nil
         }
     }
+    
+    var energyUnit: EnergyUnit? {
+        switch energyGoalType {
+        case .fixed(let energyUnit):
+            return energyUnit
+        case .fromMaintenance(let energyUnit, _):
+            return energyUnit
+        default:
+            return nil
+        }
+    }
 }
 
 extension GoalViewModel: Hashable {

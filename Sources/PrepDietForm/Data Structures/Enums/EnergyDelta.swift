@@ -18,3 +18,14 @@ public enum EnergyDelta: Int16, Hashable, Codable, CaseIterable {
         }
     }
 }
+
+extension EnergyDelta {
+    var deltaPickerOption: EnergyDeltaOption {
+        switch self {
+        case .surplus:
+            return .above
+        case .deficit:
+            return .below
+        }
+    }
+}

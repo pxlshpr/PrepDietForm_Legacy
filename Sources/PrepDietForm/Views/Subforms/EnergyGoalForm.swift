@@ -6,19 +6,20 @@ import PrepDataTypes
 struct EnergyGoalForm: View {
     
     @ObservedObject var goal: GoalViewModel
-    @State var pickedMealEnergyGoalType: MealEnergyGoalTypePickerOption
-    @State var pickedDietEnergyGoalType: DietEnergyGoalTypePickerOption
-    @State var pickedDelta: DeltaPickerOption
+    @State var pickedMealEnergyGoalType: MealEnergyTypeOption
+    @State var pickedDietEnergyGoalType: DietEnergyTypeOption
+    @State var pickedDelta: EnergyDeltaOption
 
     @State var showingMaintenanceCalculator: Bool = false
+    @State var refreshBool = false
     
     init(goal: GoalViewModel) {
         self.goal = goal
-        //TODO: This isn't called after creating it and going back to the GoalSetForm
+        //TODO: This isn't being updated after creating it and going back to the GoalSetForm
         // We may need to use a binding to the goal here instead and have bindings on the `GoalViewModel` that set and return the picker options (like MealEnergyGoalTypePickerOption). That would also make things cleaner and move it to the view model.
-        let mealEnergyGoalType = MealEnergyGoalTypePickerOption(goalViewModel: goal) ?? .fixed
-        let dietEnergyGoalType = DietEnergyGoalTypePickerOption(goalViewModel: goal)
-        let delta = DeltaPickerOption(goalViewModel: goal)
+        let mealEnergyGoalType = MealEnergyTypeOption(goalViewModel: goal) ?? .fixed
+        let dietEnergyGoalType = DietEnergyTypeOption(goalViewModel: goal) ?? .fixed
+        let delta = EnergyDeltaOption(goalViewModel: goal) ?? .below
         _pickedMealEnergyGoalType = State(initialValue: mealEnergyGoalType)
         _pickedDietEnergyGoalType = State(initialValue: dietEnergyGoalType)
         _pickedDelta = State(initialValue: delta)
@@ -38,7 +39,15 @@ struct EnergyGoalForm: View {
         .onChange(of: pickedMealEnergyGoalType, perform: mealEnergyGoalChanged)
         .onChange(of: pickedDietEnergyGoalType, perform: dietEnergyGoalChanged)
         .onChange(of: pickedDelta, perform: deltaChanged)
+        .onAppear(perform: appeared)
         .sheet(isPresented: $showingMaintenanceCalculator) { maintenanceCalculator }
+    }
+    
+    func appeared() {
+        pickedMealEnergyGoalType = MealEnergyTypeOption(goalViewModel: goal) ?? .fixed
+        pickedDietEnergyGoalType = DietEnergyTypeOption(goalViewModel: goal) ?? .fixed
+        pickedDelta = EnergyDeltaOption(goalViewModel: goal) ?? .below
+        refreshBool.toggle()
     }
     
     var maintenanceCalculator: some View {
@@ -47,12 +56,16 @@ struct EnergyGoalForm: View {
     }
     
     var unitSection: some View {
-        FormStyledSection(header: Text("Unit"), verticalPadding: 0) {
-            HStack {
-                typePicker
-                Spacer()
-                deltaMenu
+        FormStyledSection(header: Text("Unit"), horizontalPadding: 0, verticalPadding: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    typePicker
+                    Spacer()
+                    deltaMenu
+                }
+                .padding(.horizontal, 10)
             }
+            .id(refreshBool) /// Needed to mitigate the buttons being slightly out of place once we set them in `onAppear`
             .frame(maxWidth: .infinity)
             .frame(height: 50)
         }
@@ -128,29 +141,12 @@ struct EnergyGoalForm: View {
         } else {
             dietTypePicker
         }
-        //        Menu {
-        //            typeOptions
-        //        } label: {
-        //            HStack(spacing: 5) {
-        //                Text(goal.energyGoalType?.shortDescription ?? "")
-        //                    .frame(maxHeight: .infinity)
-        //                    .fixedSize()
-        //                Image(systemName: "chevron.up.chevron.down")
-        //                    .imageScale(.small)
-        //            }
-        //            .frame(maxHeight: .infinity)
-        //            .frame(maxWidth: .infinity, alignment: .leading)
-        //        }
-        //        .contentShape(Rectangle())
-        //        .simultaneousGesture(TapGesture().onEnded {
-        //            Haptics.feedback(style: .soft)
-        //        })
     }
     
     var mealTypePicker: some View {
         Menu {
             Picker("", selection: $pickedMealEnergyGoalType) {
-                ForEach(MealEnergyGoalTypePickerOption.allCases, id: \.self) {
+                ForEach(MealEnergyTypeOption.allCases, id: \.self) {
                     Text($0.description(userEnergyUnit: .kcal)).tag($0)
                 }
             }
@@ -162,7 +158,7 @@ struct EnergyGoalForm: View {
     var dietTypePicker: some View {
         Menu {
             Picker(selection: $pickedDietEnergyGoalType, label: EmptyView()) {
-                ForEach(DietEnergyGoalTypePickerOption.allCases, id: \.self) {
+                ForEach(DietEnergyTypeOption.allCases, id: \.self) {
                     Text($0.description(userEnergyUnit: .kcal)).tag($0)
                 }
             }
@@ -177,7 +173,7 @@ struct EnergyGoalForm: View {
             HStack {
                 Menu {
                     Picker(selection: $pickedDelta, label: EmptyView()) {
-                        ForEach(DeltaPickerOption.allCases, id: \.self) {
+                        ForEach(EnergyDeltaOption.allCases, id: \.self) {
                             Text($0.description).tag($0)
                         }
                     }
@@ -195,7 +191,6 @@ struct EnergyGoalForm: View {
         }
     }
     
-    
     @ViewBuilder
     var footer: some View {
         if goal.energyGoalDelta != nil {
@@ -211,93 +206,6 @@ struct EnergyGoalForm: View {
     }
 }
 
-extension EnergyGoalForm {
-    enum MealEnergyGoalTypePickerOption: CaseIterable {
-        
-        case fixed
-        case percentageOfDailyTotal
-        
-        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed: return energyUnit.shortDescription
-            case .percentageOfDailyTotal: return "% of daily total"
-            }
-        }
-        
-        init?(goalViewModel: GoalViewModel) {
-            switch goalViewModel.energyGoalType {
-            case .percentOfDietGoal:
-                self = .percentageOfDailyTotal
-            case .fixed:
-                self = .fixed
-            default:
-                return nil
-            }
-        }
-    }
-    
-    enum DietEnergyGoalTypePickerOption: CaseIterable {
-        
-        case fixed
-        case fromMaintenance
-        case percentageFromMaintenance
-        
-        func description(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed:
-                return energyUnit.shortDescription
-            case .fromMaintenance:
-                return energyUnit.shortDescription + " from maintenance"
-            case .percentageFromMaintenance:
-                return "% from maintenance"
-            }
-        }
-        
-        func shortDescription(userEnergyUnit energyUnit: EnergyUnit) -> String {
-            switch self {
-            case .fixed, .fromMaintenance:
-                return energyUnit.shortDescription
-            case .percentageFromMaintenance:
-                return "%"
-            }
-        }
-        
-        init(goalViewModel: GoalViewModel) {
-            self = .fixed
-        }
-    }
-    
-    enum DeltaPickerOption: CaseIterable {
-        case below
-        case above
-        
-        var description: String {
-            switch self {
-            case .above:
-                return "above"
-            case .below:
-                return "below"
-            }
-        }
-        
-        init(goalViewModel: GoalViewModel) {
-            self = .below
-        }
-    }
-}
-
-extension GoalViewModel {
-    var energyUnit: EnergyUnit? {
-        switch energyGoalType {
-        case .fixed(let energyUnit):
-            return energyUnit
-        case .fromMaintenance(let energyUnit, _):
-            return energyUnit
-        default:
-            return nil
-        }
-    }
-}
 //MARK: - Convenience
 extension EnergyGoalForm {
     
@@ -338,15 +246,15 @@ extension EnergyGoalForm {
 //MARK: - Actions
 extension EnergyGoalForm {
     
-    func dietEnergyGoalChanged(_ newValue: DietEnergyGoalTypePickerOption) {
+    func dietEnergyGoalChanged(_ newValue: DietEnergyTypeOption) {
         goal.energyGoalType = self.energyGoalType
     }
     
-    func mealEnergyGoalChanged(_ newValue: MealEnergyGoalTypePickerOption) {
-        
+    func mealEnergyGoalChanged(_ newValue: MealEnergyTypeOption) {
+        goal.energyGoalType = self.energyGoalType
     }
     
-    func deltaChanged(to newValue: DeltaPickerOption) {
+    func deltaChanged(to newValue: EnergyDeltaOption) {
         goal.energyGoalType = self.energyGoalType
     }
 }
