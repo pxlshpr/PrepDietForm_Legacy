@@ -5,20 +5,6 @@ class HealthKitManager: ObservableObject {
     static let shared = HealthKitManager()
     
     let store: HKHealthStore = HKHealthStore()
-
-    func weight() async -> (Double, Date) {
-        let bodyMassType = HKSampleType.quantityType(forIdentifier: .bodyMass)!
-        let predicates: [HKSamplePredicate<HKSample>] = [HKSamplePredicate.sample(type: bodyMassType)]
-        let sortDescriptors: [SortDescriptor<HKSample>] = [SortDescriptor(\.startDate, order: .reverse)]
-        let limit = 1
-        let asyncQuery = HKSampleQueryDescriptor(predicates: predicates, sortDescriptors: sortDescriptors, limit: limit)
-        let results = try? await asyncQuery.result(for: store)        
-        let result = results!.first! as! HKQuantitySample
-
-        let weight = result.quantity.doubleValue(for: .gramUnit(with: .kilo))
-        let date = result.startDate
-        return (weight, date)
-    }
     
     func requestPermission() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
@@ -109,4 +95,127 @@ class HealthKitManager: ObservableObject {
 //
 //       return true
 //   }
+}
+
+extension HealthKitManager {
+    func getLatestWeight() async -> (Double, Date)? {
+        await getLatestQuantity(for: .bodyMass, using: .gramUnit(with: .kilo))
+    }
+
+    func getLatestHeight() async -> (Double, Date)? {
+        await getLatestQuantity(for: .height, using: .meterUnit(with: .centi))
+    }
+
+    func getLatestRestingEnergy() async -> Double? {
+        await getSumQuantity(for: .basalEnergyBurned, using: .kilocalorie())
+    }
+
+    func getLatestActiveEnergy() async -> Double? {
+        await getSumQuantity(for: .activeEnergyBurned, using: .kilocalorie())
+    }
+
+    func getLatestQuantity(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit) async -> (Double, Date)? {
+        do {
+            let sample = try await getLatestQuantitySample(for: typeIdentifier)
+            let quantity = sample.quantity.doubleValue(for: unit)
+            let date = sample.startDate
+            return (quantity, date)
+        } catch {
+            print("Error getting quantity")
+            return nil
+        }
+    }
+    
+    var biologicalSex: HKBiologicalSex {
+        do {
+            return try store.biologicalSex().biologicalSex
+        } catch {
+            print("Error getting biological sex")
+            return .notSet
+        }
+    }
+
+    var dateOfBirth: Date? {
+        do {
+            return try store.dateOfBirthComponents().date
+        } catch {
+            print("Error getting age")
+            return nil
+        }
+    }
+
+    func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit) async -> Double? {
+        do {
+            let sumQuantity = try await getSumQuantity(for: typeIdentifier)
+            return sumQuantity.doubleValue(for: unit)
+        } catch {
+            print("Error getting sum quantity")
+            return nil
+        }
+    }
+
+    private func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantity {
+        
+//        let now = Date()
+//        let startDate = Date()
+////        let startDate = Calendar.current.date(byAdding: .day, value: -30, to: now)!
+//
+        // Create a predicate for this week's samples.
+        let calendar = Calendar(identifier: .gregorian)
+//        let today = calendar.startOfDay(for: Date())
+        let today = calendar.startOfDay(for: Date())
+
+        guard let endDate = calendar.date(byAdding: .day, value: 1, to: today) else {
+            fatalError("*** Unable to calculate the end time ***")
+        }
+
+        guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
+            fatalError("*** Unable to calculate the start time ***")
+        }
+
+        let thisWeek = HKQuery.predicateForSamples(withStart: startDate, end: endDate)
+
+        // Create the query descriptor.
+//        let stepType = HKQuantityType(.stepCount)
+        let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
+        let samplesThisWeek = HKSamplePredicate.quantitySample(type: type, predicate: thisWeek)
+
+        let everyDay = DateComponents(day: 1)
+        
+//        let thisWeek = HKQuery.predicateForSamples(withStart: startDate, end: startDate)
+//        let predicate = HKSamplePredicate.quantitySample(type: type, predicate: thisWeek)
+
+        let asyncQuery = HKStatisticsCollectionQueryDescriptor(
+            predicate: samplesThisWeek,
+            options: .cumulativeSum,
+            anchorDate: endDate,
+            intervalComponents: everyDay
+        )
+        let results = try await asyncQuery.result(for: store)
+        guard let statistics = results.statistics(for: Date()) else {
+            throw HealthKitManagerError.couldNotGetSample
+        }
+        guard let sumQuantity = statistics.sumQuantity() else {
+            throw HealthKitManagerError.couldNotGetSample
+        }
+        return sumQuantity
+    }
+
+    private func getLatestQuantitySample(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantitySample {
+        let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
+        let predicates: [HKSamplePredicate<HKSample>] = [HKSamplePredicate.sample(type: type)]
+        let sortDescriptors: [SortDescriptor<HKSample>] = [SortDescriptor(\.startDate, order: .reverse)]
+        let limit = 1
+        let asyncQuery = HKSampleQueryDescriptor(predicates: predicates, sortDescriptors: sortDescriptors, limit: limit)
+        let results = try await asyncQuery.result(for: store)
+        guard let sample = results.first as? HKQuantitySample else {
+            throw HealthKitManagerError.couldNotGetSample
+        }
+        return sample
+    }
+    
+}
+
+enum HealthKitManagerError: Error {
+    case couldNotGetSample
 }

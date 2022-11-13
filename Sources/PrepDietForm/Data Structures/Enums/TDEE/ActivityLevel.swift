@@ -1,6 +1,6 @@
 import Foundation
 
-enum BMRActivityLevel: Int16, Codable, Hashable, CaseIterable {
+public enum ActivityLevel: Int16, Codable, Hashable, CaseIterable {
 
     case notSet
     case sedentary

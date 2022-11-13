@@ -24,7 +24,7 @@ extension TDEEForm {
             var picker: some View {
                 Menu {
                     Picker(selection: $activityLevel, label: EmptyView()) {
-                        ForEach(BMRActivityLevel.allCases, id: \.self) {
+                        ForEach(ActivityLevel.allCases, id: \.self) {
                             Text($0.description).tag($0)
                         }
                     }

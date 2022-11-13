@@ -8,12 +8,15 @@ struct TDEEForm: View {
     
     @Environment(\.dismiss) var dismiss
     
+//    @State var tdeeSource: TDEESource = .formula(.mifflinStJeor, activityLevel: .moderatelyActive)
+    @State var tdeeSource: TDEESourceOption = .healthKit
+    
     @State var syncHealthKitMeasurements: Bool = false
     @State var syncHealthKitActiveEnergy: Bool = false
     @State var applyActivityScaleFactor: Bool = true
 
-    @State var bmrEquation: BMREquation = .mifflinStJeor
-    @State var activityLevel: BMRActivityLevel = .moderatelyActive
+    @State var bmrEquation: TDEEFormula = .mifflinStJeor
+    @State var activityLevel: ActivityLevel = .moderatelyActive
     @State var biologicalSex: HKBiologicalSex = .male
     @State var weightUnit: WeightUnit = .kg
     @State var heightUnit: HeightUnit = .cm
@@ -34,6 +37,7 @@ struct TDEEForm: View {
 
     @State var heightDouble: Double? = nil
     @State var heightString: String = ""
+    @State var heightDate: Date? = nil
 
     @State var heightSecondaryDouble: Double? = nil
     @State var heightSecondaryString: String = ""
@@ -41,6 +45,9 @@ struct TDEEForm: View {
     @State var hasAppeared = false
     
     @State var valuesHaveChanged: Bool = true
+    
+    @State var healthKitRestingEnergy: Double? = nil
+    @State var healthKitActiveEnergy: Double? = nil
     
     @ViewBuilder
     var body: some View {
@@ -56,14 +63,15 @@ struct TDEEForm: View {
         NavigationView {
             Form {
                 manualEntrySection
-                if !manualTDEE {
-                    bmrSection
-                    bodyMeasurementsSection
+                if tdeeSource == .healthKit {
+                    healthKitSection
                 }
-                activeEnergySection
+                if tdeeSource != .healthKit {
+                    activeEnergySection
+                }
             }
             .scrollDismissesKeyboard(.immediately)
-            .navigationTitle("2,250 kcal")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar { principalContent }
             .toolbar { trailingContent }
@@ -73,21 +81,19 @@ struct TDEEForm: View {
         }
     }
     
-    func syncHealthKitMeasurementsChanged(to newValue: Bool) {
-        guard newValue == true else { return }
-        Task {
-            guard await HealthKitManager.shared.requestPermission() else {
-                print("Couldn't get permission")
-                return
-            }
-            
-            let (weight, weightDate) = await HealthKitManager.shared.weight()
-            await MainActor.run {
-                self.weightDouble = weight
-                self.weightString = weight.cleanAmount
-                self.weightDate = weightDate
-            }
+    var title: String {
+        guard let healthKitActiveEnergy, let healthKitRestingEnergy else {
+            return "Maintenace Calories"
         }
+        let total = healthKitActiveEnergy + healthKitRestingEnergy
+        
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        let number = NSNumber(value: Int(total))
+        guard let formatted = numberFormatter.string(from: number) else {
+            return "Maintenance Calories"
+        }
+        return formatted + " kcal"
     }
     
     var trailingContent: some ToolbarContent {
@@ -121,14 +127,6 @@ struct TDEEForm: View {
             Text("Your Maintenance \(tdeeUnit == .kcal ? "Calories" : "Energy")")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-        }
-    }
-    
-    func blankViewAppeared() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            withAnimation {
-                hasAppeared = true
-            }
         }
     }
 }
@@ -178,5 +176,55 @@ public struct TDEEFormPreview: View {
     public init() { }
     public var body: some View {
         TDEEForm()
+    }
+}
+
+extension TDEEForm {
+    
+
+    var healthKitSection: some View {
+        var header: some View {
+            HStack {
+                appleHealthSymbol
+                Text("Apple Health")
+            }
+        }
+        return Section(header: header) {
+            HStack {
+                Text("Resting Energy")
+                Spacer()
+                if let healthKitRestingEnergy {
+                    Text(healthKitRestingEnergy.cleanAmount)
+                        .foregroundColor(.secondary)
+                    Text("kcal")
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+            }
+            HStack {
+                Text("Active Energy")
+                Spacer()
+                if let healthKitActiveEnergy {
+                    Text(healthKitActiveEnergy.cleanAmount)
+                        .foregroundColor(.secondary)
+                    Text("kcal")
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+            }
+            .task {
+                guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
+                    return
+                }
+                await MainActor.run {
+                    self.healthKitRestingEnergy = restingEnergy
+                }
+
+                guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
+                    return
+                }
+                await MainActor.run {
+                    self.healthKitActiveEnergy = activeEnergy
+                }
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ extension TDEEForm {
         var picker: some View {
             Menu {
                 Picker(selection: $bmrEquation, label: EmptyView()) {
-                    ForEach(BMREquation.allCases, id: \.self) {
+                    ForEach(TDEEFormula.allCases, id: \.self) {
                         Text($0.description).tag($0)
                     }
                 }

@@ -60,7 +60,7 @@ extension TDEEForm {
         @ViewBuilder
         var date: some View {
             if let weightDate {
-                Text("as of \(weightDate.dayViewTitle)")
+                Text("as of \(weightDate.tdeeFormat)")
                     .foregroundColor(Color(.secondaryLabel))
                     .font(.caption)
                     .layoutPriority(1)
@@ -76,17 +76,4 @@ extension TDEEForm {
         }
     }
     
-}
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                        .presentationDetents([.height(600), .large])
-                        .presentationDragIndicator(.hidden)
-                }
-        }
-    }
 }

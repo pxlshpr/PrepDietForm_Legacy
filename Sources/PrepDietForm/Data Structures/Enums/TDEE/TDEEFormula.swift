@@ -1,9 +1,10 @@
 import Foundation
 
-public enum BMREquation: Int16, Hashable, Codable, CaseIterable {
+public enum TDEEFormula: Int16, Hashable, Codable, CaseIterable {
     case harrisBenedict = 1
     case rozaShizgal
     case mifflinStJeor
+    case katchMcardle
 
     var description: String {
         switch self {
@@ -13,6 +14,8 @@ public enum BMREquation: Int16, Hashable, Codable, CaseIterable {
             return "Roza-Shizgal"
         case .mifflinStJeor:
             return "Mifflin-St. Jeor"
+        case .katchMcardle:
+            return "Katch-McArdle"
         }
     }
     
@@ -24,6 +27,8 @@ public enum BMREquation: Int16, Hashable, Codable, CaseIterable {
             return "1984"
         case .mifflinStJeor:
             return "1990"
+        case .katchMcardle:
+            return ""
         }
     }
 }
