@@ -213,22 +213,26 @@ struct TDEEForm: View {
                     .padding(.top)
                     Divider()
                         .padding(.vertical)
+                        .padding(.horizontal)
+                        .padding(.horizontal)
                     HStack {
                         Spacer()
                         HStack {
                             Text("with")
                                 .foregroundColor(Color(.secondaryLabel))
-                            PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward")
+                            PickerLabel("male", prefix: "sex", systemImage: "chevron.forward")
+                            PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward")
                         }
                         Spacer()
                     }
-                    PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward")
                     HStack {
-                        PickerLabel("male", prefix: "sex", systemImage: "chevron.forward")
-                        PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward")
+                        PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward")
+                        PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward")
                     }
                     Divider()
                         .padding(.vertical)
+                        .padding(.horizontal)
+                        .padding(.horizontal)
                     HStack {
                         Spacer()
                         Text("2,024")
