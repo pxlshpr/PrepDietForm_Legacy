@@ -4,24 +4,24 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
-enum HealthKitValuesToUseOption: CaseIterable {
-    case latest
+enum HealthKitEnergyPeriodOption: CaseIterable {
+    case previousDay
     case average
     
     var menuDescription: String {
         switch self {
-        case .latest:
-            return "Previous Day"
+        case .previousDay:
+            return "Day Before"
         case .average:
-            return "Average"
+            return "Past Average"
         }
     }
     var pickerDescription: String {
         switch self {
-        case .latest:
-            return "Previous Day"
+        case .previousDay:
+            return "Day Before"
         case .average:
-            return "Average over past"
+            return "Average over"
         }
     }
 }
@@ -32,9 +32,8 @@ struct TDEEForm: View {
 
     @State var showingAdaptiveCorrectionInfo = false
 
-
 //    @State var tdeeSource: TDEESource = .formula(.mifflinStJeor, activityLevel: .moderatelyActive)
-    @State var tdeeSource: TDEESourceOption = .healthKit
+    @State var tdeeSource: TDEESourceOption = .userEntered
 
     @State var syncHealthKitMeasurements: Bool = false
     @State var syncHealthKitActiveEnergy: Bool = false
@@ -71,13 +70,12 @@ struct TDEEForm: View {
     
     @State var valuesHaveChanged: Bool = true
     
-    @State var healthKitRestingEnergy: Double? = nil
-    @State var healthKitActiveEnergy: Double? = nil
+    @State var healthRestingEnergy: Double? = nil
+    @State var healthActiveEnergy: Double? = nil
     
-    @State var refreshSource: Bool = false
+    @State var healthEnergyPeriod: HealthKitEnergyPeriodOption = .previousDay
+    @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
-    @State var healthKitValuesToUse: HealthKitValuesToUseOption = .latest
-    @State var healthKitValuesToUseInterval: DateComponents = DateComponents(day: 1)
     @ViewBuilder
     var body: some View {
         if hasAppeared {
@@ -91,9 +89,9 @@ struct TDEEForm: View {
     var navigationView: some View {
         NavigationView {
             Form {
-                manualEntrySection
+                sourceSection
                 if tdeeSource == .healthKit {
-                    healthKitSection
+                    healthSection
                 }
                 if tdeeSource != .healthKit {
                     activeEnergySection
@@ -111,19 +109,18 @@ struct TDEEForm: View {
         }
     }
     
+    var maintenanceEnergy: Double? {
+        guard let healthActiveEnergy, let healthRestingEnergy else {
+            return nil
+        }
+        return healthActiveEnergy + healthRestingEnergy
+    }
+    
     var title: String {
-        guard let healthKitActiveEnergy, let healthKitRestingEnergy else {
-            return "Maintenace Calories"
+        guard let maintenanceEnergy else {
+            return "Maintenace Energy"
         }
-        let total = healthKitActiveEnergy + healthKitRestingEnergy
-        
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        let number = NSNumber(value: Int(total))
-        guard let formatted = numberFormatter.string(from: number) else {
-            return "Maintenance Calories"
-        }
-        return formatted + " kcal"
+        return maintenanceEnergy.formattedEnergy + " kcal"
     }
     
     var trailingContent: some ToolbarContent {
@@ -154,50 +151,11 @@ struct TDEEForm: View {
 
     var principalContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            Text("Your Maintenance \(tdeeUnit == .kcal ? "Calories" : "Energy")")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
-extension HKBiologicalSex {
-    var description: String {
-        switch self {
-        case .female:
-            return "Female"
-        case .male:
-            return "Male"
-        case .other:
-            return "Other"
-        case .notSet:
-            return "Not Set"
-        default:
-            return "Unknown"
-        }
-    }
-}
-
-extension HeightUnit {
-    var description: String {
-        switch self {
-        case .m:
-            return "meters"
-        case .cm:
-            return "centimeters"
-        case .ft:
-            return "feet"
-        }
-    }
-    
-    var shortDescription: String {
-        switch self {
-        case .cm:
-            return "cm"
-        case .ft:
-            return "ft"
-        case .m:
-            return "m"
+            if maintenanceEnergy != nil {
+                Text("Your Maintenance Energy")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }
@@ -208,3 +166,4 @@ public struct TDEEFormPreview: View {
         TDEEForm()
     }
 }
+

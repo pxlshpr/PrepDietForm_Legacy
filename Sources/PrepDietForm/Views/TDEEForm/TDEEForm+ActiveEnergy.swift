@@ -13,11 +13,8 @@ extension TDEEForm {
             }
         }
         
-        @ViewBuilder
         var footer: some View {
-            if syncHealthKitActiveEnergy {
-                Text("Your daily active energy from HealthKit will be added to your maintenance calories whenever available.")
-            }
+            Text(syncHealthKitActiveEnergy ? "Your active energy will be what you burned the day before. This will update your maintenance energy daily." : "A scale factor of \(activityLevel.scaleFactor.cleanAmount)× will be applied to your resting energy.")
         }
 
         var activityLevelField: some View {
@@ -44,21 +41,28 @@ extension TDEEForm {
             }
             
             return HStack {
-                Text("Activity Level")
-                Spacer()
-                picker
+                        Text("Activity Level")
+                        Spacer()
+                        picker
+                    }
+            }
+        
+        var healthToggle: some View {
+            Toggle(isOn: formToggleBinding($syncHealthKitActiveEnergy)) {
+                HStack {
+                    appleHealthSymbol
+                    Text("Get from Apple Health")
+                }
             }
         }
         
+        
         return Section(header: header, footer: footer) {
-            Toggle(isOn: formToggleBinding($syncHealthKitActiveEnergy)) {
-                HStack {
-                    Image(systemName: "heart.fill")
-                        .renderingMode(.original)
-                    Text("Sync with HealthKit")
-                }
-            }
-            if !syncHealthKitActiveEnergy {
+            healthToggle
+            if syncHealthKitActiveEnergy {
+                healthPeriodField
+                healthActiveEnergyField
+            } else {
                 activityLevelField
             }
         }
@@ -76,3 +80,17 @@ func formToggleBinding(_ binding: Binding<Bool>) -> Binding<Bool> {
         }
     )
 }
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                        .presentationDetents([.height(600), .large])
+                        .presentationDragIndicator(.hidden)
+                }
+        }
+    }
+}
+

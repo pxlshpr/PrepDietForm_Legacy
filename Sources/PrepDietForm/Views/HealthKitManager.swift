@@ -106,14 +106,6 @@ extension HealthKitManager {
         await getLatestQuantity(for: .height, using: .meterUnit(with: .centi))
     }
 
-    func getLatestRestingEnergy() async -> Double? {
-        await getSumQuantity(for: .basalEnergyBurned, using: .kilocalorie())
-    }
-
-    func getLatestActiveEnergy() async -> Double? {
-        await getSumQuantity(for: .activeEnergyBurned, using: .kilocalorie())
-    }
-
     func getLatestQuantity(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit) async -> (Double, Date)? {
         do {
             let sample = try await getLatestQuantitySample(for: typeIdentifier)
@@ -143,6 +135,15 @@ extension HealthKitManager {
             return nil
         }
     }
+
+    func getLatestRestingEnergy() async -> Double? {
+        await getSumQuantity(for: .basalEnergyBurned, using: .kilocalorie())
+    }
+
+    func getLatestActiveEnergy() async -> Double? {
+        await getSumQuantity(for: .activeEnergyBurned, using: .kilocalorie())
+    }
+
 
     func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit) async -> Double? {
         do {
@@ -192,7 +193,7 @@ extension HealthKitManager {
             intervalComponents: everyDay
         )
         let results = try await asyncQuery.result(for: store)
-        guard let statistics = results.statistics(for: Date()) else {
+        guard let statistics = results.statistics(for: Date().moveDayBy(-1)) else {
             throw HealthKitManagerError.couldNotGetSample
         }
         guard let sumQuantity = statistics.sumQuantity() else {
