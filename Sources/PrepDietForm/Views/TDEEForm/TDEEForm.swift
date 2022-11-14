@@ -36,7 +36,7 @@ struct TDEEForm: View {
     @State var tdeeSource: TDEESourceOption = .userEntered
 
     @State var syncHealthKitMeasurements: Bool = false
-    @State var syncHealthKitActiveEnergy: Bool = false
+    @State var useHealthActiveEnergy: Bool = false
     @State var applyActivityScaleFactor: Bool = true
 
     @State var bmrEquation: TDEEFormula = .mifflinStJeor
@@ -92,6 +92,9 @@ struct TDEEForm: View {
                 sourceSection
                 if tdeeSource == .healthKit {
                     healthSection
+                }
+                if tdeeSource != .healthKit {
+                    restingEnergySection
                 }
                 if tdeeSource != .healthKit {
                     activeEnergySection

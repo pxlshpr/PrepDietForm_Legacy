@@ -14,14 +14,7 @@ extension TDEEForm {
         }
 
         var header: some View {
-            HStack {
-                Text("Body Measurements")
-                Text("•")
-                    .foregroundColor(Color(.quaternaryLabel))
-                Text("To calculate BMR")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .multilineTextAlignment(.trailing)
-            }
+            Text("Body Measurements")
         }
 
         return Section(header: header, footer: footer) {

@@ -58,7 +58,7 @@ extension TDEEForm {
                     Image(systemName: "chevron.up.chevron.down")
                         .imageScale(.small)
                 }
-                .foregroundColor(.accentColor)
+                .foregroundColor(.secondary)
                 .fixedSize(horizontal: true, vertical: true)
                 .animation(.none, value: healthEnergyPeriod)
             }

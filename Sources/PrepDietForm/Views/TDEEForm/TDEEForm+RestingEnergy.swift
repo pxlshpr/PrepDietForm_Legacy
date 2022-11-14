@@ -3,16 +3,61 @@ import SwiftHaptics
 import PrepDataTypes
 
 extension TDEEForm {
-    var bmrSection: some View {
-        var header: some View {
+
+    var restingEnergyFormulaField: some View {
+        var picker: some View {
+            Menu {
+                Picker(selection: $bmrEquation, label: EmptyView()) {
+                    ForEach(TDEEFormula.latest, id: \.self) { formula in
+                        Text(formula.description).tag(formula)
+                    }
+                    Divider()
+                    ForEach(TDEEFormula.legacy, id: \.self) { formula in
+                        Text(formula.description).tag(formula)
+                    }
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Text(bmrEquation.description)
+                        .multilineTextAlignment(.trailing)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+                .animation(.none, value: bmrEquation)
+                .fixedSize(horizontal: true, vertical: true)
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+        
+        return NavigationLink {
+            Form {
+                Section {
+                    HStack {
+                        Text("Formula")
+                        Spacer()
+                        picker
+                    }
+                }
+                bodyMeasurementsSection
+            }
+            .navigationTitle("Resting Energy")
+        } label: {
             HStack {
-                Text("BMR")
-                Text("•")
-                    .foregroundColor(Color(.quaternaryLabel))
-                Text("Basal Metabolic Rate")
-                    .foregroundColor(Color(.tertiaryLabel))
+                Text("Formula")
+                Spacer()
+                Text(bmrEquation.description)
+                    .foregroundColor(.secondary)
                     .multilineTextAlignment(.trailing)
             }
+        }
+    }
+    
+    var restingEnergySection: some View {
+        var header: some View {
+            Text("Resting Energy")
         }
         
         var picker: some View {
@@ -38,7 +83,7 @@ extension TDEEForm {
             })
         }
         
-        var bmrTextField: some View {
+        var textField: some View {
             var unitPicker: some View {
                 Menu {
                     Picker(selection: $bmrUnit, label: EmptyView()) {
@@ -112,12 +157,26 @@ extension TDEEForm {
         }
         
         return Section(header: header) {
-            if manualBMR {
-                bmrTextField
+            if tdeeSource == .userEntered {
+                textField
             } else {
-                bmrEquationPicker
+                restingEnergyFormulaField
             }
-            //            manualToggle
         }
     }
 }
+
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                        .presentationDetents([.height(600), .large])
+                        .presentationDragIndicator(.hidden)
+                }
+        }
+    }
+}
+

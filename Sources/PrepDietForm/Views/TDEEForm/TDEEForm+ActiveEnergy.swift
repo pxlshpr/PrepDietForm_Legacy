@@ -14,7 +14,16 @@ extension TDEEForm {
         }
         
         var footer: some View {
-            Text(syncHealthKitActiveEnergy ? "Your active energy will be what you burned the day before. This will update your maintenance energy daily." : "A scale factor of \(activityLevel.scaleFactor.cleanAmount)× will be applied to your resting energy.")
+            var string: String {
+                if useHealthActiveEnergy {
+                    return "Your active energy will be what you burned the day before. This will update your maintenance energy daily."
+                } else if activityLevel == .notSet {
+                    return "Your maintenance energy equals your resting energy as no activity level is set."
+                } else {
+                    return "A scale factor of \(activityLevel.scaleFactor.cleanAmount)× will be applied to your resting energy."
+                }
+            }
+            return Text(string)
         }
 
         var activityLevelField: some View {
@@ -48,7 +57,7 @@ extension TDEEForm {
             }
         
         var healthToggle: some View {
-            Toggle(isOn: formToggleBinding($syncHealthKitActiveEnergy)) {
+            Toggle(isOn: formToggleBinding($useHealthActiveEnergy)) {
                 HStack {
                     appleHealthSymbol
                     Text("Get from Apple Health")
@@ -59,7 +68,7 @@ extension TDEEForm {
         
         return Section(header: header, footer: footer) {
             healthToggle
-            if syncHealthKitActiveEnergy {
+            if useHealthActiveEnergy {
                 healthPeriodField
                 healthActiveEnergyField
             } else {
@@ -80,17 +89,3 @@ func formToggleBinding(_ binding: Binding<Bool>) -> Binding<Bool> {
         }
     )
 }
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                        .presentationDetents([.height(600), .large])
-                        .presentationDragIndicator(.hidden)
-                }
-        }
-    }
-}
-

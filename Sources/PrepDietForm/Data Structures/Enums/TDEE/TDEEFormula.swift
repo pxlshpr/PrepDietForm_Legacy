@@ -6,6 +6,14 @@ public enum TDEEFormula: Int16, Hashable, Codable, CaseIterable {
     case mifflinStJeor
     case katchMcardle
 
+    static var latest: [TDEEFormula] {
+        [.katchMcardle, .mifflinStJeor]
+    }
+
+    static var legacy: [TDEEFormula] {
+        [.rozaShizgal, .harrisBenedict]
+    }
+
     var description: String {
         switch self {
         case .harrisBenedict:
