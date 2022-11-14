@@ -1,25 +1,25 @@
 import Foundation
 
-enum TDEESourceOption: CaseIterable {
-    case healthKit
+enum RestingEnergySourceOption: CaseIterable {
+    case healthApp
     case formula
     case userEntered
     
     var menuDescription: String {
         switch self {
-        case .healthKit:
-            return "Apple Health"
+        case .healthApp:
+            return "Health App"
         case .formula:
             return "Formula"
         case .userEntered:
-            return "Let me type it in"
+            return "Let me enter it"
         }
     }
     
     var pickerDescription: String {
         switch self {
-        case .healthKit:
-            return "Apple Health"
+        case .healthApp:
+            return "Health App"
         case .formula:
             return "Formula"
         case .userEntered:
@@ -29,7 +29,7 @@ enum TDEESourceOption: CaseIterable {
     
     var systemImage: String {
         switch self {
-        case .healthKit:
+        case .healthApp:
             return "heart.fill"
         case .formula:
             return "function"

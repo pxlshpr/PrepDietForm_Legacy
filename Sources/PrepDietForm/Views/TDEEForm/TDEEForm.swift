@@ -11,10 +11,10 @@ struct TDEEForm: View {
     @State var showingAdaptiveCorrectionInfo = false
 
 //    @State var tdeeSource: TDEESource = .formula(.mifflinStJeor, activityLevel: .moderatelyActive)
-    @State var tdeeSource: TDEESourceOption = .userEntered
+    @State var restingEnergySource: RestingEnergySourceOption = .healthApp
+    @State var activeEnergySource: ActiveEnergySourceOption = .healthApp
 
     @State var syncHealthKitMeasurements: Bool = false
-    @State var useHealthActiveEnergy: Bool = false
     @State var applyActivityScaleFactor: Bool = true
 
     @State var bmrEquation: TDEEFormula = .mifflinStJeor
@@ -67,16 +67,16 @@ struct TDEEForm: View {
     var navigationView: some View {
         NavigationView {
             Form {
-                sourceSection
-                if tdeeSource == .healthKit {
-                    healthSection
-                }
-                if tdeeSource != .healthKit {
+//                sourceSection
+//                if tdeeSource == .healthApp {
+//                    healthSection
+//                }
+//                if tdeeSource != .healthApp {
                     restingEnergySection
-                }
-                if tdeeSource != .healthKit {
+//                }
+//                if tdeeSource != .healthApp {
                     activeEnergySection
-                }
+//                }
                 adaptiveCorrectionSection
             }
             .scrollDismissesKeyboard(.immediately)

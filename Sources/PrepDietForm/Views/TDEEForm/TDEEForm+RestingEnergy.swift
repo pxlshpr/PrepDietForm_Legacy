@@ -24,8 +24,33 @@ enum HealthKitEnergyPeriodOption: CaseIterable {
         }
     }
 }
-extension TDEEForm {
+var isSwiftUIPreview: Bool {
+    ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+}
 
+extension TDEEForm {
+    
+    var calculatedRestingEnergyField: some View {
+        HStack {
+            Text("Resting Energy")
+                .foregroundColor(Color(.secondaryLabel))
+            Spacer()
+            Group {
+                if isSwiftUIPreview {
+                    Text("2,279")
+                } else {
+                    if let healthRestingEnergy {
+                        Text(healthRestingEnergy.formattedEnergy)
+                    }
+                }
+            }
+            .monospacedDigit()
+            .foregroundColor(.secondary)
+            Text("kcal")
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+    }
+    
     var restingEnergyFormulaField: some View {
         var picker: some View {
             Menu {
@@ -77,11 +102,121 @@ extension TDEEForm {
         }
     }
     
+    var restingEnergyHealthAppPeriodField: some View {
+        var averageIntervalTextField: some View {
+            TextField("days", text: .constant(""))
+                .fixedSize(horizontal: true, vertical: false)
+        }
+        
+        var averageIntervalPicker: some View {
+            Menu {
+                Picker(selection: .constant((1)), label: EmptyView()) {
+                    Text("days").tag(1)
+                    Text("weeks").tag(2)
+                    Text("months").tag(3)
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Text("days")
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: true, vertical: true)
+                .animation(.none, value: healthEnergyPeriod)
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+        
+        var periodPicker: some View {
+            Menu {
+                Picker(selection: $healthEnergyPeriod, label: EmptyView()) {
+                    ForEach(HealthKitEnergyPeriodOption.allCases, id: \.self) {
+                        Text($0.menuDescription).tag($0)
+                    }
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Text(healthEnergyPeriod.pickerDescription)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: true, vertical: true)
+                .animation(.none, value: healthEnergyPeriod)
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+        
+        
+        return NavigationLink {
+            
+        } label: {
+            HStack {
+                Text("Use")
+                Spacer()
+                VStack(alignment: .trailing) {
+                    Text("Previous Day")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+    
+    
     var restingEnergySection: some View {
         var header: some View {
             Text("Resting Energy")
         }
         
+        var sourceField: some View {
+            var picker: some View {
+                let tdeeSourceBinding = Binding<RestingEnergySourceOption>(
+                    get: { restingEnergySource },
+                    set: { newValue in
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            restingEnergySource = newValue
+                        }
+                    }
+                )
+                
+                return Menu {
+                    Picker(selection: tdeeSourceBinding, label: EmptyView()) {
+                        ForEach(RestingEnergySourceOption.allCases, id: \.self) {
+                            Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        HStack {
+                            if restingEnergySource == .healthApp {
+                                appleHealthSymbol
+                            }
+                            Text(restingEnergySource.pickerDescription)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .imageScale(.small)
+                    }
+                    .foregroundColor(.secondary)
+                    .animation(.none, value: restingEnergySource)
+                }
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .soft)
+                })
+            }
+            return HStack {
+                Text("Source")
+                Spacer()
+                picker
+            }
+        }
+
         var picker: some View {
             Menu {
                 Picker(selection: $bmrEquation, label: EmptyView()) {
@@ -119,7 +254,7 @@ extension TDEEForm {
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.secondary)
                     .fixedSize(horizontal: true, vertical: true)
                     .animation(.none, value: bmrUnit)
                 }
@@ -149,56 +284,31 @@ extension TDEEForm {
             )
             
             var textField: some View {
-                TextField("BMR in", text: bmrBinding)
+                TextField("Resting Energy in", text: bmrBinding)
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
             }
             
             return HStack {
-                Text("BMR")
+                Text("Resting Energy")
                 Spacer()
                 textField
                 unitPicker
             }
         }
         
-        var bmrEquationPicker: some View {
-            HStack {
-                Text("Equation")
-                Spacer()
-                picker
-            }
-        }
-        
-        var manualToggle: some View {
-            Toggle(isOn: formToggleBinding($manualBMR)) {
-                VStack(alignment: .leading) {
-                    Text("Enter Manually")
-                }
-            }
-        }
-        
         return Section(header: header) {
-            if tdeeSource == .userEntered {
-                textField
-            } else {
+            sourceField
+            switch restingEnergySource {
+            case .healthApp:
+                restingEnergyHealthAppPeriodField
+                calculatedRestingEnergyField
+            case .formula:
                 restingEnergyFormulaField
+                calculatedRestingEnergyField
+            case .userEntered:
+                textField
             }
         }
     }
 }
-
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                        .presentationDetents([.height(600), .large])
-                        .presentationDragIndicator(.hidden)
-                }
-        }
-    }
-}
-

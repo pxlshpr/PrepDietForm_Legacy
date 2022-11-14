@@ -64,31 +64,31 @@ extension TDEEForm {
     var sourceSection: some View {
         
         var sourcePicker: some View {
-            let tdeeSourceBinding = Binding<TDEESourceOption>(
-                get: { tdeeSource },
+            let tdeeSourceBinding = Binding<RestingEnergySourceOption>(
+                get: { restingEnergySource },
                 set: { newValue in
                     Haptics.feedback(style: .soft)
                     withAnimation {
-                        tdeeSource = newValue
+                        restingEnergySource = newValue
                     }
                 }
             )
             
             return Menu {
                 Picker(selection: tdeeSourceBinding, label: EmptyView()) {
-                    ForEach(TDEESourceOption.allCases, id: \.self) {
+                    ForEach(RestingEnergySourceOption.allCases, id: \.self) {
                         Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
             } label: {
                 HStack(spacing: 5) {
-                    Text(tdeeSource.pickerDescription)
+                    Text(restingEnergySource.pickerDescription)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     Image(systemName: "chevron.up.chevron.down")
                         .imageScale(.small)
                 }
                 .foregroundColor(.secondary)
-                .animation(.none, value: tdeeSource)
+                .animation(.none, value: restingEnergySource)
             }
             .simultaneousGesture(TapGesture().onEnded {
                 Haptics.feedback(style: .soft)
