@@ -4,13 +4,38 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
+enum HealthKitValuesToUseOption: CaseIterable {
+    case latest
+    case average
+    
+    var menuDescription: String {
+        switch self {
+        case .latest:
+            return "Previous Day"
+        case .average:
+            return "Average"
+        }
+    }
+    var pickerDescription: String {
+        switch self {
+        case .latest:
+            return "Previous Day"
+        case .average:
+            return "Average over past"
+        }
+    }
+}
+
 struct TDEEForm: View {
     
     @Environment(\.dismiss) var dismiss
-    
+
+    @State var showingAdaptiveCorrectionInfo = false
+
+
 //    @State var tdeeSource: TDEESource = .formula(.mifflinStJeor, activityLevel: .moderatelyActive)
     @State var tdeeSource: TDEESourceOption = .healthKit
-    
+
     @State var syncHealthKitMeasurements: Bool = false
     @State var syncHealthKitActiveEnergy: Bool = false
     @State var applyActivityScaleFactor: Bool = true
@@ -51,6 +76,8 @@ struct TDEEForm: View {
     
     @State var refreshSource: Bool = false
     
+    @State var healthKitValuesToUse: HealthKitValuesToUseOption = .latest
+    @State var healthKitValuesToUseInterval: DateComponents = DateComponents(day: 1)
     @ViewBuilder
     var body: some View {
         if hasAppeared {
@@ -71,6 +98,7 @@ struct TDEEForm: View {
                 if tdeeSource != .healthKit {
                     activeEnergySection
                 }
+                adaptiveCorrectionSection
             }
             .scrollDismissesKeyboard(.immediately)
             .navigationTitle(title)
@@ -178,55 +206,5 @@ public struct TDEEFormPreview: View {
     public init() { }
     public var body: some View {
         TDEEForm()
-    }
-}
-
-extension TDEEForm {
-    
-
-    var healthKitSection: some View {
-        var header: some View {
-            HStack {
-                appleHealthSymbol
-                Text("Apple Health")
-            }
-        }
-        return Section(header: header) {
-            HStack {
-                Text("Resting Energy")
-                Spacer()
-                if let healthKitRestingEnergy {
-                    Text(healthKitRestingEnergy.cleanAmount)
-                        .foregroundColor(.secondary)
-                    Text("kcal")
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-            }
-            HStack {
-                Text("Active Energy")
-                Spacer()
-                if let healthKitActiveEnergy {
-                    Text(healthKitActiveEnergy.cleanAmount)
-                        .foregroundColor(.secondary)
-                    Text("kcal")
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-            }
-            .task {
-                guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
-                    return
-                }
-                await MainActor.run {
-                    self.healthKitRestingEnergy = restingEnergy
-                }
-
-                guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
-                    return
-                }
-                await MainActor.run {
-                    self.healthKitActiveEnergy = activeEnergy
-                }
-            }
-        }
     }
 }
