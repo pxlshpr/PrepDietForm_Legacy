@@ -74,7 +74,8 @@ struct TDEEForm: View {
     var navigationView: some View {
         NavigationStack(path: $path) {
 //            legacyForm
-            form
+//            formHealth
+            formFormula
             .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Maintenance Energy")
             .navigationBarTitleDisplayMode(.inline)
@@ -182,7 +183,99 @@ struct TDEEForm: View {
         }
     }
 
-    var form: some View {
+    var formFormula: some View {
+        FormStyledScrollView {
+            FormStyledSection(header: restingHeader) {
+                VStack(spacing: 5) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            Image(systemName: "function")
+                                .foregroundColor(.secondary)
+                            Text("Formula")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .foregroundColor(Color(.tertiaryLabel))
+                                .imageScale(.small)
+                        }
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("Use")
+                                .foregroundColor(.secondary)
+                            PickerLabel("Katch-McArdle")
+                            Text("equation")
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(.top)
+                    Divider()
+                        .padding(.vertical)
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("with")
+                                .foregroundColor(Color(.secondaryLabel))
+                            PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward")
+                        }
+                        Spacer()
+                    }
+                    PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward")
+                    HStack {
+                        PickerLabel("male", prefix: "sex", systemImage: "chevron.forward")
+                        PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward")
+                    }
+                    Divider()
+                        .padding(.vertical)
+                    HStack {
+                        Spacer()
+                        Text("2,024")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            
+            FormStyledSection(header: activeHeader) {
+                VStack(spacing: 5) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            appleHealthSymbol
+                            Text("Health App")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .foregroundColor(Color(.tertiaryLabel))
+                                .imageScale(.small)
+                        }
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("Use")
+                                .foregroundColor(.secondary)
+                            PickerLabel("previous day's value")
+                        }
+                        Spacer()
+                    }
+                    .padding(.top)
+                    .padding(.bottom)
+                    HStack {
+                        Spacer()
+                        Text("1,203")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+    }
+    
+    var formHealth: some View {
         FormStyledScrollView {
             FormStyledSection(header: restingHeader) {
                 VStack(spacing: 5) {
