@@ -191,7 +191,7 @@ struct TDEEForm: View {
                         HStack(spacing: 5) {
                             Image(systemName: "function")
                                 .foregroundColor(.secondary)
-                            Text("Formula")
+                            Text("Equation")
                                 .foregroundColor(.secondary)
                             Image(systemName: "chevron.up.chevron.down")
                                 .foregroundColor(Color(.tertiaryLabel))
