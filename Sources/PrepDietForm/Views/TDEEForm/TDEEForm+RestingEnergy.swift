@@ -2,6 +2,28 @@ import SwiftUI
 import SwiftHaptics
 import PrepDataTypes
 
+
+enum HealthKitEnergyPeriodOption: CaseIterable {
+    case previousDay
+    case average
+    
+    var menuDescription: String {
+        switch self {
+        case .previousDay:
+            return "Previous Day"
+        case .average:
+            return "Daily Average"
+        }
+    }
+    var pickerDescription: String {
+        switch self {
+        case .previousDay:
+            return "Previous Day"
+        case .average:
+            return "Average of"
+        }
+    }
+}
 extension TDEEForm {
 
     var restingEnergyFormulaField: some View {

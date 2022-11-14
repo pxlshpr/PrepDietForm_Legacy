@@ -36,7 +36,7 @@ extension TDEEForm {
                     Image(systemName: "chevron.up.chevron.down")
                         .imageScale(.small)
                 }
-                .foregroundColor(.accentColor)
+                .foregroundColor(.secondary)
                 .fixedSize(horizontal: true, vertical: true)
                 .animation(.none, value: healthEnergyPeriod)
             }
@@ -68,7 +68,7 @@ extension TDEEForm {
         }
         
         return HStack {
-            Text("Period")
+            Text("Use")
             Spacer()
             periodPicker
             if healthEnergyPeriod == .average {
@@ -92,9 +92,9 @@ extension TDEEForm {
                 Group {
                     switch healthEnergyPeriod {
                     case .previousDay:
-                        Text("Your maintenance energy will be the energy you burned, both actively and while at rest, from the day before. This will update daily.")
+                        Text("Your maintenance energy will always be the energy your resting + active energy from the previous day. This will update daily.")
                     case .average:
-                        Text("Your maintenance energy will be the average energy your burned burned, both actively and while at rest, over the past week. This will update daily.")
+                        Text("Your maintenance energy will always be the daily average of your resting + active energy from the past week. This will update daily.")
                     }
                 }
 

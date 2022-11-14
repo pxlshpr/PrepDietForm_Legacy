@@ -4,28 +4,6 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
-enum HealthKitEnergyPeriodOption: CaseIterable {
-    case previousDay
-    case average
-    
-    var menuDescription: String {
-        switch self {
-        case .previousDay:
-            return "Day Before"
-        case .average:
-            return "Past Average"
-        }
-    }
-    var pickerDescription: String {
-        switch self {
-        case .previousDay:
-            return "Day Before"
-        case .average:
-            return "Average over"
-        }
-    }
-}
-
 struct TDEEForm: View {
     
     @Environment(\.dismiss) var dismiss
