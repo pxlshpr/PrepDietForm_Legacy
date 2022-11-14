@@ -5,26 +5,147 @@ import PrepDataTypes
 
 import Foundation
 
-extension TDEEForm {
-    var activeEnergyHealthAppPeriodField: some View {
+struct HealthAppPeriodPicker: View {
+    
+    enum Interval: CaseIterable {
+        case day
+        case week
+        case month
         
-        return NavigationLink {
-            
-        } label: {
-            HStack {
-                Text("Use")
-                Spacer()
-                Text("Average of past 2 weeks")
-                    .foregroundColor(.secondary)
-//                VStack(alignment: .trailing) {
-//                    Text("Average Daily")
-//                        .foregroundColor(.secondary)
-//                    Text("of past 2 weeks")
-//                        .font(.footnote)
-//                        .foregroundColor(Color(.tertiaryLabel))
-//                }
+        var description: String {
+            switch self {
+            case .day:
+                return "day"
+            case .week:
+                return "week"
+            case .month:
+                return "month"
             }
         }
+        
+        var minQuantity: Int {
+            switch self {
+            case .day:
+                return 2
+            default:
+                return 1
+            }
+        }
+        var maxQuantity: Int {
+            switch self {
+            case .day:
+                return 6
+            case .week:
+                return 3
+            case .month:
+                return 12
+            }
+        }
+    }
+    
+    @State var selection: Int = 1
+    
+    @State var quantity: Int = 1
+    @State var interval: Interval = .week
+    
+    var typePicker: some View {
+        let selectionBinding = Binding<Int>(
+            get: { selection },
+            set: { newValue in
+                withAnimation {
+                    Haptics.feedback(style: .soft)
+                    selection = newValue
+                }
+            }
+        )
+        
+        return Picker("", selection: selectionBinding) {
+            Text("From Previous Day").tag(0)
+            Text("Average").tag(1)
+        }
+        .pickerStyle(.segmented)
+    }
+    
+    var body: some View {
+        FormStyledScrollView {
+            FormStyledSection {
+                VStack(spacing: 20) {
+                    typePicker
+                    if selection == 1 {
+                        HStack {
+                            Menu {
+                                Picker(selection: $quantity, label: EmptyView()) {
+                                    ForEach(Array(interval.minQuantity...interval.maxQuantity), id: \.self) { quantity in
+                                        Text("\(quantity)").tag(quantity)
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text("\(quantity)")
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .imageScale(.small)
+                                }
+                            }
+                            Menu {
+                                Picker(selection: $interval, label: EmptyView()) {
+                                    ForEach(Interval.allCases, id: \.self) { interval in
+                                        Text("\(interval.description)\(quantity > 1 ? "s" : "")").tag(interval)
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text("\(interval.description)\(quantity > 1 ? "s" : "")")
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .imageScale(.small)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+//        .navigationTitle("Active Energy")
+        .toolbar { principalContent }
+    }
+    
+    var principalContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            HStack {
+                appleHealthSymbol
+                Text("Health App")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+extension TDEEForm {
+    
+    @ViewBuilder
+    func navigationDestination(for route: Route) -> some View {
+        switch route {
+        case .healthAppPeriod:
+            HealthAppPeriodPicker()
+        }
+    }
+    
+    var activeEnergyHealthAppPeriodLink: some View {
+        Button {
+            path.append(.healthAppPeriod)
+        } label: {
+            HStack(spacing: 5) {
+                Text("Average of past 2 weeks")
+                    .multilineTextAlignment(.leading)
+//                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+//                    .foregroundColor(Color(.tertiaryLabel))
+                    .fontWeight(.semibold)
+                    .imageScale(.small)
+            }
+            .foregroundColor(.accentColor)
+        }
+        .buttonStyle(.borderless)
     }
     
     var activeEnergySection: some View {
@@ -57,8 +178,12 @@ extension TDEEForm {
         
         var calculatedActiveEnergyField: some View {
             HStack {
-                Text("Active Energy")
-                    .foregroundColor(Color(.secondaryLabel))
+                if activeEnergySource == .activityLevel {
+                    activityLevelPicker
+                } else {
+                    activeEnergyHealthAppPeriodLink
+//                        .background(Color.blue)
+                }
                 Spacer()
                 Group {
                     if isSwiftUIPreview {
@@ -76,35 +201,35 @@ extension TDEEForm {
             }
         }
 
-        var activityLevelField: some View {
-            var picker: some View {
-                Menu {
-                    Picker(selection: $activityLevel, label: EmptyView()) {
-                        ForEach(ActivityLevel.allCases, id: \.self) {
-                            Text($0.description).tag($0)
-                        }
+        var activityLevelPicker: some View {
+            Menu {
+                Picker(selection: $activityLevel, label: EmptyView()) {
+                    ForEach(ActivityLevel.allCases, id: \.self) {
+                        Text($0.description).tag($0)
                     }
-                } label: {
-                    HStack(spacing: 5) {
-                        Text(activityLevel.description)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                    .foregroundColor(.secondary)
-                    .animation(.none, value: activityLevel)
-                    .fixedSize(horizontal: true, vertical: true)
                 }
-                .simultaneousGesture(TapGesture().onEnded {
-                    Haptics.feedback(style: .soft)
-                })
+            } label: {
+                HStack(spacing: 5) {
+                    Text(activityLevel.description)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.accentColor)
+                .animation(.none, value: activityLevel)
             }
-            
-            return HStack {
-                        Text("Activity Level")
-                        Spacer()
-                        picker
-                    }
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+        
+        var activityLevelField: some View {
+            HStack {
+                Text("Activity Level")
+                Spacer()
+                activityLevelPicker
             }
+        }
         
         var sourceField: some View {
             var picker: some View {
@@ -136,7 +261,7 @@ extension TDEEForm {
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.accentColor)
                     .animation(.none, value: activeEnergySource)
                 }
                 .simultaneousGesture(TapGesture().onEnded {
@@ -212,10 +337,10 @@ extension TDEEForm {
             sourceField
             switch activeEnergySource {
             case .healthApp:
-                activeEnergyHealthAppPeriodField
+//                activeEnergyHealthAppPeriodLink
                 calculatedActiveEnergyField
             case .activityLevel:
-                activityLevelField
+//                activityLevelField
                 calculatedActiveEnergyField
             case .userEntered:
                 textField
@@ -235,19 +360,3 @@ func formToggleBinding(_ binding: Binding<Bool>) -> Binding<Bool> {
         }
     )
 }
-
-
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                        .presentationDetents([.height(600), .large])
-                        .presentationDragIndicator(.hidden)
-                }
-        }
-    }
-}
-

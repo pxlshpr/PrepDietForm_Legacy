@@ -64,29 +64,43 @@ struct TDEEForm: View {
         }
     }
 
+    enum Route: Hashable {
+        case healthAppPeriod
+    }
+    
+//    @State var path: [Route] = [.healthAppPeriod]
+    @State var path: [Route] = []
+
     var navigationView: some View {
-        NavigationView {
-            Form {
-//                sourceSection
-//                if tdeeSource == .healthApp {
-//                    healthSection
-//                }
-//                if tdeeSource != .healthApp {
-                    restingEnergySection
-//                }
-//                if tdeeSource != .healthApp {
-                    activeEnergySection
-//                }
-                adaptiveCorrectionSection
-            }
+        NavigationStack(path: $path) {
+//            legacyForm
+            form
             .scrollDismissesKeyboard(.immediately)
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar { principalContent }
+            .navigationTitle("Maintenance Energy")
+            .navigationBarTitleDisplayMode(.inline)
+//            .toolbar { principalContent }
             .toolbar { trailingContent }
             .toolbar { leadingContent }
             .interactiveDismissDisabled(valuesHaveChanged)
             .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
+            .navigationDestination(for: Route.self, destination: navigationDestination)
+            .task { await initialTask() }
+        }
+    }
+    
+    func initialTask() async {
+        guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
+            return
+        }
+        await MainActor.run {
+            self.healthRestingEnergy = restingEnergy
+        }
+
+        guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
+            return
+        }
+        await MainActor.run {
+            self.healthActiveEnergy = activeEnergy
         }
     }
     
@@ -132,10 +146,120 @@ struct TDEEForm: View {
 
     var principalContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            if maintenanceEnergy != nil {
+            HStack(alignment: .center) {
+                Text("4,024")
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                Text("kcal")
+                    .foregroundColor(.secondary)
+            }
+//            if maintenanceEnergy != nil {
                 Text("Your Maintenance Energy")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+//            }
+        }
+    }
+    
+    var legacyForm: some View {
+        Form {
+//                restingEnergySection
+            activeEnergySection
+//                adaptiveCorrectionSection
+        }
+    }
+    
+    var restingHeader: some View {
+        HStack {
+            Image(systemName: "figure.mind.and.body")
+            Text("Resting Energy")
+        }
+    }
+    
+    var activeHeader: some View {
+        HStack {
+            Image(systemName: "figure.walk.motion")
+            Text("Active Energy")
+        }
+    }
+
+    var form: some View {
+        FormStyledScrollView {
+            FormStyledSection(header: restingHeader) {
+                VStack(spacing: 5) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            appleHealthSymbol
+                            Text("Health App")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .foregroundColor(Color(.tertiaryLabel))
+                                .imageScale(.small)
+                        }
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("Use")
+                                .foregroundColor(.secondary)
+                            PickerLabel("daily average of")
+                        }
+                        Spacer()
+                    }
+                    .padding(.top)
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("The past")
+                                .foregroundColor(Color(.secondaryLabel))
+                            PickerLabel("2")
+                            PickerLabel("weeks")
+                        }
+                        Spacer()
+                    }
+                    .padding(.bottom)
+                    HStack {
+                        Spacer()
+                        Text("2,024")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            
+            FormStyledSection(header: activeHeader) {
+                VStack(spacing: 5) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            appleHealthSymbol
+                            Text("Health App")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .foregroundColor(Color(.tertiaryLabel))
+                                .imageScale(.small)
+                        }
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text("Use")
+                                .foregroundColor(.secondary)
+                            PickerLabel("previous day's value")
+                        }
+                        Spacer()
+                    }
+                    .padding(.top)
+                    .padding(.bottom)
+                    HStack {
+                        Spacer()
+                        Text("1,203")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
         }
     }
@@ -145,6 +269,19 @@ public struct TDEEFormPreview: View {
     public init() { }
     public var body: some View {
         TDEEForm()
+    }
+}
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                        .presentationDetents([.height(600), .large])
+                        .presentationDragIndicator(.hidden)
+                }
+        }
     }
 }
 

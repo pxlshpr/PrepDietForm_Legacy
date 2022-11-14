@@ -168,52 +168,52 @@ extension TDEEForm {
     }
     
     
+    var restingSourcePicker: some View {
+        let tdeeSourceBinding = Binding<RestingEnergySourceOption>(
+            get: { restingEnergySource },
+            set: { newValue in
+                Haptics.feedback(style: .soft)
+                withAnimation {
+                    restingEnergySource = newValue
+                }
+            }
+        )
+        
+        return Menu {
+            Picker(selection: tdeeSourceBinding, label: EmptyView()) {
+                ForEach(RestingEnergySourceOption.allCases, id: \.self) {
+                    Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                HStack {
+                    if restingEnergySource == .healthApp {
+                        appleHealthSymbol
+                    }
+                    Text(restingEnergySource.pickerDescription)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .foregroundColor(.secondary)
+            .animation(.none, value: restingEnergySource)
+        }
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
+    }
     var restingEnergySection: some View {
         var header: some View {
             Text("Resting Energy")
         }
         
         var sourceField: some View {
-            var picker: some View {
-                let tdeeSourceBinding = Binding<RestingEnergySourceOption>(
-                    get: { restingEnergySource },
-                    set: { newValue in
-                        Haptics.feedback(style: .soft)
-                        withAnimation {
-                            restingEnergySource = newValue
-                        }
-                    }
-                )
-                
-                return Menu {
-                    Picker(selection: tdeeSourceBinding, label: EmptyView()) {
-                        ForEach(RestingEnergySourceOption.allCases, id: \.self) {
-                            Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 5) {
-                        HStack {
-                            if restingEnergySource == .healthApp {
-                                appleHealthSymbol
-                            }
-                            Text(restingEnergySource.pickerDescription)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                    .foregroundColor(.secondary)
-                    .animation(.none, value: restingEnergySource)
-                }
-                .simultaneousGesture(TapGesture().onEnded {
-                    Haptics.feedback(style: .soft)
-                })
-            }
             return HStack {
                 Text("Source")
                 Spacer()
-                picker
+                restingSourcePicker
             }
         }
 

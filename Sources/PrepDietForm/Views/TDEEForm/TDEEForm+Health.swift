@@ -35,24 +35,9 @@ extension TDEEForm {
         
 
         return Section(header: header, footer: footer) {
-            activeEnergyHealthAppPeriodField
-            calculatedRestingEnergyField
+//            activeEnergyHealthAppPeriodLink
+//            calculatedRestingEnergyField
 //            healthActiveEnergyField
-            .task {
-                guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
-                    return
-                }
-                await MainActor.run {
-                    self.healthRestingEnergy = restingEnergy
-                }
-
-                guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
-                    return
-                }
-                await MainActor.run {
-                    self.healthActiveEnergy = activeEnergy
-                }
-            }
         }
     }
 }
