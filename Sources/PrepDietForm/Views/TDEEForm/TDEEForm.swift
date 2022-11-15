@@ -7,6 +7,7 @@ import HealthKit
 extension TDEEForm {
     class ViewModel: ObservableObject {
         @Published var hasAppeared = false
+        @Published var isEditing = false
     }
 }
 struct TDEEForm: View {
@@ -29,7 +30,7 @@ struct TDEEForm: View {
 
     var navigationView: some View {
         NavigationStack(path: $path) {
-            formFormula
+            form
             .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Maintenance Calories")
             .navigationBarTitleDisplayMode(.inline)
@@ -37,7 +38,7 @@ struct TDEEForm: View {
             .toolbar { leadingContent }
             .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
-            .interactiveDismissDisabled(isEditing)
+            .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }
         }
         .presentationDetents([.medium, .large], selection: $presentationDetent)
@@ -92,5 +93,4 @@ struct TDEEForm: View {
     @State var path: [Route] = []
     @State var presentationDetent: PresentationDetent = .height(430)
     @State var useHealthAppData = false
-    @State var isEditing = false
 }

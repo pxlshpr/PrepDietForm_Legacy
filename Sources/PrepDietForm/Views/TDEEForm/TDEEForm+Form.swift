@@ -2,34 +2,17 @@ import SwiftUI
 import SwiftUISugar
 
 extension TDEEForm {
-    var formFormula: some View {
+    var form: some View {
         FormStyledScrollView {
-            if !isEditing {
-                viewingContents
+            if !viewModel.isEditing {
+                viewContents
             } else {
-                editingContents
+                editContents
             }
         }
     }
     
-    var editingContents: some View {
-        Group {
-            maintenanceSection
-            Text("=")
-                .matchedGeometryEffect(id: "equals", in: namespace)
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-            formulaSectionNew
-            Text("+")
-                .matchedGeometryEffect(id: "plus", in: namespace)
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-            activeHealthSection
-//            restingHealthSection
-        }
-    }
-    
-    var viewingContents: some View {
+    var viewContents: some View {
         Group {
             promptSection
             arrowSection
@@ -45,6 +28,23 @@ extension TDEEForm {
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 17)
+        }
+    }
+    
+    var editContents: some View {
+        Group {
+            maintenanceSection
+            Text("=")
+                .matchedGeometryEffect(id: "equals", in: namespace)
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            formulaSectionNew
+            Text("+")
+                .matchedGeometryEffect(id: "plus", in: namespace)
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            activeHealthSection
+//            restingHealthSection
         }
     }
 }

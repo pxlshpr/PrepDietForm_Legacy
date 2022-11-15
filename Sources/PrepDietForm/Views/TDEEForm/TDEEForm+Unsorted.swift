@@ -48,7 +48,7 @@ extension TDEEForm {
             Button {
                 toggleEditState()
             } label: {
-                Text(isEditing ? "Save" : "Edit")
+                Text(viewModel.isEditing ? "Save" : "Edit")
 //                Image(systemName: isEditing ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
             }
 //            if valuesHaveChanged {
@@ -438,60 +438,8 @@ extension TDEEForm {
         }
     }
     
-    var arrowSection: some View {
-        HStack {
-            ZStack {
-                Text("3,204")
-                    .foregroundColor(.primary)
-                    .font(.system(.title3, design: .default, weight: .bold))
-                    .monospacedDigit()
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundColor(Color(.secondarySystemGroupedBackground))
-                    )
-                    .opacity(0)
-                Image(systemName: "arrow.down")
-                    .foregroundColor(Color(.quaternaryLabel))
-                    .fontWeight(.light)
-                    .font(.largeTitle)
-            }
-            Text("=")
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-                .opacity(0)
-            Text("2,204")
-                .font(.system(.title3, design: .default, weight: .regular))
-                .foregroundColor(.primary)
-                .monospacedDigit()
-                .frame(maxWidth: .infinity)
-                .background(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundColor(Color(.secondarySystemGroupedBackground))
-                    }
-                )
-                .opacity(0)
-            Text("+")
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-                .opacity(0)
-            Text("1,428")
-                .font(.system(.title3, design: .default, weight: .regular))
-                .foregroundColor(.primary)
-                .monospacedDigit()
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .foregroundColor(Color(.secondarySystemGroupedBackground))
-                )
-                .opacity(0)
-        }
-        .padding(.horizontal, 17)
-    }
-    
     func toggleEditState() {
-        if isEditing {
+        if viewModel.isEditing {
             transitionToCollapsedState()
         } else {
             transitionToEditState()
@@ -501,7 +449,7 @@ extension TDEEForm {
     func transitionToCollapsedState() {
         Haptics.successFeedback()
         withAnimation {
-            isEditing = false
+            viewModel.isEditing = false
             presentationDetent = .medium
         }
     }
@@ -509,7 +457,7 @@ extension TDEEForm {
     func transitionToEditState() {
         Haptics.feedback(style: .rigid)
         withAnimation {
-            isEditing = true
+            viewModel.isEditing = true
             presentationDetent = .large
         }
     }
