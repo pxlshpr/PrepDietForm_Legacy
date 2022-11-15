@@ -25,6 +25,7 @@ extension TDEEForm {
                     )
                 }
                 .buttonStyle(.borderless)
+                .padding(.top)
             }
         }
         .frame(maxWidth: .infinity)
