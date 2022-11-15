@@ -17,7 +17,7 @@ extension TDEEForm {
             promptSection
             if !viewModel.notSetup {
                 arrowSection
-                mainSection
+                summarySection
                     .padding(.top, 5)
                     .padding(.bottom, 10)
                 HStack(alignment: .firstTextBaseline) {
@@ -40,12 +40,12 @@ extension TDEEForm {
                 .matchedGeometryEffect(id: "equals", in: namespace)
                 .font(.title)
                 .foregroundColor(Color(.quaternaryLabel))
-            formulaSectionNew
+            restingEnergySection
             Text("+")
                 .matchedGeometryEffect(id: "plus", in: namespace)
                 .font(.title)
                 .foregroundColor(Color(.quaternaryLabel))
-            activeHealthSection
+            activeEnergySection
 //            restingHealthSection
         }
     }

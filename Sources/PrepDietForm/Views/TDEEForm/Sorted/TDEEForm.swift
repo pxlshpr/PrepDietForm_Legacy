@@ -9,6 +9,11 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var isEditing = false
         @Published var presentationDetent: PresentationDetent = .height(270)
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
     }
 }
 
@@ -19,6 +24,10 @@ extension TDEEForm.ViewModel {
     
     var detents: Set<PresentationDetent> {
         notSetup ? [.height(270), .large] : [.medium, .large]
+    }
+    
+    var maintenanceEnergy: Double? {
+        nil
     }
 }
 

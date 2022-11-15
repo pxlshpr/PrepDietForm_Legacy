@@ -14,7 +14,10 @@ extension TDEEForm {
                 } label: {
                     HStack {
                         Image(systemName: "flame.fill")
+                            .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
                         Text("Setup Maintenance Calories")
+                            .fixedSize(horizontal: true, vertical: false)
+                            .matchedGeometryEffect(id: "maintenance-header-title", in: namespace)
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal)
@@ -25,7 +28,7 @@ extension TDEEForm {
                     )
                 }
                 .buttonStyle(.borderless)
-                .padding(.top)
+                .padding(.top, 5)
             }
         }
         .frame(maxWidth: .infinity)
@@ -92,16 +95,26 @@ extension TDEEForm {
         }
         .padding(.horizontal, 17)
     }
-}
-
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if !viewModel.notSetup {
+                Button {
+                    toggleEditState()
+                } label: {
+                    Text(viewModel.isEditing ? "Save" : "Edit")
+//                    Image(systemName: isEditing ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                 }
+//                if valuesHaveChanged {
+//                    Button {
+//                        Haptics.successFeedback()
+//                        dismiss()
+//                    } label: {
+//                        Text("Save")
+//                            .bold()
+//                    }
+//                }
+            }
         }
     }
 }

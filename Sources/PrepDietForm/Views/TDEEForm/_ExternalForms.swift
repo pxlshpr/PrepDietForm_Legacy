@@ -1,27 +1,6 @@
 import SwiftUI
-import SwiftUISugar
 import SwiftHaptics
-import PrepDataTypes
-
-import Foundation
-
-struct FatPercentageForm: View {
-    var body: some View {
-        Text("Fat percenteage form")
-    }
-}
-
-struct HeightForm: View {
-    var body: some View {
-        Text("Height form")
-    }
-}
-
-struct WeightForm: View {
-    var body: some View {
-        Text("Weight form")
-    }
-}
+import SwiftUISugar
 
 struct HealthAppPeriodPicker: View {
     
@@ -138,49 +117,21 @@ struct HealthAppPeriodPicker: View {
     }
 }
 
-extension TDEEForm {
-    
-    @ViewBuilder
-    func navigationDestination(for route: Route) -> some View {
-        switch route {
-        case .healthAppPeriod:
-            HealthAppPeriodPicker()
-        case .fatPercentageForm:
-            FatPercentageForm()
-        case .heightForm:
-            HeightForm()
-        case .weightForm:
-            WeightForm()
-        }
+
+struct FatPercentageForm: View {
+    var body: some View {
+        Text("Fat percenteage form")
     }
-    
-    var activeEnergyHealthAppPeriodLink: some View {
-        Button {
-            path.append(.healthAppPeriod)
-        } label: {
-            HStack(spacing: 5) {
-                Text("Average of past 2 weeks")
-                    .multilineTextAlignment(.leading)
-//                    .foregroundColor(.secondary)
-                Image(systemName: "chevron.right")
-//                    .foregroundColor(Color(.tertiaryLabel))
-                    .fontWeight(.semibold)
-                    .imageScale(.small)
-            }
-            .foregroundColor(.accentColor)
-        }
-        .buttonStyle(.borderless)
-    }    
 }
 
-func formToggleBinding(_ binding: Binding<Bool>) -> Binding<Bool> {
-    Binding<Bool>(
-        get: { binding.wrappedValue },
-        set: { newValue in
-            Haptics.feedback(style: .soft)
-            withAnimation(.interactiveSpring()) {
-                binding.wrappedValue = newValue
-            }
-        }
-    )
+struct HeightForm: View {
+    var body: some View {
+        Text("Height form")
+    }
+}
+
+struct WeightForm: View {
+    var body: some View {
+        Text("Weight form")
+    }
 }

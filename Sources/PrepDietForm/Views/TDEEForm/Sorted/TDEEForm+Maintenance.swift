@@ -1,0 +1,105 @@
+import SwiftUI
+
+extension TDEEForm {
+    
+    var maintenanceSection: some View {
+        
+        var content: some View {
+
+            var filled: some View {
+                VStack {
+                    HStack {
+                        Text("3,204")
+                            .fixedSize(horizontal: true, vertical: false)
+                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                            .matchedGeometryEffect(id: "maintenance", in: namespace)
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.trailing)
+                }
+            }
+            
+            var empty: some View {
+                Text("Choose your resting and active energies to calculate this")
+                    .font(.title3)
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.vertical)
+            }
+            
+            return Group {
+                if viewModel.maintenanceEnergy != nil {
+                    filled
+                } else {
+                    empty
+                }
+            }
+        }
+        
+        var header: some View {
+            var empty: some View {
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
+                    Text("Setup Maintenance Calories")
+                        .fixedSize(horizontal: true, vertical: false)
+                        .matchedGeometryEffect(id: "maintenance-header-title", in: namespace)
+                }
+            }
+            
+            var filled: some View {
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
+                    Text("Maintenance Energy")
+                }
+            }
+            return Group {
+                if viewModel.maintenanceEnergy == nil {
+                    empty
+                } else {
+                    filled
+                }
+            }
+        }
+        
+        return Group {
+            VStack(spacing: 7) {
+                header
+                    .textCase(.uppercase)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(Color(.secondaryLabel))
+                    .font(.footnote)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                content
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 0)
+                    .padding(.vertical, 15)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(Color(.secondarySystemGroupedBackground))
+                            .matchedGeometryEffect(id: "maintenance-bg", in: namespace)
+                    )
+                    .padding(.bottom, 10)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
+    }
+    
+}
+
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
+    }
+}

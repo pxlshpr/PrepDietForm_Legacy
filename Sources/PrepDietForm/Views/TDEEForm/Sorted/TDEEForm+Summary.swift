@@ -1,7 +1,8 @@
 import SwiftUI
 
 extension TDEEForm {
-    var mainSection: some View {
+    
+    var summarySection: some View {
         Button {
             transitionToEditState()
         } label: {

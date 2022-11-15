@@ -6,6 +6,28 @@ class HealthKitManager: ObservableObject {
     
     let store: HKHealthStore = HKHealthStore()
     
+    
+    func requestPermission(for type: HKQuantityTypeIdentifier) async -> Bool {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            return false
+        }
+        
+        let quantityTypes: [HKQuantityTypeIdentifier] = [
+            .basalEnergyBurned,
+        ]
+        
+        var readTypes: [HKObjectType] = []
+        readTypes.append(contentsOf: quantityTypes.compactMap { HKQuantityType($0) })
+
+        do {
+            try await store.requestAuthorization(toShare: Set(), read: Set(readTypes))
+            return true
+        } catch {
+            print("Error requesting authorization: \(error)")
+            return false
+        }
+    }
+    
     func requestPermission() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
             return false
