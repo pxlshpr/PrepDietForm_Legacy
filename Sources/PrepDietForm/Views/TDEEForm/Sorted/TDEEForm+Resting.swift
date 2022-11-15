@@ -221,13 +221,34 @@ extension TDEEForm {
             VStack {
                 topSection
                 if viewModel.permissionDeniedForResting {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Apple Health integration requires permissions to be granted in:")
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(.secondary)
-                        Text("Settings → Privacy → Health → Prep")
-                            .font(.subheadline)
-                            .foregroundColor(Color(.tertiaryLabel))
+                    VStack {
+                        VStack(alignment: .center, spacing: 5) {
+                            Text("Apple Health integration requires permissions to be granted in:")
+                                .fixedSize(horizontal: false, vertical: true)
+                                .foregroundColor(.secondary)
+                            Text("Settings → Privacy & Security → Health → Prep")
+                                .font(.footnote)
+                                .foregroundColor(Color(.tertiaryLabel))
+                        }
+                        .multilineTextAlignment(.center)
+                        Button {
+                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                        } label: {
+                            HStack {
+                                Image(systemName: "gear")
+                                Text("Go to Settings")
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .foregroundColor(Color.accentColor)
+                            )
+                        }
+                        .buttonStyle(.borderless)
+                        .padding(.top, 5)
                     }
                         .padding()
                         .padding(.horizontal)
@@ -303,15 +324,15 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var permissionDeniedForResting: Bool = false
-
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+//        @Published var isEditing = false
+//        @Published var presentationDetent: PresentationDetent = .height(270)
+//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
 //        @Published var permissionDeniedForResting: Bool = false
+
+        @Published var isEditing = true
+        @Published var presentationDetent: PresentationDetent = .large
+        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+        @Published var permissionDeniedForResting: Bool = true
 
         
     }
