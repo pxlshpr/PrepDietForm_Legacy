@@ -46,7 +46,6 @@ extension MacroForm {
     
     var tdeeForm: some View {
         TDEEForm()
-            .presentationDetents([.medium, .large])
     }
 
     var unitSection: some View {

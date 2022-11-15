@@ -38,6 +38,5 @@ extension EnergyForm {
     
     var tdeeForm: some View {
         TDEEForm()
-            .presentationDetents([.medium, .large])
     }
 }

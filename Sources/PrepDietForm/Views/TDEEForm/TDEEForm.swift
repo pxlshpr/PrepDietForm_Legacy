@@ -6,6 +6,7 @@ import HealthKit
 
 struct TDEEForm: View {
     
+    @Namespace var namespace
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
 
@@ -84,14 +85,25 @@ struct TDEEForm: View {
             .navigationTitle("Maintenance Calories")
             .navigationBarTitleDisplayMode(.inline)
 //            .toolbar { principalContent }
-//            .toolbar { trailingContent }
+            .toolbar { trailingContent }
             .toolbar { leadingContent }
 //            .interactiveDismissDisabled(valuesHaveChanged)
             .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .task { await initialTask() }
+//            .onChange(of: presentationDetent) { newValue in
+//                if presentationDetent == .large {
+//                    transitionToEditState()
+//                } else {
+//                    transitionToCollapsedState()
+//                }
+//            }
         }
+//        .presentationDetents([.height(230), .large], selection: $presentationDetent)
+//        .presentationDragIndicator(.hidden)
     }
+    
+    @State var presentationDetent: PresentationDetent = .height(230)
     
     func initialTask() async {
         guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
@@ -124,17 +136,22 @@ struct TDEEForm: View {
     }
     
     var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            if valuesHaveChanged {
-                Button {
-                    Haptics.successFeedback()
-                    dismiss()
-                } label: {
-                    Text("Save")
-                        .bold()
-//                    Image(systemName: "checkmark")
-                }
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            Button {
+                toggleEditState()
+            } label: {
+                Text(isEditing ? "Save" : "Edit")
+//                Image(systemName: isEditing ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
             }
+//            if valuesHaveChanged {
+//                Button {
+//                    Haptics.successFeedback()
+//                    dismiss()
+//                } label: {
+//                    Text("Save")
+//                        .bold()
+//                }
+//            }
         }
     }
 
@@ -176,6 +193,7 @@ struct TDEEForm: View {
     var restingHeader: some View {
         HStack {
             Image(systemName: "figure.mind.and.body")
+                .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
             Text("Resting Energy")
         }
     }
@@ -183,6 +201,7 @@ struct TDEEForm: View {
     var activeHeader: some View {
         HStack {
             Image(systemName: "figure.walk.motion")
+                .matchedGeometryEffect(id: "active-header-icon", in: namespace)
             Text("Active Energy")
         }
     }
@@ -360,7 +379,7 @@ struct TDEEForm: View {
                         .imageScale(.small)
                 }
                 Spacer()
-//                useHealthAppToggle
+                //                useHealthAppToggle
             }
             .padding(.horizontal, 17)
         }
@@ -387,11 +406,11 @@ struct TDEEForm: View {
                     string,
                     prefix: prefix,
                     systemImage: useHealthAppData ? nil : "chevron.right",
-//                    imageColor: <#T##Color#>,
+                    //                    imageColor: <#T##Color#>,
                     backgroundColor:  useHealthAppData ? Color(.systemGroupedBackground) : backgroundColor,
                     foregroundColor: useHealthAppData ? Color(.secondaryLabel) : Color.primary,
                     prefixColor: useHealthAppData ? Color(.tertiaryLabel) : Color.secondary,
-//                    imageScale: <#T##Image.Scale#>,
+                    //                    imageScale: <#T##Image.Scale#>,
                     infiniteMaxHeight: false
                 )
             }
@@ -435,132 +454,302 @@ struct TDEEForm: View {
             }
             .padding(.bottom, 5)
         }
-    
-        return FormStyledSection(header: restingHeader, horizontalPadding: 0) {
-            VStack {
-                topSection
-                formulaRow
-                Divider()
-                    .frame(width: 300)
-                    .padding(.vertical, 5)
-                flowView
-                useHealthAppToggle
-                    .padding(.bottom)
-                HStack {
-                    Spacer()
-                    Text("2,024")
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                    Text("kcal")
-                        .foregroundColor(.secondary)
+        
+        return Group {
+            VStack(spacing: 7) {
+                restingHeader
+                    .textCase(.uppercase)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(Color(.secondaryLabel))
+                    .font(.footnote)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                VStack {
+                    topSection
+                    formulaRow
+                    Divider()
+                        .frame(width: 300)
+                        .padding(.vertical, 5)
+                    flowView
+                    useHealthAppToggle
+                        .padding(.bottom)
+                    HStack {
+                        Spacer()
+                        Text("2,024")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .matchedGeometryEffect(id: "resting", in: namespace)
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.trailing)
                 }
-                .padding(.trailing)
-            }
-        }
-    }
-    var formFormula: some View {
-        FormStyledScrollView {
-            mainSection
-                .padding(.top, 5)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 0)
+                .padding(.vertical, 15)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color(.secondarySystemGroupedBackground))
+                        .matchedGeometryEffect(id: "resting-bg", in: namespace)
+                )
                 .padding(.bottom, 10)
-            HStack(alignment: .firstTextBaseline) {
-                appleHealthSymbol
-                    .font(.caption2)
-                Text("These components will be continuously updated as new data comes in from the Health App.")
             }
-            .font(.footnote)
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 17)
-//            formulaSectionNew
-//            activeHealthSection
-//            restingHealthSection
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
         }
     }
     
-    var mainSection: some View {
+    
+    var maintenanceSection: some View {
+        return Group {
+            VStack(spacing: 7) {
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
+                    Text("Maintenance Energy")
+                }
+                .textCase(.uppercase)
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color(.secondaryLabel))
+                .font(.footnote)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                VStack {
+                    HStack {
+                        Text("2,024")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .matchedGeometryEffect(id: "maintenance", in: namespace)
+                        Text("kcal")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.trailing)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 0)
+                .padding(.vertical, 15)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color(.secondarySystemGroupedBackground))
+                        .matchedGeometryEffect(id: "maintenance-bg", in: namespace)
+                )
+                .padding(.bottom, 10)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
+    }
+    
+    var promptSection: some View {
+        VStack {
+            Text("This is an estimate of how many calories you would need to consume to maintain your current weight.")
+                .font(.title3)
+                .multilineTextAlignment(.center)
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 30)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .foregroundColor(Color(.quaternarySystemFill))
+        )
+        .cornerRadius(10)
+        .padding(.bottom, 10)
+        .padding(.horizontal, 17)
+    }
+    
+    var arrowSection: some View {
         HStack {
-            VStack(spacing: 10) {
-                Image(systemName: "flame.fill")
-                    .foregroundColor(.secondary)
-                    .imageScale(.medium)
+            ZStack {
                 Text("3,204")
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .font(.system(.title3, design: .default, weight: .bold))
                     .monospacedDigit()
-                    .padding(.vertical, 20)
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .foregroundColor(Color(.secondarySystemGroupedBackground))
                     )
-            }
-            VStack(spacing: 10) {
-                Image(systemName: "figure.mind.and.body")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .imageScale(.medium)
                     .opacity(0)
-                Text("=")
-                    .font(.title)
+                Image(systemName: "arrow.down")
                     .foregroundColor(Color(.quaternaryLabel))
+                    .fontWeight(.light)
+                    .font(.largeTitle)
             }
-            VStack(spacing: 10) {
-                HStack(spacing: 3) {
+            Text("=")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+                .opacity(0)
+            Text("2,204")
+                .font(.system(.title3, design: .default, weight: .regular))
+                .foregroundColor(.primary)
+                .monospacedDigit()
+                .frame(maxWidth: .infinity)
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundColor(Color(.secondarySystemGroupedBackground))
+                    }
+                )
+                .opacity(0)
+            Text("+")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+                .opacity(0)
+            Text("1,428")
+                .font(.system(.title3, design: .default, weight: .regular))
+                .foregroundColor(.primary)
+                .monospacedDigit()
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundColor(Color(.secondarySystemGroupedBackground))
+                )
+                .opacity(0)
+        }
+        .padding(.horizontal, 17)
+    }
+    
+    var formFormula: some View {
+        FormStyledScrollView {
+            if !isEditing {
+                promptSection
+                arrowSection
+                mainSection
+                    .padding(.top, 5)
+                    .padding(.bottom, 10)
+                HStack(alignment: .firstTextBaseline) {
+                    appleHealthSymbol
+                        .font(.caption2)
+                    Text("These components will be continuously updated as new data comes in from the Health App.")
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 17)
+            } else {
+                maintenanceSection
+                formulaSectionNew
+                activeHealthSection
+//                restingHealthSection
+            }
+        }
+    }
+    
+    @State var isEditing = false
+    
+    func toggleEditState() {
+        if isEditing {
+            transitionToCollapsedState()
+        } else {
+            transitionToEditState()
+        }
+    }
+    
+    func transitionToCollapsedState() {
+        Haptics.feedback(style: .rigid)
+        withAnimation {
+            isEditing = false
+            presentationDetent = .height(230)
+        }
+    }
+    
+    func transitionToEditState() {
+        Haptics.feedback(style: .rigid)
+        withAnimation {
+            isEditing = true
+            presentationDetent = .large
+        }
+    }
+    var mainSection: some View {
+        Button {
+            transitionToEditState()
+        } label: {
+            HStack {
+                VStack(spacing: 10) {
+                    Image(systemName: "flame.fill")
+                        .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .imageScale(.medium)
+                    Text("3,204")
+                        .foregroundColor(.primary)
+                        .matchedGeometryEffect(id: "maintenance", in: namespace)
+                        .font(.system(.title3, design: .default, weight: .bold))
+                        .monospacedDigit()
+                        .padding(.vertical, 20)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .foregroundColor(Color(.secondarySystemGroupedBackground))
+                                .matchedGeometryEffect(id: "maintenance-bg", in: namespace)
+                        )
+                }
+                VStack(spacing: 10) {
                     Image(systemName: "figure.mind.and.body")
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
-                    appleHealthSymbol
-                        .imageScale(.small)
+                        .opacity(0)
+                    Text("=")
+                        .font(.title)
+                        .foregroundColor(Color(.quaternaryLabel))
                 }
-                Text("1,776")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
-                    .monospacedDigit()
-                    .padding(.vertical, 20)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundColor(Color(.secondarySystemGroupedBackground))
-//                            VStack {
-//                                HStack {
-//                                    Spacer()
-//                                    appleHealthSymbol
-//                                        .imageScale(.small)
-//                                        .padding(.trailing, 5)
-//                                        .padding(.leading, 5)
-//                                }
-//                                Spacer()
-//                            }
-                        }
-                    )
-            }
-            VStack(spacing: 10) {
-                Image(systemName: "figure.mind.and.body")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .imageScale(.medium)
-                    .opacity(0)
-                Text("+")
-                    .font(.title)
-                    .foregroundColor(Color(.quaternaryLabel))
-            }
-            VStack(spacing: 10) {
-                HStack(spacing: 3) {
-                    Image(systemName: "figure.walk.motion")
+                VStack(spacing: 10) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "figure.mind.and.body")
+                            .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
+                            .foregroundColor(Color(.tertiaryLabel))
+                            .imageScale(.medium)
+                        appleHealthSymbol
+                            .imageScale(.small)
+                    }
+                    Text("2,204")
+                        .matchedGeometryEffect(id: "resting", in: namespace)
+                        .font(.system(.title3, design: .default, weight: .regular))
+                        .foregroundColor(.primary)
+                        .monospacedDigit()
+                        .padding(.vertical, 20)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .foregroundColor(Color(.secondarySystemGroupedBackground))
+                                    .matchedGeometryEffect(id: "resting-bg", in: namespace)
+                            }
+                        )
+                }
+                VStack(spacing: 10) {
+                    Image(systemName: "figure.mind.and.body")
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
-                    appleHealthSymbol
-                        .imageScale(.small)
+                        .opacity(0)
+                    Text("+")
+                        .font(.title)
+                        .foregroundColor(Color(.quaternaryLabel))
                 }
-                Text("1,428")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
-                    .monospacedDigit()
-                    .padding(.vertical, 20)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundColor(Color(.secondarySystemGroupedBackground))
-                    )
+                VStack(spacing: 10) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "figure.walk.motion")
+                            .matchedGeometryEffect(id: "active-header-icon", in: namespace)
+                            .foregroundColor(Color(.tertiaryLabel))
+                            .imageScale(.medium)
+                        appleHealthSymbol
+                            .imageScale(.small)
+                    }
+                    Text("1,428")
+                        .matchedGeometryEffect(id: "active", in: namespace)
+                        .font(.system(.title3, design: .default, weight: .regular))
+                        .foregroundColor(.primary)
+                        .monospacedDigit()
+                        .padding(.vertical, 20)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .foregroundColor(Color(.secondarySystemGroupedBackground))
+                                .matchedGeometryEffect(id: "active-bg", in: namespace)
+                        )
+                }
             }
+            .padding(.horizontal, 17)
         }
-        .padding(.horizontal, 17)
     }
     
     var restingHealthSection: some View {
@@ -610,7 +799,7 @@ struct TDEEForm: View {
     }
     
     var activeHealthSection: some View {
-        FormStyledSection(header: activeHeader) {
+        var content: some View {
             VStack(spacing: 5) {
                 HStack {
                     HStack(spacing: 5) {
@@ -636,13 +825,35 @@ struct TDEEForm: View {
                 .padding(.bottom)
                 HStack {
                     Spacer()
-                    Text("1,203")
+                    Text("1,428")
+                        .matchedGeometryEffect(id: "active", in: namespace)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                     Text("kcal")
                         .foregroundColor(.secondary)
                 }
             }
         }
+        
+        return VStack(spacing: 7) {
+            activeHeader
+                .foregroundColor(Color(.secondaryLabel))
+                .font(.footnote)
+                .textCase(.uppercase)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+            content
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 17)
+                .padding(.vertical, 15)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color(.secondarySystemGroupedBackground))
+                        .matchedGeometryEffect(id: "active-bg", in: namespace)
+                )
+                .padding(.bottom, 10)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
     }
     
     var formHealth: some View {
@@ -666,8 +877,6 @@ struct TDEEForm_Previews: PreviewProvider {
             Color.clear
                 .sheet(isPresented: .constant(true)) {
                     TDEEFormPreview()
-                        .presentationDetents([.height(230), .large])
-                        .presentationDragIndicator(.hidden)
                 }
         }
     }
