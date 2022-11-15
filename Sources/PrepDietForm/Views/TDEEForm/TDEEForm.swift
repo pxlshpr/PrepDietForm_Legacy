@@ -90,6 +90,7 @@ struct TDEEForm: View {
 //            .interactiveDismissDisabled(valuesHaveChanged)
             .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
+            .interactiveDismissDisabled(isEditing)
             .task { await initialTask() }
 //            .onChange(of: presentationDetent) { newValue in
 //                if presentationDetent == .large {
@@ -99,11 +100,11 @@ struct TDEEForm: View {
 //                }
 //            }
         }
-//        .presentationDetents([.height(230), .large], selection: $presentationDetent)
+//        .presentationDetents([.height(430), .large], selection: $presentationDetent)
 //        .presentationDragIndicator(.hidden)
     }
     
-    @State var presentationDetent: PresentationDetent = .height(230)
+    @State var presentationDetent: PresentationDetent = .height(430)
     
     func initialTask() async {
         guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
@@ -192,7 +193,7 @@ struct TDEEForm: View {
     
     var restingHeader: some View {
         HStack {
-            Image(systemName: "figure.mind.and.body")
+            Image(systemName: "figure.wave")
                 .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
             Text("Resting Energy")
         }
@@ -361,7 +362,8 @@ struct TDEEForm: View {
             Toggle(isOn: useHealthAppDataBinding) {
                 HStack {
                     appleHealthSymbol
-                    Text("Sync with Health App")
+                        .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+                    Text("Sync\(useHealthAppData ? "ed" : "") with Health App")
                 }
             }
             .toggleStyle(.button)
@@ -655,10 +657,9 @@ struct TDEEForm: View {
     }
     
     func transitionToCollapsedState() {
-        Haptics.feedback(style: .rigid)
+        Haptics.successFeedback()
         withAnimation {
             isEditing = false
-            presentationDetent = .height(230)
         }
     }
     
@@ -666,7 +667,6 @@ struct TDEEForm: View {
         Haptics.feedback(style: .rigid)
         withAnimation {
             isEditing = true
-            presentationDetent = .large
         }
     }
     var mainSection: some View {
@@ -693,7 +693,7 @@ struct TDEEForm: View {
                         )
                 }
                 VStack(spacing: 10) {
-                    Image(systemName: "figure.mind.and.body")
+                    Image(systemName: "figure.wave")
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
                         .opacity(0)
@@ -704,12 +704,13 @@ struct TDEEForm: View {
                 }
                 VStack(spacing: 10) {
                     HStack(spacing: 3) {
-                        Image(systemName: "figure.mind.and.body")
+                        Image(systemName: "figure.wave")
                             .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
                         appleHealthSymbol
                             .imageScale(.small)
+                            .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
                     }
                     Text("2,024")
                         .matchedGeometryEffect(id: "resting", in: namespace)
@@ -728,7 +729,7 @@ struct TDEEForm: View {
                         )
                 }
                 VStack(spacing: 10) {
-                    Image(systemName: "figure.mind.and.body")
+                    Image(systemName: "figure.wave")
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
                         .opacity(0)
@@ -744,6 +745,7 @@ struct TDEEForm: View {
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
                         appleHealthSymbol
+                            .matchedGeometryEffect(id: "active-health-icon", in: namespace)
                             .imageScale(.small)
                     }
                     Text("1,428")
@@ -816,6 +818,7 @@ struct TDEEForm: View {
                 HStack {
                     HStack(spacing: 5) {
                         appleHealthSymbol
+                            .matchedGeometryEffect(id: "active-health-icon", in: namespace)
                         Text("Health App")
                             .foregroundColor(.secondary)
                         Image(systemName: "chevron.up.chevron.down")
@@ -880,6 +883,7 @@ public struct TDEEFormPreview: View {
     public init() { }
     public var body: some View {
         TDEEForm()
+            .presentationDetents([.height(430), .large])
     }
 }
 
