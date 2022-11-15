@@ -7,19 +7,22 @@ struct PickerLabel: View {
     let systemImage: String
     let imageColor: Color
     let imageScale: Image.Scale
+    let infiniteMaxHeight: Bool
     
     init(
         _ string: String,
         prefix: String? = nil,
         systemImage: String = "chevron.up.chevron.down",
         imageColor: Color = Color(.tertiaryLabel),
-        imageScale: Image.Scale = .small
+        imageScale: Image.Scale = .small,
+        infiniteMaxHeight: Bool = true
     ) {
         self.string = string
         self.prefix = prefix
         self.systemImage = systemImage
         self.imageColor = imageColor
         self.imageScale = imageScale
+        self.infiniteMaxHeight = infiniteMaxHeight
     }
     
     var body: some View {
@@ -42,6 +45,8 @@ struct PickerLabel: View {
             .padding(.vertical, 5)
         }
         .fixedSize(horizontal: true, vertical: true)
-        .frame(maxHeight: .infinity)
+        .if(infiniteMaxHeight) {
+            $0.frame(maxHeight: .infinity)
+        }
     }
 }

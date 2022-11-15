@@ -182,100 +182,90 @@ struct TDEEForm: View {
             Text("Active Energy")
         }
     }
+    
+    //TODO: Make these changes
+    /// [ ] Have a section for total with matched geometries moving the labels for the components to their sections (and the headers)
+    /// [ ] Include a control that lets us switch between both views
+    ///     [ ] Maybe have a button on the total itself that expands and collapses it, so when expanded it doesn't show the components inside it, they get moved away to their sections
 
+    var formulaSection: some View {
+        var topSection: some View {
+            HStack {
+                HStack(spacing: 5) {
+                    Image(systemName: "function")
+                        .foregroundColor(.secondary)
+                    Text("Calculated")
+                        .foregroundColor(.secondary)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .imageScale(.small)
+                }
+                Spacer()
+                HStack {
+                    Text("2,024")
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                    Text("kcal")
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 17)
+            .padding(.vertical, 15)
+            .background(Color(.secondarySystemFill))
+        }
+        
+        var formulaRow: some View {
+            HStack {
+                HStack {
+                    Text("Using")
+                        .foregroundColor(.secondary)
+                    PickerLabel("Katch-McArdle")
+                    Text("equation")
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.top, 8)
+        }
+        
+        var flowView: some View {
+            FlowView(alignment: .center, spacing: 10) {
+                ZStack {
+                    Capsule(style: .continuous)
+                        .foregroundColor(Color(.clear))
+                    HStack(spacing: 5) {
+                        Text("with")
+                            .foregroundColor(Color(.tertiaryLabel))
+                    }
+                    .frame(height: 25)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                }
+                .fixedSize(horizontal: true, vertical: true)
+                PickerLabel("male", prefix: "sex", systemImage: "chevron.forward", infiniteMaxHeight: false)
+                PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward", infiniteMaxHeight: false)
+                PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward", infiniteMaxHeight: false)
+                PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward", infiniteMaxHeight: false)
+            }
+            .padding(.bottom)
+        }
+        
+        return FormStyledSection(header: restingHeader, horizontalPadding: 0, verticalPadding: 0) {
+            VStack(spacing: 5) {
+                topSection
+                VStack {
+                    formulaRow
+                    Divider()
+                    flowView
+                }
+            }
+            .clipShape(
+                RoundedRectangle(cornerRadius: 10)
+            )
+        }
+    }
+    
     var formFormula: some View {
         FormStyledScrollView {
-            FormStyledSection(header: restingHeader) {
-                VStack(spacing: 5) {
-                    HStack {
-                        HStack(spacing: 5) {
-                            Image(systemName: "function")
-                                .foregroundColor(.secondary)
-                            Text("Calculated")
-                                .foregroundColor(.secondary)
-                            Image(systemName: "chevron.up.chevron.down")
-                                .foregroundColor(Color(.tertiaryLabel))
-                                .imageScale(.small)
-                        }
-                        Spacer()
-                    }
-                    HStack {
-                        Spacer()
-                        HStack {
-                            Text("Use")
-                                .foregroundColor(.secondary)
-                            PickerLabel("Katch-McArdle")
-                            Text("equation")
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                    }
-                    .padding(.top)
-                    Divider()
-                        .padding(.vertical)
-                        .padding(.horizontal)
-                        .padding(.horizontal)
-                    HStack {
-                        Spacer()
-                        HStack {
-                            Text("with")
-                                .foregroundColor(Color(.secondaryLabel))
-                            PickerLabel("male", prefix: "sex", systemImage: "chevron.forward")
-                            PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward")
-                        }
-                        Spacer()
-                    }
-                    HStack {
-                        PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward")
-                        PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward")
-                    }
-                    Divider()
-                        .padding(.vertical)
-                        .padding(.horizontal)
-                        .padding(.horizontal)
-                    HStack {
-                        Spacer()
-                        Text("2,024")
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                        Text("kcal")
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            
-            FormStyledSection(header: activeHeader) {
-                VStack(spacing: 5) {
-                    HStack {
-                        HStack(spacing: 5) {
-                            appleHealthSymbol
-                            Text("Health App")
-                                .foregroundColor(.secondary)
-                            Image(systemName: "chevron.up.chevron.down")
-                                .foregroundColor(Color(.tertiaryLabel))
-                                .imageScale(.small)
-                        }
-                        Spacer()
-                    }
-                    HStack {
-                        Spacer()
-                        HStack {
-                            Text("Use")
-                                .foregroundColor(.secondary)
-                            PickerLabel("previous day's value")
-                        }
-                        Spacer()
-                    }
-                    .padding(.top)
-                    .padding(.bottom)
-                    HStack {
-                        Spacer()
-                        Text("1,203")
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                        Text("kcal")
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
+            formulaSection
         }
     }
     
@@ -382,3 +372,50 @@ struct TDEEForm_Previews: PreviewProvider {
     }
 }
 
+struct LeftAlignedFlowLayout: Layout {
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let height = calculateRects(origin: CGPoint.zero, width: proposal.width ?? 0, subviews: subviews).last?.maxY ?? 0
+        return CGSize(width: proposal.width ?? 0, height: height)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        
+        calculateRects(origin: bounds.origin, width: bounds.width, subviews: subviews).enumerated().forEach { index, rect in
+            let sizeProposal = ProposedViewSize(rect.size)
+            subviews[index].place(at: rect.origin, proposal: sizeProposal)
+        }
+    }
+    
+    func calculateRects(origin: CGPoint, width: CGFloat, subviews: Subviews) -> [CGRect] {
+        
+        var nextPosition = origin // was CGPoint.zero
+        return subviews.indices.map { index in
+            
+            let size = subviews[index].sizeThatFits(.unspecified)
+            
+            var nextHSpacing: CGFloat = 0
+            var previousVSpacing: CGFloat = 0
+            
+            if index > subviews.startIndex {
+                let previousIndex = index.advanced(by: -1)
+                previousVSpacing = subviews[previousIndex].spacing.distance(to: subviews[index].spacing, along: .vertical)
+            }
+            
+            if index < subviews.endIndex.advanced(by: -1) {
+                let nextIndex = index.advanced(by: 1)
+                nextHSpacing = subviews[index].spacing.distance(to: subviews[nextIndex].spacing, along: .horizontal)
+            }
+            
+            if nextPosition.x + nextHSpacing + size.width > width {
+                nextPosition.x = 0
+                nextPosition.y += size.height + previousVSpacing
+            }
+            
+            let thisPosition = nextPosition
+            print(thisPosition)
+            nextPosition.x += nextHSpacing + size.width
+            return CGRect(origin: thisPosition, size: size)
+        }
+    }
+}
