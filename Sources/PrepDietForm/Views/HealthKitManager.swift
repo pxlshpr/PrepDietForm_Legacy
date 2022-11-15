@@ -13,7 +13,7 @@ class HealthKitManager: ObservableObject {
         }
         
         let quantityTypes: [HKQuantityTypeIdentifier] = [
-            .basalEnergyBurned,
+            type,
         ]
         
         var readTypes: [HKObjectType] = []

@@ -88,3 +88,14 @@ extension TDEEForm {
         .padding(.top, 10)
     }
 }
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
+    }
+}
