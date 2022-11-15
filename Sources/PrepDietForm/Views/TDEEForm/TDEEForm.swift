@@ -490,7 +490,7 @@ struct TDEEForm: View {
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .foregroundColor(.secondarySystemGroupedBackground)
+                            .foregroundColor(Color(.secondarySystemGroupedBackground))
                     )
             }
             VStack(spacing: 10) {
@@ -518,7 +518,7 @@ struct TDEEForm: View {
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .foregroundColor(.secondarySystemGroupedBackground)
+                                .foregroundColor(Color(.secondarySystemGroupedBackground))
 //                            VStack {
 //                                HStack {
 //                                    Spacer()
@@ -556,7 +556,7 @@ struct TDEEForm: View {
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .foregroundColor(.secondarySystemGroupedBackground)
+                            .foregroundColor(Color(.secondarySystemGroupedBackground))
                     )
             }
         }
