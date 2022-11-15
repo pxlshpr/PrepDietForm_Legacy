@@ -324,15 +324,15 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var permissionDeniedForResting: Bool = false
+//        @Published var isEditing = false
+//        @Published var presentationDetent: PresentationDetent = .height(270)
+//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var permissionDeniedForResting: Bool = false
 
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
-//        @Published var permissionDeniedForResting: Bool = true
+        @Published var isEditing = true
+        @Published var presentationDetent: PresentationDetent = .large
+        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+        @Published var permissionDeniedForResting: Bool = true
 
         
     }
