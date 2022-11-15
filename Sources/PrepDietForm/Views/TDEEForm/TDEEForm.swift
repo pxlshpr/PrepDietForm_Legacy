@@ -7,6 +7,7 @@ import HealthKit
 struct TDEEForm: View {
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
 
     @State var showingAdaptiveCorrectionInfo = false
 
@@ -66,6 +67,9 @@ struct TDEEForm: View {
 
     enum Route: Hashable {
         case healthAppPeriod
+        case fatPercentageForm
+        case weightForm
+        case heightForm
     }
     
 //    @State var path: [Route] = [.healthAppPeriod]
@@ -188,6 +192,8 @@ struct TDEEForm: View {
     /// [ ] Include a control that lets us switch between both views
     ///     [ ] Maybe have a button on the total itself that expands and collapses it, so when expanded it doesn't show the components inside it, they get moved away to their sections
 
+    @State var useHealthAppData = false
+    
     var formulaSection: some View {
         var topSection: some View {
             HStack {
@@ -227,7 +233,24 @@ struct TDEEForm: View {
         }
         
         var flowView: some View {
-            FlowView(alignment: .center, spacing: 10) {
+            func label(_ prefix: String, _ string: String) -> some View {
+                var backgroundColor: Color {
+                    return colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
+                }
+                return PickerLabel(
+                    string,
+                    prefix: prefix,
+                    systemImage: useHealthAppData ? nil : "chevron.right",
+//                    imageColor: <#T##Color#>,
+                    backgroundColor:  useHealthAppData ? Color(.systemGroupedBackground) : backgroundColor,
+                    foregroundColor: useHealthAppData ? Color(.secondaryLabel) : Color.primary,
+                    prefixColor: useHealthAppData ? Color(.tertiaryLabel) : Color.secondary,
+//                    imageScale: <#T##Image.Scale#>,
+                    infiniteMaxHeight: false
+                )
+            }
+            
+            return FlowView(alignment: .center, spacing: 10, padding: 15) {
                 ZStack {
                     Capsule(style: .continuous)
                         .foregroundColor(Color(.clear))
@@ -240,23 +263,65 @@ struct TDEEForm: View {
                     .padding(.vertical, 5)
                 }
                 .fixedSize(horizontal: true, vertical: true)
-                PickerLabel("male", prefix: "sex", systemImage: "chevron.forward", infiniteMaxHeight: false)
-                PickerLabel("29%", prefix: "fat", systemImage: "chevron.forward", infiniteMaxHeight: false)
-                PickerLabel("93.55 kg", prefix: "weight", systemImage: "chevron.forward", infiniteMaxHeight: false)
-                PickerLabel("177 cm", prefix: "height", systemImage: "chevron.forward", infiniteMaxHeight: false)
-            }
-            .padding(.bottom)
-        }
-        
-        return FormStyledSection(header: restingHeader, horizontalPadding: 0, verticalPadding: 0) {
-            VStack(spacing: 5) {
-                topSection
-                VStack {
-                    formulaRow
-                    Divider()
-                    flowView
+                Menu {
+                    Picker(selection: .constant(true), label: EmptyView()) {
+                        Text("Male").tag(true)
+                        Text("Female").tag(false)
+                    }
+                } label: {
+                    label("sex", "male")
+                }
+                Button {
+                    path.append(.fatPercentageForm)
+                } label: {
+                    label("fat", "29 %")
+                }
+                Button {
+                    path.append(.weightForm)
+                } label: {
+                    label("weight", "93.55 kg")
+                }
+                Button {
+                    path.append(.heightForm)
+                } label: {
+                    label("height", "177 cm")
                 }
             }
+            .padding(.bottom, 5)
+        }
+        
+        let useHealthAppDataBinding = Binding<Bool>(
+            get: { useHealthAppData },
+            set: { newValue in
+                withAnimation {
+                    useHealthAppData = newValue
+                }
+            }
+        )
+        return FormStyledSection(header: restingHeader, horizontalPadding: 0, verticalPadding: 0) {
+            VStack {
+                topSection
+                formulaRow
+                Divider()
+                    .frame(width: 300)
+                    .padding(.vertical, 5)
+                flowView
+                Divider()
+                    .frame(width: 300)
+                    .padding(.vertical, 5)
+                HStack {
+                    Toggle(isOn: useHealthAppDataBinding) {
+                        HStack {
+                            appleHealthSymbol
+                            Text("\(useHealthAppData ? "Using " : "Use") Health App Data")
+                        }
+                    }
+                    .toggleStyle(.button)
+//                    Spacer()
+                }
+//                .padding(.leading)
+            }
+            .padding(.bottom)
             .clipShape(
                 RoundedRectangle(cornerRadius: 10)
             )

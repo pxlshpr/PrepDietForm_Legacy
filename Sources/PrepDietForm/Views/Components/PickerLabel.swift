@@ -4,16 +4,23 @@ struct PickerLabel: View {
     
     let string: String
     let prefix: String?
-    let systemImage: String
+    let systemImage: String?
     let imageColor: Color
     let imageScale: Image.Scale
     let infiniteMaxHeight: Bool
     
+    let backgroundColor: Color
+    let prefixColor: Color
+    let foregroundColor: Color
+    
     init(
         _ string: String,
         prefix: String? = nil,
-        systemImage: String = "chevron.up.chevron.down",
+        systemImage: String? = "chevron.up.chevron.down",
         imageColor: Color = Color(.tertiaryLabel),
+        backgroundColor: Color = Color(.secondarySystemFill),
+        foregroundColor: Color = Color(.label),
+        prefixColor: Color = Color(.secondaryLabel),
         imageScale: Image.Scale = .small,
         infiniteMaxHeight: Bool = true
     ) {
@@ -23,22 +30,31 @@ struct PickerLabel: View {
         self.imageColor = imageColor
         self.imageScale = imageScale
         self.infiniteMaxHeight = infiniteMaxHeight
+        
+        self.backgroundColor = backgroundColor
+        self.foregroundColor = foregroundColor
+        self.prefixColor = prefixColor
     }
     
     var body: some View {
         ZStack {
             Capsule(style: .continuous)
-                .foregroundColor(Color(.secondarySystemFill))
+                .foregroundColor(.white)
+                .colorMultiply(backgroundColor)
             HStack(spacing: 5) {
                 if let prefix {
                     Text(prefix)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white)
+                        .colorMultiply(prefixColor)
                 }
                 Text(string)
-                    .foregroundColor(.primary)
-                Image(systemName: systemImage)
-                    .foregroundColor(imageColor)
-                    .imageScale(imageScale)
+                    .foregroundColor(.white)
+                    .colorMultiply(foregroundColor)
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .foregroundColor(imageColor)
+                        .imageScale(imageScale)
+                }
             }
             .frame(height: 25)
             .padding(.horizontal, 12)

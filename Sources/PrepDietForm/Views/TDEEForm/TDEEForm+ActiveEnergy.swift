@@ -5,6 +5,24 @@ import PrepDataTypes
 
 import Foundation
 
+struct FatPercentageForm: View {
+    var body: some View {
+        Text("Fat percenteage form")
+    }
+}
+
+struct HeightForm: View {
+    var body: some View {
+        Text("Height form")
+    }
+}
+
+struct WeightForm: View {
+    var body: some View {
+        Text("Weight form")
+    }
+}
+
 struct HealthAppPeriodPicker: View {
     
     enum Interval: CaseIterable {
@@ -127,6 +145,12 @@ extension TDEEForm {
         switch route {
         case .healthAppPeriod:
             HealthAppPeriodPicker()
+        case .fatPercentageForm:
+            FatPercentageForm()
+        case .heightForm:
+            HeightForm()
+        case .weightForm:
+            WeightForm()
         }
     }
     
