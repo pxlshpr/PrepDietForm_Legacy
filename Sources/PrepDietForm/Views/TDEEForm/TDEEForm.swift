@@ -81,12 +81,12 @@ struct TDEEForm: View {
             formFormula
 //            formHealth
             .scrollDismissesKeyboard(.immediately)
-            .navigationTitle("Maintenance Energy")
+            .navigationTitle("Maintenance Calories")
             .navigationBarTitleDisplayMode(.inline)
 //            .toolbar { principalContent }
-            .toolbar { trailingContent }
+//            .toolbar { trailingContent }
             .toolbar { leadingContent }
-            .interactiveDismissDisabled(valuesHaveChanged)
+//            .interactiveDismissDisabled(valuesHaveChanged)
             .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .task { await initialTask() }
@@ -459,10 +459,108 @@ struct TDEEForm: View {
     }
     var formFormula: some View {
         FormStyledScrollView {
-            formulaSectionNew
-            activeHealthSection
-            restingHealthSection
+            mainSection
+                .padding(.top, 5)
+                .padding(.bottom, 10)
+            HStack(alignment: .firstTextBaseline) {
+                appleHealthSymbol
+                    .font(.caption2)
+                Text("These components will be continuously updated as new data comes in from the Health App.")
+            }
+            .font(.footnote)
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 17)
+//            formulaSectionNew
+//            activeHealthSection
+//            restingHealthSection
         }
+    }
+    
+    var mainSection: some View {
+        HStack {
+            VStack(spacing: 10) {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.secondary)
+                    .imageScale(.medium)
+                Text("3,204")
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .monospacedDigit()
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundColor(.white)
+                    )
+            }
+            VStack(spacing: 10) {
+                Image(systemName: "figure.mind.and.body")
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .imageScale(.medium)
+                    .opacity(0)
+                Text("=")
+                    .font(.title)
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
+            VStack(spacing: 10) {
+                HStack(spacing: 3) {
+                    Image(systemName: "figure.mind.and.body")
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .imageScale(.medium)
+                    appleHealthSymbol
+                        .imageScale(.small)
+                }
+                Text("1,776")
+                    .font(.system(.title3, design: .rounded, weight: .regular))
+                    .monospacedDigit()
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .foregroundColor(.white)
+//                            VStack {
+//                                HStack {
+//                                    Spacer()
+//                                    appleHealthSymbol
+//                                        .imageScale(.small)
+//                                        .padding(.trailing, 5)
+//                                        .padding(.leading, 5)
+//                                }
+//                                Spacer()
+//                            }
+                        }
+                    )
+            }
+            VStack(spacing: 10) {
+                Image(systemName: "figure.mind.and.body")
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .imageScale(.medium)
+                    .opacity(0)
+                Text("+")
+                    .font(.title)
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
+            VStack(spacing: 10) {
+                HStack(spacing: 3) {
+                    Image(systemName: "figure.walk.motion")
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .imageScale(.medium)
+                    appleHealthSymbol
+                        .imageScale(.small)
+                }
+                Text("1,428")
+                    .font(.system(.title3, design: .rounded, weight: .regular))
+                    .monospacedDigit()
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundColor(.white)
+                    )
+            }
+        }
+        .padding(.horizontal, 17)
     }
     
     var restingHealthSection: some View {
@@ -568,7 +666,7 @@ struct TDEEForm_Previews: PreviewProvider {
             Color.clear
                 .sheet(isPresented: .constant(true)) {
                     TDEEFormPreview()
-                        .presentationDetents([.height(600), .large])
+                        .presentationDetents([.height(230), .large])
                         .presentationDragIndicator(.hidden)
                 }
         }
