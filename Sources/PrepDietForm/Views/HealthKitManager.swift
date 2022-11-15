@@ -6,10 +6,19 @@ class HealthKitManager: ObservableObject {
     
     let store: HKHealthStore = HKHealthStore()
     
-    
-    func requestPermission(for type: HKQuantityTypeIdentifier) async -> Bool {
-        guard HKHealthStore.isHealthDataAvailable() else {
+    func isAuthorized(for type: HKQuantityTypeIdentifier) -> Bool {
+        let status = store.authorizationStatus(for: HKQuantityType(type))
+        switch status {
+        case .sharingAuthorized:
+            return true
+        default:
             return false
+        }
+    }
+    
+    func requestPermission(for type: HKQuantityTypeIdentifier) async throws {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            throw HealthKitManagerError.healthKitNotAvailable
         }
         
         let quantityTypes: [HKQuantityTypeIdentifier] = [
@@ -21,10 +30,8 @@ class HealthKitManager: ObservableObject {
 
         do {
             try await store.requestAuthorization(toShare: Set(), read: Set(readTypes))
-            return true
         } catch {
-            print("Error requesting authorization: \(error)")
-            return false
+            throw HealthKitManagerError.permissionsError(error)
         }
     }
     
@@ -240,5 +247,7 @@ extension HealthKitManager {
 }
 
 enum HealthKitManagerError: Error {
+    case healthKitNotAvailable
+    case permissionsError(Error)
     case couldNotGetSample
 }

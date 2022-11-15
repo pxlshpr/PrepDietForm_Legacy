@@ -53,9 +53,9 @@ extension TDEEForm {
         }
         
         func tappedSyncWithHealth() {
-            Task {
-                await HealthKitManager.shared.requestPermission(for: .activeEnergyBurned)
-            }
+//            Task(priority: .high) {
+//                await HealthKitManager.shared.requestPermission(for: .activeEnergyBurned)
+//            }
         }
         
         var emptyContent: some View {
@@ -86,16 +86,5 @@ extension TDEEForm {
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
-    }
-}
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                }
-        }
     }
 }

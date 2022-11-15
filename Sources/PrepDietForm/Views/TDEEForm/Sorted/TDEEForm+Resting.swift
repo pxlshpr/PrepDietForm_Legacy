@@ -140,16 +140,32 @@ extension TDEEForm {
         
         @ViewBuilder
         var content: some View {
-            if viewModel.restingEnergySource == nil {
-                emptyContent
+            if let source = viewModel.restingEnergySource {
+                switch source {
+                case .healthApp:
+                    healthContent
+                default:
+                    Color.blue
+                }
             } else {
-                filledContent
+                emptyContent
             }
         }
         
         func tappedSyncWithHealth() {
-            Task {
-                await HealthKitManager.shared.requestPermission(for: .basalEnergyBurned)
+            Task(priority: .high) {
+                do {
+                    try await HealthKitManager.shared.requestPermission(for: .basalEnergyBurned)
+                    
+                    if !HealthKitManager.shared.isAuthorized(for: .basalEnergyBurned) {
+                        viewModel.permissionDeniedForResting = true
+                    }
+                    withAnimation {
+                        viewModel.restingEnergySource = .healthApp
+                    }
+                } catch {
+                    
+                }
             }
         }
 
@@ -161,7 +177,40 @@ extension TDEEForm {
             }
         }
         
-        var filledContent: some View {
+        var healthContent: some View {
+            VStack {
+                topSection
+                if viewModel.permissionDeniedForResting {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Apple Health integration requires permissions to be granted in:")
+                            .fixedSize(horizontal: false, vertical: true)
+                            .foregroundColor(.secondary)
+                        Text("Settings → Privacy → Health → Prep")
+                            .font(.subheadline)
+                            .foregroundColor(Color(.tertiaryLabel))
+                    }
+                        .padding()
+                        .padding(.horizontal)
+                } else {
+                    Text("Health stuff goes here")
+                }
+                HStack {
+                    Spacer()
+                    Text("2,024")
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .matchedGeometryEffect(id: "resting", in: namespace)
+                    Text("kcal")
+                        .foregroundColor(.secondary)
+                }
+                .if(viewModel.permissionDeniedForResting) { view in
+                    view
+                        .redacted(reason: .placeholder)
+                }
+                .padding(.trailing)
+            }
+        }
+        
+        var formulaContent: some View {
             VStack {
                 topSection
                 formulaRow
@@ -204,5 +253,33 @@ extension TDEEForm {
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
+    }
+}
+
+extension TDEEForm {
+    class ViewModel: ObservableObject {
+        @Published var hasAppeared = false
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var permissionDeniedForResting: Bool = false
+
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+
+        
+    }
+}
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
     }
 }

@@ -4,19 +4,6 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
-extension TDEEForm {
-    class ViewModel: ObservableObject {
-        @Published var hasAppeared = false
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
-    }
-}
-
 extension TDEEForm.ViewModel {
     var notSetup: Bool {
         true
