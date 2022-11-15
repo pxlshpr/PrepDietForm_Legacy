@@ -7,7 +7,7 @@ extension TDEEForm {
     func blankViewAppeared() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
             withAnimation {
-                hasAppeared = true
+                viewModel.hasAppeared = true
             }
         }
     }
