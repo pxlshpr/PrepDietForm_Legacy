@@ -8,6 +8,24 @@ extension TDEEForm {
                 .font(.title3)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.tertiaryLabel))
+            if viewModel.notSetup {
+                Button {
+                    transitionToEditState()
+                } label: {
+                    HStack {
+                        Image(systemName: "flame.fill")
+                        Text("Setup Maintenance Calories")
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .foregroundColor(Color.accentColor)
+                    )
+                }
+                .buttonStyle(.borderless)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 30)
@@ -72,5 +90,17 @@ extension TDEEForm {
                 .opacity(0)
         }
         .padding(.horizontal, 17)
+    }
+}
+
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
     }
 }

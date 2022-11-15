@@ -8,8 +8,20 @@ extension TDEEForm {
     class ViewModel: ObservableObject {
         @Published var hasAppeared = false
         @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
     }
 }
+
+extension TDEEForm.ViewModel {
+    var notSetup: Bool {
+        true
+    }
+    
+    var detents: Set<PresentationDetent> {
+        notSetup ? [.height(270), .large] : [.medium, .large]
+    }
+}
+
 struct TDEEForm: View {
     
     @Namespace var namespace
@@ -20,12 +32,16 @@ struct TDEEForm: View {
     
     @ViewBuilder
     var body: some View {
-        if viewModel.hasAppeared {
-            navigationView
-        } else {
-            Color(.systemGroupedBackground)
-                .onAppear(perform: blankViewAppeared)
+        Group {
+            if viewModel.hasAppeared {
+                navigationView
+            } else {
+                Color(.systemGroupedBackground)
+                    .onAppear(perform: blankViewAppeared)
+            }
         }
+        .presentationDetents(viewModel.detents, selection: $viewModel.presentationDetent)
+        .presentationDragIndicator(.hidden)
     }
 
     var navigationView: some View {
@@ -41,8 +57,6 @@ struct TDEEForm: View {
             .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }
         }
-        .presentationDetents([.medium, .large], selection: $presentationDetent)
-        .presentationDragIndicator(.hidden)
     }
     
     //MARK: - Unsorted
@@ -91,6 +105,5 @@ struct TDEEForm: View {
     @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
     @State var path: [Route] = []
-    @State var presentationDetent: PresentationDetent = .height(430)
     @State var useHealthAppData = false
 }
