@@ -515,8 +515,9 @@ struct TDEEForm: View {
                 .padding(.horizontal, 20)
                 VStack {
                     HStack {
-                        Text("2,024")
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        Text("3,204")
+                            .fixedSize(horizontal: true, vertical: false)
+                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .matchedGeometryEffect(id: "maintenance", in: namespace)
                         Text("kcal")
                             .foregroundColor(.secondary)
@@ -643,7 +644,7 @@ struct TDEEForm: View {
         }
     }
     
-    @State var isEditing = true
+    @State var isEditing = false
     
     func toggleEditState() {
         if isEditing {
@@ -710,8 +711,9 @@ struct TDEEForm: View {
                         appleHealthSymbol
                             .imageScale(.small)
                     }
-                    Text("2,204")
+                    Text("2,024")
                         .matchedGeometryEffect(id: "resting", in: namespace)
+                        .fixedSize(horizontal: true, vertical: false)
                         .font(.system(.title3, design: .default, weight: .regular))
                         .foregroundColor(.primary)
                         .monospacedDigit()
