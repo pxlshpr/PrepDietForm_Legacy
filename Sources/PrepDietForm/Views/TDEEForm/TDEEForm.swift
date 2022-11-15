@@ -540,7 +540,7 @@ struct TDEEForm: View {
     
     var promptSection: some View {
         VStack {
-            Text("This is an estimate of how many calories you would need to consume to maintain your current weight.")
+            Text("This is an estimate of how many calories you would need to consume to *maintain* your current weight.")
                 .font(.title3)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.tertiaryLabel))
@@ -628,14 +628,22 @@ struct TDEEForm: View {
                 .padding(.horizontal, 17)
             } else {
                 maintenanceSection
+                Text("=")
+                    .matchedGeometryEffect(id: "equals", in: namespace)
+                    .font(.title)
+                    .foregroundColor(Color(.quaternaryLabel))
                 formulaSectionNew
+                Text("+")
+                    .matchedGeometryEffect(id: "plus", in: namespace)
+                    .font(.title)
+                    .foregroundColor(Color(.quaternaryLabel))
                 activeHealthSection
 //                restingHealthSection
             }
         }
     }
     
-    @State var isEditing = false
+    @State var isEditing = true
     
     func toggleEditState() {
         if isEditing {
@@ -689,6 +697,7 @@ struct TDEEForm: View {
                         .imageScale(.medium)
                         .opacity(0)
                     Text("=")
+                        .matchedGeometryEffect(id: "equals", in: namespace)
                         .font(.title)
                         .foregroundColor(Color(.quaternaryLabel))
                 }
@@ -722,6 +731,7 @@ struct TDEEForm: View {
                         .imageScale(.medium)
                         .opacity(0)
                     Text("+")
+                        .matchedGeometryEffect(id: "plus", in: namespace)
                         .font(.title)
                         .foregroundColor(Color(.quaternaryLabel))
                 }
