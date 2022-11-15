@@ -51,18 +51,58 @@ extension TDEEForm {
         }
         
         var topSection: some View {
-            HStack {
-                HStack(spacing: 5) {
-                    Image(systemName: "function")
-                        .foregroundColor(.secondary)
-                    Text("Calculated")
-                        .foregroundColor(.secondary)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .foregroundColor(Color(.tertiaryLabel))
-                        .imageScale(.small)
+            var menu: some View {
+                let binding = Binding<RestingEnergySourceOption>(
+                    get: { viewModel.restingEnergySource ?? .userEntered },
+                    set: { newValue in
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            viewModel.restingEnergySource = newValue
+                        }
+                    }
+                )
+
+                return Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(RestingEnergySourceOption.allCases, id: \.self) {
+                            Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        HStack {
+                            if viewModel.restingEnergySource == .healthApp {
+                                appleHealthSymbol
+                            } else {
+                                if let systemImage = viewModel.restingEnergySource?.systemImage {
+                                    Image(systemName: systemImage)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Text(viewModel.restingEnergySource?.pickerDescription ?? "")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .imageScale(.small)
+                    }
+                    .foregroundColor(.secondary)
+                    .animation(.none, value: viewModel.restingEnergySource)
+                    .fixedSize(horizontal: true, vertical: false)
+//                    HStack(spacing: 5) {
+//                        Image(systemName: "function")
+//                            .foregroundColor(.secondary)
+//                        Text("Calculated")
+//                            .foregroundColor(.secondary)
+//                        Image(systemName: "chevron.up.chevron.down")
+//                            .foregroundColor(Color(.tertiaryLabel))
+//                            .imageScale(.small)
+//                    }
                 }
+            }
+            
+            return HStack {
+                menu
                 Spacer()
-                //                useHealthAppToggle
             }
             .padding(.horizontal, 17)
         }
@@ -145,7 +185,7 @@ extension TDEEForm {
                 case .healthApp:
                     healthContent
                 default:
-                    Color.blue
+                    healthContent
                 }
             } else {
                 emptyContent
@@ -193,6 +233,8 @@ extension TDEEForm {
                         .padding(.horizontal)
                 } else {
                     Text("Health stuff goes here")
+                        .padding()
+                        .padding(.horizontal)
                 }
                 HStack {
                     Spacer()
@@ -268,6 +310,8 @@ extension TDEEForm {
 
 //        @Published var isEditing = true
 //        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+//        @Published var permissionDeniedForResting: Bool = false
 
         
     }
