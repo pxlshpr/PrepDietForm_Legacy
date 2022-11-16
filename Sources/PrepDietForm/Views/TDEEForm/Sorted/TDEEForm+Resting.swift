@@ -2,34 +2,35 @@ import SwiftUI
 import SwiftHaptics
 import PrepDataTypes
 import ActivityIndicatorView
+import SwiftUISugar
+
+func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
+    Button {
+        action?()
+    } label: {
+        ZStack {
+            Capsule(style: .continuous)
+                .foregroundColor(Color(.secondarySystemFill))
+            HStack(spacing: 5) {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .foregroundColor(.secondary)
+                } else if showHealthAppIcon {
+                    appleHealthSymbol
+                }
+                Text(string)
+//                        .font(.title3)
+                    .foregroundColor(.secondary)
+            }
+            .frame(height: 35)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 5)
+        }
+        .fixedSize(horizontal: true, vertical: true)
+    }
+}
 
 extension TDEEForm {
-    
-    func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
-        Button {
-            action?()
-        } label: {
-            ZStack {
-                Capsule(style: .continuous)
-                    .foregroundColor(Color(.secondarySystemFill))
-                HStack(spacing: 5) {
-                    if let systemImage {
-                        Image(systemName: systemImage)
-                            .foregroundColor(.secondary)
-                    } else if showHealthAppIcon {
-                        appleHealthSymbol
-                    }
-                    Text(string)
-//                        .font(.title3)
-                        .foregroundColor(.secondary)
-                }
-                .frame(height: 35)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 5)
-            }
-            .fixedSize(horizontal: true, vertical: true)
-        }
-    }
     
     var restingEnergySection: some View {
         let useHealthAppDataBinding = Binding<Bool>(
@@ -40,6 +41,7 @@ extension TDEEForm {
                 }
             }
         )
+        
         var useHealthAppToggle: some View {
             Toggle(isOn: useHealthAppDataBinding) {
                 HStack {
@@ -93,14 +95,43 @@ extension TDEEForm {
             .padding(.horizontal, 17)
         }
         
+        //MARK: - Formula Content
+        
+        var formulaContent: some View {
+            VStack {
+                formulaRow
+                Divider()
+                    .frame(width: 300)
+                    .padding(.vertical, 5)
+                flowView
+                useHealthAppToggle
+                    .padding(.bottom)
+            }
+        }
+        
         var formulaRow: some View {
-            HStack {
+            var formulaMenu: some View {
+                Menu {
+                    Picker(selection: viewModel.restingEnergyFormulaBinding, label: EmptyView()) {
+                        ForEach(RestingEnergyFormula.latest, id: \.self) {
+                            Text($0.description).tag($0)
+                        }
+                        Divider()
+                        ForEach(RestingEnergyFormula.legacy, id: \.self) {
+                            Text($0.description).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(viewModel.restingEnergyFormula.description)
+                        .animation(.none, value: viewModel.restingEnergyFormula)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            return HStack {
                 HStack {
                     Text("Using")
                         .foregroundColor(.secondary)
-                    PickerLabel("Katch-McArdle")
-                    Text("equation")
-                        .foregroundColor(.secondary)
+                    formulaMenu
                 }
             }
             .padding(.top, 8)
@@ -128,37 +159,38 @@ extension TDEEForm {
                 ZStack {
                     Capsule(style: .continuous)
                         .foregroundColor(Color(.clear))
-                    HStack(spacing: 5) {
-                        Text("with")
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
+                    Text("with")
+                        .foregroundColor(Color(.tertiaryLabel))
                     .frame(height: 25)
-                    .padding(.horizontal, 12)
                     .padding(.vertical, 5)
+                    .padding(.bottom, 2)
                 }
                 .fixedSize(horizontal: true, vertical: true)
-                Menu {
-                    Picker(selection: .constant(true), label: EmptyView()) {
-                        Text("Male").tag(true)
-                        Text("Female").tag(false)
+                if viewModel.restingEnergyFormula == .katchMcardle {
+                    Button {
+                        path.append(.leanBodyMassForm)
+                    } label: {
+                        label("lean body mass", "66.2 kg")
                     }
-                } label: {
-                    label("sex", "male")
-                }
-                Button {
-                    path.append(.fatPercentageForm)
-                } label: {
-                    label("fat", "29 %")
-                }
-                Button {
-                    path.append(.weightForm)
-                } label: {
-                    label("weight", "93.55 kg")
-                }
-                Button {
-                    path.append(.heightForm)
-                } label: {
-                    label("height", "177 cm")
+                } else {
+                    Menu {
+                        Picker(selection: .constant(true), label: EmptyView()) {
+                            Text("Male").tag(true)
+                            Text("Female").tag(false)
+                        }
+                    } label: {
+                        label("sex", "male")
+                    }
+                    Button {
+                        path.append(.weightForm)
+                    } label: {
+                        label("weight", "93.6 kg")
+                    }
+                    Button {
+                        path.append(.heightForm)
+                    } label: {
+                        label("height", "177 cm")
+                    }
                 }
             }
             .padding(.bottom, 5)
@@ -166,29 +198,34 @@ extension TDEEForm {
         
         @ViewBuilder
         var content: some View {
-            if let source = viewModel.restingEnergySource {
-                switch source {
-                case .healthApp:
-                    healthContent
-                        .onAppear {
-                            print("Appeared")
+            VStack {
+                Group {
+                    if let source = viewModel.restingEnergySource {
+                        Group {
+                            sourceSection
+                            switch source {
+                            case .healthApp:
+                                healthContent
+                            case .userEntered:
+                                EmptyView()
+                            case .formula:
+                                formulaContent
+                            }
+                            energyRow
                         }
-                case .userEntered:
-                    manualEntryContent
-                default:
-                    healthContent
+                    } else {
+                        emptyContent
+                    }
                 }
-            } else {
-                emptyContent
             }
         }
         
-        var manualEntryContent: some View {
-            VStack {
-                sourceSection
-                energyRow
-            }
-        }
+//        var manualEntryContent: some View {
+//            VStack {
+//                sourceSection
+//                energyRow
+//            }
+//        }
         
         func tappedManualEntry() {
             viewModel.changeRestingEnergySource(to: .userEntered)
@@ -211,29 +248,29 @@ extension TDEEForm {
                 }
             }
         }
+        
+        func tappedFormula() {
+            viewModel.changeRestingEnergySource(to: .formula)
+        }
 
         var emptyContent: some View {
             VStack(spacing: 10) {
                 emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-                emptyButton("Calculate using Formula", systemImage: "function")
+                emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
                 emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
             }
         }
         
         var healthContent: some View {
-            VStack {
-                sourceSection
-                Group {
-                    if viewModel.restingEnergyFetchStatus == .notAuthorized {
-                        permissionRequiredContent
-                    } else {
-                        healthPeriodContent
-                    }
+            Group {
+                if viewModel.restingEnergyFetchStatus == .notAuthorized {
+                    permissionRequiredContent
+                } else {
+                    healthPeriodContent
                 }
-                .padding()
-                .padding(.horizontal)
-                energyRow
             }
+            .padding()
+            .padding(.horizontal)
         }
         
         var energyRow: some View {
@@ -403,28 +440,6 @@ extension TDEEForm {
             }
         }
         
-        var formulaContent: some View {
-            VStack {
-                sourceSection
-                formulaRow
-                Divider()
-                    .frame(width: 300)
-                    .padding(.vertical, 5)
-                flowView
-                useHealthAppToggle
-                    .padding(.bottom)
-                HStack {
-                    Spacer()
-                    Text("2,024")
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .matchedGeometryEffect(id: "resting", in: namespace)
-                    Text("kcal")
-                        .foregroundColor(.secondary)
-                }
-                .padding(.trailing)
-            }
-        }
-        
         @ViewBuilder
         var footer: some View {
             if let string = viewModel.restingEnergyFooterString {
@@ -465,19 +480,272 @@ extension TDEEForm {
     }
 }
 
+enum LeanBodyMassSourceOption: CaseIterable {
+    case formula
+    case healthApp
+    case userEntered
+    
+    var pickerDescription: String {
+        switch self {
+        case .formula:
+            return "Formula"
+        case .healthApp:
+            return "Health App"
+        case .userEntered:
+            return "Let me enter it"
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .healthApp:
+            return "heart.fill"
+        case .formula:
+            return "function"
+        case .userEntered:
+            return "keyboard"
+        }
+    }
+
+    var menuDescription: String {
+        switch self {
+        case .formula:
+            return "Formula"
+        case .healthApp:
+            return "Health App"
+        case .userEntered:
+            return "Manual Entry"
+        }
+    }
+}
+
+enum LeanBodyMassFormula: CaseIterable {
+    case boer
+    case james
+    case hume
+    
+    var pickerDescription: String {
+        switch self {
+        case .boer:
+            return "Boer • 1984"
+        case .james:
+            return "James • 1976"
+        case .hume:
+            return "Hume • 1966"
+        }
+    }
+    
+    var menuDescription: String {
+        switch self {
+        case .boer:
+            return "Boer (1984)"
+        case .james:
+            return "James (1976)"
+        case .hume:
+            return "Hume (1966)"
+        }
+    }
+}
+
+struct LeanBodyMassForm: View {
+    
+    @EnvironmentObject var viewModel: TDEEForm.ViewModel
+    @Namespace var namespace
+    @FocusState var isFocused: Bool
+    
+    var content: some View {
+        VStack {
+            Group {
+                if let source = viewModel.lbmSource {
+                    Group {
+                        sourceSection
+                        switch source {
+                        case .healthApp:
+//                            healthContent
+                            EmptyView()
+                        case .userEntered:
+                            EmptyView()
+                        case .formula:
+                            EmptyView()
+//                            formulaContent
+                        }
+                        lbmRow
+                    }
+                } else {
+                    emptyContent
+                }
+            }
+        }
+    }
+    
+    func tappedSyncWithHealth() {
+        
+    }
+    
+    func tappedFormula() {
+        
+    }
+    
+    func tappedManualEntry() {
+        viewModel.changeLBMSoruce(to: .userEntered)
+        isFocused = true
+    }
+    
+    var emptyContent: some View {
+        VStack(spacing: 10) {
+            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
+            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+        }
+    }
+
+    var footer: some View {
+        Text("Lean body mass is the weight of your body minus your body fat (adipose tissue).")
+    }
+    
+    var lbmRow: some View {
+        @ViewBuilder
+        var health: some View {
+            if viewModel.lbmFetchStatus != .notAuthorized {
+                HStack {
+                    Spacer()
+                    if viewModel.lbmFetchStatus == .fetching {
+                        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                            .frame(width: 25, height: 25)
+                            .foregroundColor(.secondary)
+                    } else {
+                        if viewModel.hasDynamicLeanBodyMass {
+                            Text("currently")
+                                .font(.subheadline)
+                                .foregroundColor(Color(.tertiaryLabel))
+                        }
+                        Text(viewModel.restingEnergyFormatted)
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .matchedGeometryEffect(id: "lbm", in: namespace)
+                            .if(!viewModel.hasLeanBodyMass) { view in
+                                view
+                                    .redacted(reason: .placeholder)
+                            }
+                        Text(viewModel.userWeightUnit.shortDescription)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        
+        var manualEntry: some View {
+            HStack {
+                Spacer()
+                TextField("lean body mass in", text: viewModel.lbmTextFieldStringBinding)
+                    .keyboardType(.decimalPad)
+                    .focused($isFocused)
+                    .multilineTextAlignment(.trailing)
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .matchedGeometryEffect(id: "lbm", in: namespace)
+                Text(viewModel.userWeightUnit.shortDescription)
+                    .foregroundColor(.secondary)
+            }
+        }
+        
+        return Group {
+            switch viewModel.lbmSource {
+            case .healthApp:
+                health
+            case .formula:
+                EmptyView()
+            case .userEntered:
+                manualEntry
+            default:
+                EmptyView()
+            }
+        }
+        .padding(.trailing)
+    }
+    
+    var sourceSection: some View {
+        var sourceMenu: some View {
+            Menu {
+                Picker(selection: viewModel.lbmSourceBinding, label: EmptyView()) {
+                    ForEach(LeanBodyMassSourceOption.allCases, id: \.self) {
+                        Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
+                    }
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    HStack {
+                        if viewModel.lbmSource == .healthApp {
+                            appleHealthSymbol
+                        } else {
+                            if let systemImage = viewModel.lbmSource?.systemImage {
+                                Image(systemName: systemImage)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        Text(viewModel.lbmSource?.menuDescription ?? "")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+                .animation(.none, value: viewModel.lbmSource)
+                .fixedSize(horizontal: true, vertical: false)
+            }
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .light)
+            })
+        }
+        
+        return HStack {
+            sourceMenu
+            Spacer()
+        }
+//        .padding(.horizontal, 17)
+    }
+    
+    func lbmSourceChange(to newSource: LeanBodyMassSourceOption?) {
+        switch newSource {
+        case .userEntered:
+            isFocused = true
+        default:
+            break
+        }
+    }
+ 
+    var body: some View {
+        FormStyledScrollView {
+            FormStyledSection(footer: footer) {
+                content
+            }
+        }
+        .navigationTitle("Lean Body Mass")
+        .onChange(of: viewModel.lbmSource, perform: lbmSourceChange)
+    }
+}
+
+enum HealthKitFetchStatus {
+    case notFetched
+    case fetching
+    case fetched
+    case notAuthorized
+}
+
+
 extension TDEEForm {
     class ViewModel: ObservableObject {
         let userEnergyUnit: EnergyUnit
-        
+        let userWeightUnit: WeightUnit
+
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .userEntered
+//        @Published var isEditing = false
+//        @Published var presentationDetent: PresentationDetent = .height(270)
+//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var isEditing = true
+        @Published var presentationDetent: PresentationDetent = .large
+        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
 
         @Published var restingEnergy: Double? = nil
         @Published var restingEnergyTextFieldString: String = ""
@@ -489,17 +757,22 @@ extension TDEEForm {
         @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var restingEnergyUsesHealthMeasurements: Bool = false
 
-        init(userEnergyUnit: EnergyUnit) {
+        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
+        
+        @Published var lbmSource: LeanBodyMassSourceOption? = nil
+        @Published var lbmFormula: LeanBodyMassFormula = .boer
+
+        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var lbmUsesHealthMeasurements: Bool = false
+
+        @Published var lbm: Double? = nil
+        @Published var lbmTextFieldString: String = ""
+
+        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
             self.userEnergyUnit = userEnergyUnit
+            self.userWeightUnit = userWeightUnit
         }
     }
-}
-
-enum HealthKitFetchStatus {
-    case notFetched
-    case fetching
-    case fetched
-    case notAuthorized
 }
 
 struct TDEEForm_Previews: PreviewProvider {

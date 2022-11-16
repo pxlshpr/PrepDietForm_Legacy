@@ -9,7 +9,14 @@ extension TDEEForm.ViewModel {
         }
         return restingEnergy.formattedEnergy
     }
-    
+
+    var lbmFormatted: String {
+        guard let lbm else {
+            return ""
+        }
+        return lbm.cleanAmount
+    }
+
     var notSetup: Bool {
         true
     }
@@ -25,11 +32,21 @@ extension TDEEForm.ViewModel {
     var hasRestingEnergy: Bool {
         restingEnergy != nil
     }
-    
+
+    var hasLeanBodyMass: Bool {
+        lbm != nil
+    }
+
     var hasDynamicRestingEnergy: Bool {
         restingEnergySource == .healthApp
         || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
     }
+    
+    var hasDynamicLeanBodyMass: Bool {
+        lbmSource == .healthApp
+        || (lbmSource == .formula && lbmUsesHealthMeasurements)
+    }
+
 }
 
 extension TDEEForm.ViewModel {
@@ -38,6 +55,22 @@ extension TDEEForm.ViewModel {
         Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
     }
 
+    var lbmSourceBinding: Binding<LeanBodyMassSourceOption> {
+        Binding<LeanBodyMassSourceOption>(
+            get: { self.lbmSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeLBMSoruce(to: newSource)
+            }
+        )
+    }
+    
+    func changeLBMSoruce(to newSource: LeanBodyMassSourceOption) {
+        withAnimation {
+            lbmSource = newSource
+        }
+    }
+    
     var restingEnergySourceBinding: Binding<RestingEnergySourceOption> {
         Binding<RestingEnergySourceOption>(
             get: { self.restingEnergySource ?? .userEntered },
@@ -68,6 +101,26 @@ extension TDEEForm.ViewModel {
         )
     }
     
+    var lbmTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.lbmTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.lbm = nil
+                    self.lbmTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.lbm = double
+                withAnimation {
+                    self.lbmTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
     func changeRestingEnergySource(to newSource: RestingEnergySourceOption) {
         withAnimation {
             restingEnergySource = newSource
@@ -79,6 +132,23 @@ extension TDEEForm.ViewModel {
             break
         }
     }
+    
+    var restingEnergyFormulaBinding: Binding<RestingEnergyFormula> {
+        Binding<RestingEnergyFormula>(
+            get: { self.restingEnergyFormula },
+            set: { newFormula in
+                Haptics.feedback(style: .soft)
+                self.changeRestingEnergyFormula(to: newFormula)
+            }
+        )
+    }
+    
+    func changeRestingEnergyFormula(to newFormula: RestingEnergyFormula) {
+        withAnimation {
+            self.restingEnergyFormula = newFormula
+        }
+    }
+    
     var restingEnergyPeriodBinding: Binding<HealthPeriodOption> {
         Binding<HealthPeriodOption>(
             get: { self.restingEnergyPeriod },

@@ -16,8 +16,12 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(userEnergyUnit: EnergyUnit = .kcal) {
-        _viewModel = StateObject(wrappedValue: ViewModel(userEnergyUnit: userEnergyUnit))
+    init(userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg) {
+        let viewModel = ViewModel(
+            userEnergyUnit: userEnergyUnit,
+            userWeightUnit: userWeightUnit
+        )
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     @ViewBuilder
@@ -58,7 +62,7 @@ struct TDEEForm: View {
 
     @State var applyActivityScaleFactor: Bool = true
 
-    @State var bmrEquation: TDEEFormula = .mifflinStJeor
+    @State var bmrEquation: RestingEnergyFormula = .mifflinStJeor
     @State var activityLevel: ActivityLevel = .moderatelyActive
     @State var biologicalSex: HKBiologicalSex = .male
     @State var weightUnit: WeightUnit = .kg
@@ -93,6 +97,7 @@ struct TDEEForm: View {
     @State var healthEnergyPeriod: HealthPeriodOption = .previousDay
     @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
+//    @State var path: [Route] = [.leanBodyMassForm]
     @State var path: [Route] = []
     @State var useHealthAppData = false
 }

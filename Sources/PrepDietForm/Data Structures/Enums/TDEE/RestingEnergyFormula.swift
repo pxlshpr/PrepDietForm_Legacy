@@ -1,16 +1,16 @@
 import Foundation
 
-public enum TDEEFormula: Int16, Hashable, Codable, CaseIterable {
+public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
     case harrisBenedict = 1
     case rozaShizgal
     case mifflinStJeor
     case katchMcardle
 
-    static var latest: [TDEEFormula] {
+    static var latest: [RestingEnergyFormula] {
         [.katchMcardle, .mifflinStJeor]
     }
 
-    static var legacy: [TDEEFormula] {
+    static var legacy: [RestingEnergyFormula] {
         [.rozaShizgal, .harrisBenedict]
     }
 

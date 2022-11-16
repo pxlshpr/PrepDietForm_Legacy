@@ -82,12 +82,6 @@ struct HealthAppPeriodPicker: View {
 }
 
 
-struct FatPercentageForm: View {
-    var body: some View {
-        Text("Fat percenteage form")
-    }
-}
-
 struct HeightForm: View {
     var body: some View {
         Text("Height form")

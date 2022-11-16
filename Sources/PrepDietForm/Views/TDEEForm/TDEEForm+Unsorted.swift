@@ -8,7 +8,7 @@ extension TDEEForm {
     
     enum Route: Hashable {
         case healthAppPeriod
-        case fatPercentageForm
+        case leanBodyMassForm
         case weightForm
         case heightForm
     }
@@ -168,7 +168,7 @@ extension TDEEForm {
                     label("sex", "male")
                 }
                 Button {
-                    path.append(.fatPercentageForm)
+                    path.append(.leanBodyMassForm)
                 } label: {
                     label("fat", "29 %")
                 }
@@ -311,8 +311,9 @@ extension TDEEForm {
         switch route {
         case .healthAppPeriod:
             HealthAppPeriodPicker()
-        case .fatPercentageForm:
-            FatPercentageForm()
+        case .leanBodyMassForm:
+            LeanBodyMassForm()
+                .environmentObject(viewModel)
         case .heightForm:
             HeightForm()
         case .weightForm:
