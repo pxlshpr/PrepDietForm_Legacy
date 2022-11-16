@@ -17,6 +17,13 @@ extension TDEEForm.ViewModel {
         return lbm.cleanAmount
     }
 
+    var lbmFormattedWithUnit: String {
+        guard let lbm else {
+            return ""
+        }
+        return lbm.cleanAmount + " " + userWeightUnit.shortDescription
+    }
+
     var notSetup: Bool {
         true
     }

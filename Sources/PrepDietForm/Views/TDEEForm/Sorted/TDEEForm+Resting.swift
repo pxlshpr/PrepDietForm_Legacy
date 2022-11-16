@@ -4,32 +4,6 @@ import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
 
-func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
-    Button {
-        action?()
-    } label: {
-        ZStack {
-            Capsule(style: .continuous)
-                .foregroundColor(Color(.secondarySystemFill))
-            HStack(spacing: 5) {
-                if let systemImage {
-                    Image(systemName: systemImage)
-                        .foregroundColor(.secondary)
-                } else if showHealthAppIcon {
-                    appleHealthSymbol
-                }
-                Text(string)
-//                        .font(.title3)
-                    .foregroundColor(.secondary)
-            }
-            .frame(height: 35)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 5)
-        }
-        .fixedSize(horizontal: true, vertical: true)
-    }
-}
-
 extension TDEEForm {
     
     var restingEnergySection: some View {
@@ -138,19 +112,45 @@ extension TDEEForm {
         }
         
         var flowView: some View {
-            func label(_ prefix: String, _ string: String) -> some View {
+            func label(_ label: String, _ valueString: String) -> some View {
                 var backgroundColor: Color {
-                    return colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
+                    guard !valueString.isEmpty else {
+                        return .accentColor
+                    }
+                    let defaultColor = colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
+                    return useHealthAppData ? Color(.systemGroupedBackground) : defaultColor
                 }
+                
+                var foregroundColor: Color {
+                    guard !valueString.isEmpty else {
+                        return .white
+                    }
+                    return useHealthAppData ? Color(.secondaryLabel) : Color.primary
+                }
+                var prefixColor: Color {
+                    useHealthAppData ? Color(.tertiaryLabel) : Color.secondary
+                }
+                
+                var string: String {
+                    valueString.isEmpty ? label : valueString
+                }
+                
+                var prefix: String? {
+                    valueString.isEmpty ? nil : label
+                }
+                
+                var imageColor: Color {
+                    valueString.isEmpty ? .white : Color(.tertiaryLabel)
+                }
+                
                 return PickerLabel(
                     string,
                     prefix: prefix,
                     systemImage: useHealthAppData ? nil : "chevron.right",
-                    //                    imageColor: <#T##Color#>,
-                    backgroundColor:  useHealthAppData ? Color(.systemGroupedBackground) : backgroundColor,
-                    foregroundColor: useHealthAppData ? Color(.secondaryLabel) : Color.primary,
-                    prefixColor: useHealthAppData ? Color(.tertiaryLabel) : Color.secondary,
-                    //                    imageScale: <#T##Image.Scale#>,
+                    imageColor: imageColor,
+                    backgroundColor: backgroundColor,
+                    foregroundColor: foregroundColor,
+                    prefixColor: prefixColor,
                     infiniteMaxHeight: false
                 )
             }
@@ -170,7 +170,7 @@ extension TDEEForm {
                     Button {
                         path.append(.leanBodyMassForm)
                     } label: {
-                        label("lean body mass", "66.2 kg")
+                        label("lean body mass", viewModel.lbmFormatted)
                     }
                 } else {
                     Menu {
@@ -483,6 +483,7 @@ extension TDEEForm {
 enum LeanBodyMassSourceOption: CaseIterable {
     case formula
     case healthApp
+    case fatPercentage
     case userEntered
     
     var pickerDescription: String {
@@ -491,6 +492,8 @@ enum LeanBodyMassSourceOption: CaseIterable {
             return "Formula"
         case .healthApp:
             return "Health App"
+        case .fatPercentage:
+            return "Fat Percentage"
         case .userEntered:
             return "Let me enter it"
         }
@@ -502,6 +505,8 @@ enum LeanBodyMassSourceOption: CaseIterable {
             return "heart.fill"
         case .formula:
             return "function"
+        case .fatPercentage:
+            return "percent"
         case .userEntered:
             return "keyboard"
         }
@@ -513,6 +518,8 @@ enum LeanBodyMassSourceOption: CaseIterable {
             return "Formula"
         case .healthApp:
             return "Health App"
+        case .fatPercentage:
+            return "Fat Percentage"
         case .userEntered:
             return "Manual Entry"
         }
@@ -565,6 +572,8 @@ struct LeanBodyMassForm: View {
                             EmptyView()
                         case .userEntered:
                             EmptyView()
+                        case .fatPercentage:
+                            EmptyView()
                         case .formula:
                             EmptyView()
 //                            formulaContent
@@ -586,6 +595,11 @@ struct LeanBodyMassForm: View {
         
     }
     
+    func tappedFatPercentage() {
+        viewModel.changeLBMSoruce(to: .userEntered)
+        isFocused = true
+    }
+    
     func tappedManualEntry() {
         viewModel.changeLBMSoruce(to: .userEntered)
         isFocused = true
@@ -595,6 +609,7 @@ struct LeanBodyMassForm: View {
         VStack(spacing: 10) {
             emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
             emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
+            emptyButton("Convert Fat Percentage", systemImage: "percent", action: tappedFatPercentage)
             emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
         }
     }
@@ -724,6 +739,31 @@ struct LeanBodyMassForm: View {
     }
 }
 
+func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
+    Button {
+        action?()
+    } label: {
+        HStack(spacing: 5) {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .foregroundColor(.secondary)
+            } else if showHealthAppIcon {
+                appleHealthSymbol
+            }
+            Text(string)
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(.secondary)
+        }
+        .frame(minHeight: 35)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 5)
+        .background (
+            Capsule(style: .continuous)
+//            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .foregroundColor(Color(.secondarySystemFill))
+        )
+    }
+}
 enum HealthKitFetchStatus {
     case notFetched
     case fetching
