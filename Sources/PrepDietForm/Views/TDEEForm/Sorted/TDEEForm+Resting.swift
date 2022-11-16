@@ -851,12 +851,12 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-//        @Published var isEditing = false
-//        @Published var presentationDetent: PresentationDetent = .height(270)
-//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var isEditing = true
-        @Published var presentationDetent: PresentationDetent = .large
-        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
 
         @Published var restingEnergy: Double? = nil
         @Published var restingEnergyTextFieldString: String = ""
