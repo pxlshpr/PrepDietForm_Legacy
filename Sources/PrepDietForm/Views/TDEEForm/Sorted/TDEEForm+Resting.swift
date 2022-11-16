@@ -198,6 +198,21 @@ extension TDEEForm {
                     withAnimation {
                         viewModel.restingEnergySource = .healthApp
                     }
+                    
+                    /// [ ] Do this in the ViewModel
+                    /// [ ] Store the energyUnit in the view model
+                    /// [ ] Get the default range here (daily average of past week for resting energy)
+                    guard let average = try await HealthKitManager.shared.averageSumOfRestingEnergy(
+                        using: userEnergyUnit,
+                        overPast: viewModel.restingEnergyIntervalValue,
+                        interval: viewModel.restingEnergyInterval
+                    ) else {
+                        /// [ ] If we got nothing, show the empty state with a hint that they might need to give permissions
+                    }
+                    print("We here")
+                    
+                    /// [ ] Make sure we persist this to the backend once the user saves it
+
                 } catch {
                     
                 }
@@ -266,18 +281,54 @@ extension TDEEForm {
             }
             
             var periodValueMenu: some View {
-                Menu {
-                    
+                let binding = Binding<Int>(
+                    get: { viewModel.restingEnergyIntervalValue },
+                    set: { newValue in
+                        guard newValue >= viewModel.restingEnergyInterval.minValue,
+                              newValue <= viewModel.restingEnergyInterval.maxValue else {
+                            return
+                        }
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            viewModel.restingEnergyIntervalValue = newValue
+                        }
+                    }
+                )
+                return Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(Array(viewModel.restingEnergyInterval.minValue...viewModel.restingEnergyInterval.maxValue), id: \.self) { quantity in
+                            Text("\(quantity)").tag(quantity)
+                        }
+                    }
                 } label: {
-                    PickerLabel("2")
+                    PickerLabel("\(viewModel.restingEnergyIntervalValue)")
+                        .animation(.none, value: viewModel.restingEnergyIntervalValue)
+                        .animation(.none, value: viewModel.restingEnergyInterval)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
             var periodIntervalMenu: some View {
-                Menu {
-                    
+                let binding = Binding<HealthAppInterval>(
+                    get: { viewModel.restingEnergyInterval },
+                    set: { newInterval in
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            viewModel.restingEnergyInterval = newInterval
+                        }
+                    }
+                )
+                return Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(HealthAppInterval.allCases, id: \.self) { interval in
+                            Text("\(interval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")").tag(interval)
+                        }
+                    }
                 } label: {
-                    PickerLabel("weeks")
+                    PickerLabel("\(viewModel.restingEnergyInterval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")")
+                        .animation(.none, value: viewModel.restingEnergyInterval)
+                        .animation(.none, value: viewModel.restingEnergyIntervalValue)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
@@ -395,13 +446,12 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-//        @Published var isEditing = false
-//        @Published var presentationDetent: PresentationDetent = .height(270)
-//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-
-        @Published var isEditing = true
-        @Published var presentationDetent: PresentationDetent = .large
-        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
         
         @Published var restingEnergy: Double? = nil
         @Published var fetchedRestingEnergy: Bool = false

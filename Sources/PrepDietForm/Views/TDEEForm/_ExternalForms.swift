@@ -36,7 +36,7 @@ struct HealthAppPeriodPicker: View {
                         HStack {
                             Menu {
                                 Picker(selection: $quantity, label: EmptyView()) {
-                                    ForEach(Array(interval.minQuantity...interval.maxQuantity), id: \.self) { quantity in
+                                    ForEach(Array(interval.minValue...interval.maxValue), id: \.self) { quantity in
                                         Text("\(quantity)").tag(quantity)
                                     }
                                 }

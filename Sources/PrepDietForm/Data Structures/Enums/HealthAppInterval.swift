@@ -16,7 +16,7 @@ enum HealthAppInterval: CaseIterable {
         }
     }
     
-    var minQuantity: Int {
+    var minValue: Int {
         switch self {
         case .day:
             return 2
@@ -24,7 +24,7 @@ enum HealthAppInterval: CaseIterable {
             return 1
         }
     }
-    var maxQuantity: Int {
+    var maxValue: Int {
         switch self {
         case .day:
             return 6
