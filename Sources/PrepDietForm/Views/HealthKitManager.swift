@@ -186,22 +186,40 @@ extension HealthKitManager {
     }
 
     func averageSum(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
-        let sumQuantities = try await sumQuantities(for: typeIdentifier, overPast: value, interval: interval)
-        guard !sumQuantities.isEmpty else { return nil }
-        
-        let sum = sumQuantities
-            .values
-            .map { $0.doubleValue(for: unit) }
-            .reduce(0, +)
-        return sum / Double(sumQuantities.count)
-    }
-
-    func sumQuantities(for typeIdentifier: HKQuantityTypeIdentifier, overPast value: Int, interval: HealthAppInterval) async throws -> [Date: HKQuantity] {
+        /// Get the date range
         guard let dateRange = interval.dateRangeOfPast(value) else {
             throw HealthKitManagerError.dateCreationError
         }
         
-        let collection = try await statisticsCollection(for: typeIdentifier, overPast: value, interval: interval)
+        /// If we're getting the average of more than 3 weeks
+        if dateRange.upperBound.numberOfDaysFrom(dateRange.lowerBound) > 21 {
+            return try await averageSumUsingTotal(for: typeIdentifier, using: unit, in: dateRange)
+        } else {
+            return try await averageSumUsingIntervals(for: typeIdentifier, using: unit, in: dateRange)
+        }
+    }
+
+    func averageSumUsingIntervals(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>) async throws -> Double? {
+        /// Always get samples up to the start of tomorrow, so that we get all of today's results too in case we need it
+        let endDate = Date().startOfDay.moveDayBy(1)
+        
+        let datePredicate = HKQuery.predicateForSamples(withStart: dateRange.lowerBound, end: endDate)
+
+        /// Create the query descriptor.
+        let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
+        let samplesPredicate = HKSamplePredicate.quantitySample(type: type, predicate: datePredicate)
+
+        /// We want the sum of each day
+        let everyDay = DateComponents(day: 1)
+
+        let asyncQuery = HKStatisticsCollectionQueryDescriptor(
+            predicate: samplesPredicate,
+            options: .cumulativeSum,
+            anchorDate: endDate,
+            intervalComponents: everyDay
+        )
+        let collection = try await asyncQuery.result(for: store)
+        
         var sumQuantities: [Date: HKQuantity] = [:]
         for day in dateRange.days {
             guard let statistics = collection.statistics(for: day) else {
@@ -212,59 +230,29 @@ extension HealthKitManager {
             }
             sumQuantities[day] = sumQuantity
         }
-        return sumQuantities
+        
+        guard !sumQuantities.isEmpty else { return nil }
+        
+        let sum = sumQuantities
+            .values
+            .map { $0.doubleValue(for: unit) }
+            .reduce(0, +)
+        return sum / Double(sumQuantities.count)
     }
     
-    private func statisticsCollection(
-        for typeIdentifier: HKQuantityTypeIdentifier,
-        overPast value: Int,
-        interval: HealthAppInterval
-    ) async throws -> HKStatisticsCollection {
-
-        guard let range = interval.dateRangeOfPast(value) else {
-            throw HealthKitManagerError.dateCreationError
-        }
-
-        /// Always get samples up to the start of tomorrow, so that we get all of today's results too in case we need it
-        let endDate = Date().startOfDay.moveDayBy(1)
-        
-        let datePredicate = HKQuery.predicateForSamples(withStart: range.lowerBound, end: endDate)
-
-        /// Create the query descriptor.
+    func averageSumUsingTotal(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>) async throws -> Double? {
+        let lower = dateRange.lowerBound.moveDayBy(1)
+        let upper = dateRange.upperBound.moveDayBy(1)
         let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
+        let datePredicate = HKQuery.predicateForSamples(withStart: lower, end: upper)
         let samplesPredicate = HKSamplePredicate.quantitySample(type: type, predicate: datePredicate)
-
-        /// We want the sum of each day
-        let everyDay = DateComponents(day: 1)
+        let asyncQuery = HKStatisticsQueryDescriptor(predicate: samplesPredicate, options: .cumulativeSum)
         
-
-        let asyncQuery = HKStatisticsCollectionQueryDescriptor(
-            predicate: samplesPredicate,
-            options: .cumulativeSum,
-            anchorDate: endDate,
-            intervalComponents: everyDay
-        )
-        var start = CFAbsoluteTimeGetCurrent()
-        let collection = try await asyncQuery.result(for: store)
-        print("Collection took: \(CFAbsoluteTimeGetCurrent()-start)")
-
-        /// [ ] If it's greater than a month, use a direct sum of the period and divide it by the number of days—otherwise get the intervals to favour accuracy.
-        /// [ ] In either case, show an activity indicator on value while we're loading it
-        ///
-        let lower = range.lowerBound.moveDayBy(1)
-        let upper = range.upperBound.moveDayBy(1)
-        let datePredicateNew = HKQuery.predicateForSamples(withStart: lower, end: upper)
-        let samplesPredicateNew = HKSamplePredicate.quantitySample(type: type, predicate: datePredicateNew)
-        let asyncQueryNew = HKStatisticsQueryDescriptor(predicate: samplesPredicateNew, options: .cumulativeSum)
-        
-        start = CFAbsoluteTimeGetCurrent()
-        let result = try await asyncQueryNew.result(for: store)
-        if let sum = result?.sumQuantity()?.doubleValue(for: .kilocalorie()) {
-            print("Sum took: \(CFAbsoluteTimeGetCurrent()-start)")
-            print("We here with a sum of \(sum) between: \(lower), \(upper), giving us an average of \(sum/Double(upper.numberOfDaysFrom(lower)))")
+        let result = try await asyncQuery.result(for: store)
+        guard let sum = result?.sumQuantity()?.doubleValue(for: .kilocalorie()) else {
+            throw HealthKitManagerError.couldNotGetSumQuantity
         }
-        
-        return collection
+        return sum/Double(upper.numberOfDaysFrom(lower))
     }
 
     private func getLatestQuantitySample(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantitySample {
