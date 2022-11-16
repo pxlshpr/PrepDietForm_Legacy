@@ -5,9 +5,8 @@ extension TDEEForm {
     var promptSection: some View {
         VStack {
             Text("This is an estimate of how many calories you would need to consume to *maintain* your current weight.")
-                .font(.title3)
                 .multilineTextAlignment(.center)
-                .foregroundColor(Color(.tertiaryLabel))
+                .foregroundColor(Color(.secondaryLabel))
             if viewModel.notSetup {
                 Button {
                     transitionToEditState()
