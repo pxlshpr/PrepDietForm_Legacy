@@ -430,7 +430,8 @@ extension TDEEForm {
                         viewModel.restingEnergyPeriod.menuDescription,
                         imageColor: Color(hex: "F3DED7"),
                         backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
-                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
                     )
                     .animation(.none, value: viewModel.restingEnergyPeriod)
                     .fixedSize(horizontal: true, vertical: false)
@@ -449,7 +450,8 @@ extension TDEEForm {
                         "\(viewModel.restingEnergyIntervalValue)",
                         imageColor: Color(hex: "F3DED7"),
                         backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
-                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
                     )
                     .animation(.none, value: viewModel.restingEnergyIntervalValue)
                     .animation(.none, value: viewModel.restingEnergyInterval)
@@ -469,7 +471,8 @@ extension TDEEForm {
                         "\(viewModel.restingEnergyInterval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")",
                         imageColor: Color(hex: "F3DED7"),
                         backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
-                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
                     )
                     .animation(.none, value: viewModel.restingEnergyInterval)
                     .animation(.none, value: viewModel.restingEnergyIntervalValue)
