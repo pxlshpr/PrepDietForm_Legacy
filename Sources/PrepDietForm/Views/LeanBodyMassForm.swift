@@ -4,7 +4,7 @@ import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
 
-struct WeightForm: View {
+struct LeanBodyMassForm: View {
     
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
     @Namespace var namespace
@@ -46,7 +46,7 @@ struct WeightForm: View {
                 MeasurementLabel(
                     label: "weight",
                     valueString: "93.55 kg",
-                    useHealthAppData: viewModel.syncHealthWeight
+                    useHealthAppData: viewModel.weightSource == .healthApp
                 )
             }
         }
@@ -77,7 +77,6 @@ struct WeightForm: View {
         .toggleStyle(.button)
     }
 
-    
     func tappedSyncWithHealth() {
         
     }
@@ -236,71 +235,7 @@ struct WeightForm: View {
                 content
             }
         }
-        .navigationTitle("Weight")
+        .navigationTitle("Lean Body Mass")
         .onChange(of: viewModel.lbmSource, perform: lbmSourceChange)
-    }
-}
-
-
-extension TDEEForm {
-    class ViewModel: ObservableObject {
-        let userEnergyUnit: EnergyUnit
-        let userWeightUnit: WeightUnit
-
-        @Published var path: [Route] = []
-        
-        @Published var hasAppeared = false
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
-        
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
-
-        @Published var restingEnergy: Double? = nil
-        @Published var restingEnergyTextFieldString: String = ""
-
-        @Published var restingEnergyPeriod: HealthPeriodOption = .average
-        @Published var restingEnergyIntervalValue: Int = 1
-        @Published var restingEnergyInterval: HealthAppInterval = .week
-        
-        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var restingEnergyUsesHealthMeasurements: Bool = false
-
-        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
-        
-        @Published var lbmSource: LeanBodyMassSourceOption? = nil
-        @Published var lbmFormula: LeanBodyMassFormula = .boer
-        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var lbmUsesHealthMeasurements: Bool = false
-        @Published var lbm: Double? = nil
-        @Published var lbmTextFieldString: String = ""
-        @Published var lbmDate: Date? = nil
-
-        @Published var weightSource: MeasurementSourceOption? = nil
-        @Published var weightFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var weight: Double? = nil
-        @Published var weightTextFieldString: String = ""
-        @Published var weightDate: Date? = nil
-
-        @Published var syncHealthWeight : Bool = false
-        
-        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
-            self.userEnergyUnit = userEnergyUnit
-            self.userWeightUnit = userWeightUnit
-        }
-    }
-}
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                }
-        }
     }
 }

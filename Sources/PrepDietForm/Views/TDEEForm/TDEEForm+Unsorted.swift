@@ -318,6 +318,7 @@ extension TDEEForm {
             HeightForm()
         case .weightForm:
             WeightForm()
+                .environmentObject(viewModel)
         }
     }
     
