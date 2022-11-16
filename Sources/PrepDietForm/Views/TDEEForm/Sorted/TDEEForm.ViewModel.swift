@@ -37,7 +37,45 @@ extension TDEEForm.ViewModel {
     var restingEnergyIntervalValues: [Int] {
         Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
     }
+
+    var restingEnergySourceBinding: Binding<RestingEnergySourceOption> {
+        Binding<RestingEnergySourceOption>(
+            get: { self.restingEnergySource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeRestingEnergySource(to: newSource)
+            }
+        )
+    }
     
+    var restingEnergyTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.restingEnergyTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.restingEnergy = nil
+                    self.restingEnergyTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.restingEnergy = double
+                withAnimation {
+                    self.restingEnergyTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    func changeRestingEnergySource(to newSource: RestingEnergySourceOption) {
+        withAnimation {
+            restingEnergySource = newSource
+        }
+        if restingEnergySource == .healthApp {
+            fetchRestingEnergyFromHealth()
+        }
+    }
     var restingEnergyPeriodBinding: Binding<HealthPeriodOption> {
         Binding<HealthPeriodOption>(
             get: { self.restingEnergyPeriod },
@@ -145,6 +183,7 @@ extension TDEEForm.ViewModel {
                     withAnimation {
                         print("🔥 setting average: \(average)")
                         restingEnergy = average
+                        restingEnergyTextFieldString = "\(Int(average))"
                         restingEnergyFetchStatus = .fetched
                     }
                 }

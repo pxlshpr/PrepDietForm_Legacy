@@ -51,20 +51,10 @@ extension TDEEForm {
             .toggleStyle(.button)
         }
         
-        var topSection: some View {
-            var menu: some View {
-                let binding = Binding<RestingEnergySourceOption>(
-                    get: { viewModel.restingEnergySource ?? .userEntered },
-                    set: { newValue in
-                        Haptics.feedback(style: .soft)
-                        withAnimation {
-                            viewModel.restingEnergySource = newValue
-                        }
-                    }
-                )
-
-                return Menu {
-                    Picker(selection: binding, label: EmptyView()) {
+        var sourceSection: some View {
+            var sourceMenu: some View {
+                Menu {
+                    Picker(selection: viewModel.restingEnergySourceBinding, label: EmptyView()) {
                         ForEach(RestingEnergySourceOption.allCases, id: \.self) {
                             Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
                         }
@@ -97,7 +87,7 @@ extension TDEEForm {
             }
             
             return HStack {
-                menu
+                sourceMenu
                 Spacer()
             }
             .padding(.horizontal, 17)
@@ -183,12 +173,26 @@ extension TDEEForm {
                         .onAppear {
                             print("Appeared")
                         }
+                case .userEntered:
+                    manualEntryContent
                 default:
                     healthContent
                 }
             } else {
                 emptyContent
             }
+        }
+        
+        var manualEntryContent: some View {
+            VStack {
+                sourceSection
+                energyRow
+            }
+        }
+        
+        func tappedManualEntry() {
+            viewModel.changeRestingEnergySource(to: .userEntered)
+            restingEnergyTextFieldIsFocused = true
         }
         
         func tappedSyncWithHealth() {
@@ -212,13 +216,13 @@ extension TDEEForm {
             VStack(spacing: 10) {
                 emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
                 emptyButton("Calculate using Formula", systemImage: "function")
-                emptyButton("Let me type it in", systemImage: "keyboard")
+                emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
             }
         }
         
         var healthContent: some View {
             VStack {
-                topSection
+                sourceSection
                 Group {
                     if viewModel.restingEnergyFetchStatus == .notAuthorized {
                         permissionRequiredContent
@@ -232,34 +236,64 @@ extension TDEEForm {
             }
         }
         
-        @ViewBuilder
         var energyRow: some View {
-            if viewModel.restingEnergyFetchStatus != .notAuthorized {
-                HStack {
-                    Spacer()
-                    if viewModel.restingEnergyFetchStatus == .fetching {
-                        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
-                            .frame(width: 25, height: 25)
-                            .foregroundColor(.secondary)
-                    } else {
-                        if viewModel.hasDynamicRestingEnergy {
-                            Text("currently")
-                                .font(.subheadline)
-                                .foregroundColor(Color(.tertiaryLabel))
-                        }
-                        Text(viewModel.restingEnergyFormatted)
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                            .matchedGeometryEffect(id: "resting", in: namespace)
-                            .if(!viewModel.hasRestingEnergy) { view in
-                                view
-                                    .redacted(reason: .placeholder)
+            @ViewBuilder
+            var health: some View {
+                if viewModel.restingEnergyFetchStatus != .notAuthorized {
+                    HStack {
+                        Spacer()
+                        if viewModel.restingEnergyFetchStatus == .fetching {
+                            ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                                .frame(width: 25, height: 25)
+                                .foregroundColor(.secondary)
+                        } else {
+                            if viewModel.hasDynamicRestingEnergy {
+                                Text("currently")
+                                    .font(.subheadline)
+                                    .foregroundColor(Color(.tertiaryLabel))
                             }
-                        Text(viewModel.userEnergyUnit.shortDescription)
-                            .foregroundColor(.secondary)
+                            Text(viewModel.restingEnergyFormatted)
+                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .matchedGeometryEffect(id: "resting", in: namespace)
+                                .if(!viewModel.hasRestingEnergy) { view in
+                                    view
+                                        .redacted(reason: .placeholder)
+                                }
+                            Text(viewModel.userEnergyUnit.shortDescription)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
-                .padding(.trailing)
             }
+            
+            var manualEntry: some View {
+                HStack {
+                    Spacer()
+                    TextField("energy in", text: viewModel.restingEnergyTextFieldStringBinding)
+                        .keyboardType(.decimalPad)
+                        .focused($restingEnergyTextFieldIsFocused)
+                        .multilineTextAlignment(.trailing)
+//                        .fixedSize(horizontal: true, vertical: false)
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .matchedGeometryEffect(id: "resting", in: namespace)
+                    Text(viewModel.userEnergyUnit.shortDescription)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            return Group {
+                switch viewModel.restingEnergySource {
+                case .healthApp:
+                    health
+                case .formula:
+                    EmptyView()
+                case .userEntered:
+                    manualEntry
+                default:
+                    EmptyView()
+                }
+            }
+            .padding(.trailing)
         }
         
         var healthPeriodContent: some View {
@@ -371,7 +405,7 @@ extension TDEEForm {
         
         var formulaContent: some View {
             VStack {
-                topSection
+                sourceSection
                 formulaRow
                 Divider()
                     .frame(width: 300)
@@ -443,10 +477,11 @@ extension TDEEForm {
         @Published var restingEnergySource: RestingEnergySourceOption? = nil
 //        @Published var isEditing = true
 //        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .userEntered
 
         @Published var restingEnergy: Double? = nil
-        
+        @Published var restingEnergyTextFieldString: String = ""
+
         @Published var restingEnergyPeriod: HealthPeriodOption = .average
         @Published var restingEnergyIntervalValue: Int = 1
         @Published var restingEnergyInterval: HealthAppInterval = .week

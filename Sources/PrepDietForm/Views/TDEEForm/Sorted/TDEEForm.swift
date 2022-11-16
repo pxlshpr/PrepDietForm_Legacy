@@ -12,6 +12,8 @@ struct TDEEForm: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: ViewModel
     
+    @FocusState var restingEnergyTextFieldIsFocused: Bool
+    
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
     init(userEnergyUnit: EnergyUnit = .kcal) {
