@@ -10,6 +10,10 @@ struct PickerLabel: View {
     let infiniteMaxHeight: Bool
     
     let backgroundColor: Color
+    
+    let backgroundGradientTop: Color?
+    let backgroundGradientBottom: Color?
+    
     let prefixColor: Color
     let foregroundColor: Color
     
@@ -19,6 +23,8 @@ struct PickerLabel: View {
         systemImage: String? = "chevron.up.chevron.down",
         imageColor: Color = Color(.tertiaryLabel),
         backgroundColor: Color = Color(.secondarySystemFill),
+        backgroundGradientTop: Color? = nil,
+        backgroundGradientBottom: Color? = nil,
         foregroundColor: Color = Color(.label),
         prefixColor: Color = Color(.secondaryLabel),
         imageScale: Image.Scale = .small,
@@ -31,6 +37,8 @@ struct PickerLabel: View {
         self.imageScale = imageScale
         self.infiniteMaxHeight = infiniteMaxHeight
         
+        self.backgroundGradientTop = backgroundGradientTop
+        self.backgroundGradientBottom = backgroundGradientBottom
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
         self.prefixColor = prefixColor
@@ -39,8 +47,25 @@ struct PickerLabel: View {
     var body: some View {
         ZStack {
             Capsule(style: .continuous)
-                .foregroundColor(.white)
-                .colorMultiply(backgroundColor)
+                .if(backgroundGradientTop != nil && backgroundGradientBottom != nil, transform: { view in
+                    view
+                        .foregroundStyle(
+                            .linearGradient(
+                                colors: [
+                                    backgroundGradientTop!,
+                                    backgroundGradientBottom!
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                })
+                .if(backgroundGradientTop == nil && backgroundGradientBottom == nil, transform: { view in
+                    view
+                        .foregroundColor(backgroundColor)
+                })
+//                .foregroundColor(.white)
+//                .colorMultiply(backgroundColor)
             HStack(spacing: 5) {
                 if let prefix {
                     Text(prefix)

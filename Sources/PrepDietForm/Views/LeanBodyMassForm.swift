@@ -45,7 +45,7 @@ struct LeanBodyMassForm: View {
             } label: {
                 MeasurementLabel(
                     label: "weight",
-                    valueString: "93.55 kg",
+                    valueString: viewModel.weightFormattedWithUnit,
                     useHealthAppData: viewModel.weightSource == .healthApp
                 )
             }

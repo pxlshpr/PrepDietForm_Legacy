@@ -6,6 +6,24 @@ import SwiftUISugar
 
 //func label(_ label: String, _ valueString: String) -> some View {
 
+//let AppleHealthBottomColorHex = "fc2e1d"
+//let AppleHealthTopColorHex = "fe5fab"
+
+//var appleHealthSymbol: some View {
+//    Image(systemName: "heart.fill")
+//        .symbolRenderingMode(.palette)
+//        .foregroundStyle(
+//            .linearGradient(
+//                colors: [
+//                    Color(hex: AppleHealthTopColorHex),
+//                    Color(hex: AppleHealthBottomColorHex)
+//                ],
+//                startPoint: .top,
+//                endPoint: .bottom
+//            )
+//        )
+//}
+
 struct MeasurementLabel: View {
     @Environment(\.colorScheme) var colorScheme
     
@@ -20,11 +38,26 @@ struct MeasurementLabel: View {
             systemImage: useHealthAppData ? nil : "chevron.right",
             imageColor: imageColor,
             backgroundColor: backgroundColor,
+            backgroundGradientTop: backgroundGradientTop,
+            backgroundGradientBottom: backgroundGradientBottom,
             foregroundColor: foregroundColor,
             prefixColor: prefixColor,
             infiniteMaxHeight: false
         )
     }
+    var backgroundGradientTop: Color? {
+        guard useHealthAppData else {
+            return nil
+        }
+        return Color(hex: AppleHealthTopColorHex)
+    }
+    var backgroundGradientBottom: Color? {
+        guard useHealthAppData else {
+            return nil
+        }
+        return Color(hex: AppleHealthBottomColorHex)
+    }
+
     var backgroundColor: Color {
         guard !valueString.isEmpty else {
             return .accentColor
@@ -37,10 +70,21 @@ struct MeasurementLabel: View {
         guard !valueString.isEmpty else {
             return .white
         }
-        return useHealthAppData ? Color(.secondaryLabel) : Color.primary
+        if useHealthAppData {
+            return Color.white
+//            return Color(.secondaryLabel)
+        } else {
+            return Color.primary
+        }
     }
     var prefixColor: Color {
-        useHealthAppData ? Color(.tertiaryLabel) : Color.secondary
+        if useHealthAppData {
+            return Color(hex: "F3DED7")
+//            return Color(.secondaryLabel)
+//            return Color(.tertiaryLabel)
+        } else {
+            return Color.secondary
+        }
     }
     
     var string: String {
@@ -53,6 +97,20 @@ struct MeasurementLabel: View {
     
     var imageColor: Color {
         valueString.isEmpty ? .white : Color(.tertiaryLabel)
+    }
+}
+
+struct MeasurementLabel_Previews: PreviewProvider {
+    static var previews: some View {
+        FormStyledScrollView {
+            FormStyledSection {
+                MeasurementLabel(
+                    label: "weight",
+                    valueString: "93.55",
+                    useHealthAppData: true
+                )
+            }
+        }
     }
 }
 
@@ -639,9 +697,73 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
         )
     }
 }
+
 enum HealthKitFetchStatus {
     case notFetched
     case fetching
     case fetched
     case notAuthorized
+}
+
+extension TDEEForm {
+    class ViewModel: ObservableObject {
+        let userEnergyUnit: EnergyUnit
+        let userWeightUnit: WeightUnit
+
+        @Published var path: [Route] = []
+        
+        @Published var hasAppeared = false
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
+
+        @Published var restingEnergy: Double? = nil
+        @Published var restingEnergyTextFieldString: String = ""
+
+        @Published var restingEnergyPeriod: HealthPeriodOption = .average
+        @Published var restingEnergyIntervalValue: Int = 1
+        @Published var restingEnergyInterval: HealthAppInterval = .week
+        
+        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var restingEnergyUsesHealthMeasurements: Bool = false
+
+        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
+        
+        @Published var lbmSource: LeanBodyMassSourceOption? = nil
+        @Published var lbmFormula: LeanBodyMassFormula = .boer
+        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var lbmUsesHealthMeasurements: Bool = false
+        @Published var lbm: Double? = nil
+        @Published var lbmTextFieldString: String = ""
+        @Published var lbmDate: Date? = nil
+
+        @Published var weightSource: MeasurementSourceOption? = nil
+        @Published var weightFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var weight: Double? = nil
+        @Published var weightTextFieldString: String = ""
+        @Published var weightDate: Date? = nil
+
+        @Published var syncHealthWeight : Bool = false
+        
+        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
+            self.userEnergyUnit = userEnergyUnit
+            self.userWeightUnit = userWeightUnit
+        }
+    }
+}
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
+    }
 }
