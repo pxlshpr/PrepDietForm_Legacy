@@ -41,7 +41,7 @@ struct TDEEForm: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { trailingContent }
             .toolbar { leadingContent }
-            .onChange(of: syncHealthKitMeasurements, perform: syncHealthKitMeasurementsChanged)
+            .onChange(of: viewModel.restingEnergyUsesHealthMeasurements, perform: syncHealthKitMeasurementsChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }
@@ -52,10 +52,7 @@ struct TDEEForm: View {
     
     @State var showingAdaptiveCorrectionInfo = false
 
-    @State var restingEnergySource: RestingEnergySourceOption = .healthApp
-    @State var activeEnergySource: ActiveEnergySourceOption = .healthApp
 
-    @State var syncHealthKitMeasurements: Bool = false
     @State var applyActivityScaleFactor: Bool = true
 
     @State var bmrEquation: TDEEFormula = .mifflinStJeor

@@ -24,6 +24,11 @@ extension TDEEForm.ViewModel {
     var hasRestingEnergy: Bool {
         restingEnergy != nil
     }
+    
+    var hasDynamicRestingEnergy: Bool {
+        restingEnergySource == .healthApp
+        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
+    }
 }
 
 extension TDEEForm.ViewModel {

@@ -237,6 +237,11 @@ extension TDEEForm {
             if viewModel.restingEnergyFetchStatus != .notAuthorized {
                 HStack {
                     Spacer()
+                    if viewModel.hasDynamicRestingEnergy {
+                        Text("currently")
+                            .font(.subheadline)
+                            .foregroundColor(Color(.tertiaryLabel))
+                    }
                     if viewModel.restingEnergyFetchStatus == .fetching {
                         ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                             .frame(width: 25, height: 25)
@@ -465,6 +470,7 @@ extension TDEEForm {
         @Published var restingEnergyInterval: HealthAppInterval = .week
         
         @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var restingEnergyUsesHealthMeasurements: Bool = false
 
         init(userEnergyUnit: EnergyUnit) {
             self.userEnergyUnit = userEnergyUnit

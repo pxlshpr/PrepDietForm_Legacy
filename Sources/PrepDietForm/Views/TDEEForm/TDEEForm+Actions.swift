@@ -17,6 +17,7 @@ extension TDEEForm {
         viewModel.updateHealthAppData()
     }
     
+    //TODO: Move this to ViewModel
     func syncHealthKitMeasurementsChanged(to syncHealthKitMeasurements: Bool) {
         if syncHealthKitMeasurements {
             Task {
