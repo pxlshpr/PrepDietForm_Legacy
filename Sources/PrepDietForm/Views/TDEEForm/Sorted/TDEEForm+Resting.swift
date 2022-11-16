@@ -340,7 +340,7 @@ extension TDEEForm {
                 HStack {
                     Spacer()
                     HStack(spacing: 5) {
-                        Text("the past")
+                        Text("previous")
                             .foregroundColor(Color(.secondaryLabel))
                         periodValueMenu
                         periodIntervalMenu
@@ -353,7 +353,7 @@ extension TDEEForm {
                 HStack {
                     Spacer()
                     HStack {
-                        Text("Use")
+                        Text("Using")
                             .foregroundColor(.secondary)
                         periodTypeMenu
                     }
