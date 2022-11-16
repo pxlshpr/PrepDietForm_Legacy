@@ -234,25 +234,27 @@ extension TDEEForm {
         
         @ViewBuilder
         var energyRow: some View {
-            HStack {
-                Spacer()
-                if viewModel.restingEnergyFetchStatus == .fetching {
-                    ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
-                        .frame(width: 25, height: 25)
+            if viewModel.restingEnergyFetchStatus != .notAuthorized {
+                HStack {
+                    Spacer()
+                    if viewModel.restingEnergyFetchStatus == .fetching {
+                        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                            .frame(width: 25, height: 25)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text(viewModel.restingEnergyFormatted)
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .matchedGeometryEffect(id: "resting", in: namespace)
+                            .if(!viewModel.hasRestingEnergy) { view in
+                                view
+                                    .redacted(reason: .placeholder)
+                            }
+                    }
+                    Text(viewModel.userEnergyUnit.shortDescription)
                         .foregroundColor(.secondary)
-                } else {
-                    Text(viewModel.restingEnergyFormatted)
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .matchedGeometryEffect(id: "resting", in: namespace)
-                        .if(!viewModel.hasRestingEnergy) { view in
-                            view
-                                .redacted(reason: .placeholder)
-                        }
                 }
-                Text(viewModel.userEnergyUnit.shortDescription)
-                    .foregroundColor(.secondary)
+                .padding(.trailing)
             }
-            .padding(.trailing)
         }
         
         var healthPeriodContent: some View {

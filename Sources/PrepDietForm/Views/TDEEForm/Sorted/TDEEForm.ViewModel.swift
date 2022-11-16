@@ -27,8 +27,14 @@ extension TDEEForm.ViewModel {
 }
 
 extension TDEEForm.ViewModel {
+    func updateHealthAppData() {
+        fetchRestingEnergyFromHealth()
+    }
+
     func fetchRestingEnergyFromHealth() {
-        restingEnergyFetchStatus = .fetching
+        withAnimation {
+            restingEnergyFetchStatus = .fetching
+        }
         
         Task {
             do {
@@ -49,8 +55,10 @@ extension TDEEForm.ViewModel {
                 }
             } catch HealthKitManagerError.couldNotGetSumQuantity {
                 /// Indicates that permissions are not present
-                withAnimation {
-                    restingEnergyFetchStatus = .notAuthorized
+                await MainActor.run {
+                    withAnimation {
+                        restingEnergyFetchStatus = .notAuthorized
+                    }
                 }
             } catch {
                 
