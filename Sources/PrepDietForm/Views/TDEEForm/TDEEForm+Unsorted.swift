@@ -72,7 +72,7 @@ extension TDEEForm {
     
     var restingHeader: some View {
         HStack {
-            Image(systemName: "figure.wave")
+            Image(systemName: EnergyComponent.resting.systemImage)
                 .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
             Text("Resting Energy")
         }
@@ -80,7 +80,7 @@ extension TDEEForm {
     
     var activeHeader: some View {
         HStack {
-            Image(systemName: "figure.walk.motion")
+            Image(systemName: EnergyComponent.active.systemImage)
                 .matchedGeometryEffect(id: "active-header-icon", in: namespace)
             Text("Active Energy")
         }

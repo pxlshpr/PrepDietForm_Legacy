@@ -237,16 +237,16 @@ extension TDEEForm {
             if viewModel.restingEnergyFetchStatus != .notAuthorized {
                 HStack {
                     Spacer()
-                    if viewModel.hasDynamicRestingEnergy {
-                        Text("currently")
-                            .font(.subheadline)
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
                     if viewModel.restingEnergyFetchStatus == .fetching {
                         ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                             .frame(width: 25, height: 25)
                             .foregroundColor(.secondary)
                     } else {
+                        if viewModel.hasDynamicRestingEnergy {
+                            Text("currently")
+                                .font(.subheadline)
+                                .foregroundColor(Color(.tertiaryLabel))
+                        }
                         Text(viewModel.restingEnergyFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
                             .matchedGeometryEffect(id: "resting", in: namespace)
@@ -254,9 +254,9 @@ extension TDEEForm {
                                 view
                                     .redacted(reason: .placeholder)
                             }
+                        Text(viewModel.userEnergyUnit.shortDescription)
+                            .foregroundColor(.secondary)
                     }
-                    Text(viewModel.userEnergyUnit.shortDescription)
-                        .foregroundColor(.secondary)
                 }
                 .padding(.trailing)
             }
@@ -391,6 +391,19 @@ extension TDEEForm {
             }
         }
         
+        @ViewBuilder
+        var footer: some View {
+            if let string = viewModel.restingEnergyFooterString {
+                Text(string)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(Color(.secondaryLabel))
+                    .font(.footnote)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 10)
+            }
+        }
+        
         return VStack(spacing: 7) {
                 restingHeader
                     .textCase(.uppercase)
@@ -408,7 +421,10 @@ extension TDEEForm {
                         .foregroundColor(Color(.secondarySystemGroupedBackground))
                         .matchedGeometryEffect(id: "resting-bg", in: namespace)
                 )
-                .padding(.bottom, 10)
+                .if(viewModel.restingEnergyFooterString == nil) { view in
+                    view.padding(.bottom, 10)
+                }
+                footer
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)

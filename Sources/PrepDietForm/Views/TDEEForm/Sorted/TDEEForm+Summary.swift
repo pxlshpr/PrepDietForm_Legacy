@@ -26,7 +26,7 @@ extension TDEEForm {
                         )
                 }
                 VStack(spacing: 10) {
-                    Image(systemName: "figure.wave")
+                    Image(systemName: EnergyComponent.resting.systemImage)
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
                         .opacity(0)
@@ -37,7 +37,7 @@ extension TDEEForm {
                 }
                 VStack(spacing: 10) {
                     HStack(spacing: 3) {
-                        Image(systemName: "figure.wave")
+                        Image(systemName: EnergyComponent.resting.systemImage)
                             .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
@@ -62,7 +62,7 @@ extension TDEEForm {
                         )
                 }
                 VStack(spacing: 10) {
-                    Image(systemName: "figure.wave")
+                    Image(systemName: EnergyComponent.resting.systemImage)
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
                         .opacity(0)
@@ -73,7 +73,7 @@ extension TDEEForm {
                 }
                 VStack(spacing: 10) {
                     HStack(spacing: 3) {
-                        Image(systemName: "figure.walk.motion")
+                        Image(systemName: EnergyComponent.active.systemImage)
                             .matchedGeometryEffect(id: "active-header-icon", in: namespace)
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)

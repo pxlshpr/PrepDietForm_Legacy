@@ -54,6 +54,8 @@ extension TDEEForm.ViewModel {
             if newPeriod == .previousDay {
                 restingEnergyIntervalValue = 1
                 restingEnergyInterval = .day
+            } else {
+                correctRestingEnergyIntervalValueIfNeeded()
             }
         }
         fetchRestingEnergyFromHealth()
@@ -90,21 +92,28 @@ extension TDEEForm.ViewModel {
     }
     
     func changeRestingEnergyInterval(to newInterval: HealthAppInterval) {
-        func correctRestingEnergyIntervalValueIfNeeded() {
-            if restingEnergyIntervalValue < newInterval.minValue {
-                restingEnergyIntervalValue = newInterval.minValue
-            }
-            if restingEnergyIntervalValue > newInterval.maxValue {
-                restingEnergyIntervalValue = newInterval.maxValue
-            }
-        }
-        
         withAnimation {
             restingEnergyInterval = newInterval
             correctRestingEnergyIntervalValueIfNeeded()
         }
         
         fetchRestingEnergyFromHealth()
+    }
+    
+    func correctRestingEnergyIntervalValueIfNeeded() {
+        if restingEnergyIntervalValue < restingEnergyInterval.minValue {
+            restingEnergyIntervalValue = restingEnergyInterval.minValue
+        }
+        if restingEnergyIntervalValue > restingEnergyInterval.maxValue {
+            restingEnergyIntervalValue = restingEnergyInterval.maxValue
+        }
+    }
+
+    var restingEnergyFooterString: String? {
+        if restingEnergySource == .healthApp {
+            return "This will update daily."
+        }
+        return nil
     }
     
     func updateHealthAppData() {
