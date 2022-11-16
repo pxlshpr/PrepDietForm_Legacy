@@ -87,9 +87,3 @@ struct HeightForm: View {
         Text("Height form")
     }
 }
-
-struct WeightForm: View {
-    var body: some View {
-        Text("Weight form")
-    }
-}

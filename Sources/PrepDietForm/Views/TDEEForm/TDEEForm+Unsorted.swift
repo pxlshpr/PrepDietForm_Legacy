@@ -168,17 +168,17 @@ extension TDEEForm {
                     label("sex", "male")
                 }
                 Button {
-                    path.append(.leanBodyMassForm)
+                    viewModel.path.append(.leanBodyMassForm)
                 } label: {
                     label("fat", "29 %")
                 }
                 Button {
-                    path.append(.weightForm)
+                    viewModel.path.append(.weightForm)
                 } label: {
                     label("weight", "93.55 kg")
                 }
                 Button {
-                    path.append(.heightForm)
+                    viewModel.path.append(.heightForm)
                 } label: {
                     label("height", "177 cm")
                 }
@@ -323,7 +323,7 @@ extension TDEEForm {
     
     var activeEnergyHealthAppPeriodLink: some View {
         Button {
-            path.append(.healthAppPeriod)
+            viewModel.path.append(.healthAppPeriod)
         } label: {
             HStack(spacing: 5) {
                 Text("Average of past 2 weeks")

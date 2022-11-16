@@ -178,7 +178,7 @@ extension TDEEForm {
                 .fixedSize(horizontal: true, vertical: true)
                 if viewModel.restingEnergyFormula == .katchMcardle {
                     Button {
-                        path.append(.leanBodyMassForm)
+                        viewModel.path.append(.leanBodyMassForm)
                     } label: {
                         MeasurementLabel(
                             label: "lean body mass",
@@ -200,7 +200,7 @@ extension TDEEForm {
                         )
                     }
                     Button {
-                        path.append(.weightForm)
+                        viewModel.path.append(.weightForm)
                     } label: {
                         MeasurementLabel(
                             label: "weight",
@@ -209,7 +209,7 @@ extension TDEEForm {
                         )
                     }
                     Button {
-                        path.append(.heightForm)
+                        viewModel.path.append(.heightForm)
                     } label: {
                         MeasurementLabel(
                             label: "height",
@@ -506,6 +506,38 @@ extension TDEEForm {
     }
 }
 
+enum MeasurementSourceOption: CaseIterable {
+    case healthApp
+    case userEntered
+    
+    var pickerDescription: String {
+        switch self {
+        case .healthApp:
+            return "Health App"
+        case .userEntered:
+            return "Let me enter it"
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .healthApp:
+            return "heart.fill"
+        case .userEntered:
+            return "keyboard"
+        }
+    }
+
+    var menuDescription: String {
+        switch self {
+        case .healthApp:
+            return "Health App"
+        case .userEntered:
+            return "Manual Entry"
+        }
+    }
+}
+
 enum LeanBodyMassSourceOption: CaseIterable {
     case formula
     case healthApp
@@ -580,6 +612,8 @@ enum LeanBodyMassFormula: CaseIterable {
     }
 }
 
+//MARK: - Lean Body Mass Form
+
 struct LeanBodyMassForm: View {
     
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
@@ -617,11 +651,12 @@ struct LeanBodyMassForm: View {
     var weightRow: some View {
         var formulaMenu: some View {
             Button {
+                viewModel.path.append(.weightForm)
             } label: {
                 MeasurementLabel(
                     label: "weight",
                     valueString: "93.55 kg",
-                    useHealthAppData: viewModel.syncHealthWeight
+                    useHealthAppData: viewModel.weightSource == .healthApp
                 )
             }
         }
@@ -817,21 +852,23 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
         HStack(spacing: 5) {
             if let systemImage {
                 Image(systemName: systemImage)
+//                    .foregroundColor(.white)
                     .foregroundColor(.secondary)
             } else if showHealthAppIcon {
                 appleHealthSymbol
             }
             Text(string)
                 .fixedSize(horizontal: false, vertical: true)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white)
+//                .foregroundColor(.secondary)
         }
         .frame(minHeight: 35)
         .padding(.horizontal, 20)
         .padding(.vertical, 5)
         .background (
             Capsule(style: .continuous)
-//            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .foregroundColor(Color(.secondarySystemFill))
+                .foregroundColor(.accentColor)
+//                .foregroundColor(Color(.secondarySystemFill))
         )
     }
 }
@@ -840,61 +877,4 @@ enum HealthKitFetchStatus {
     case fetching
     case fetched
     case notAuthorized
-}
-
-
-extension TDEEForm {
-    class ViewModel: ObservableObject {
-        let userEnergyUnit: EnergyUnit
-        let userWeightUnit: WeightUnit
-
-        @Published var hasAppeared = false
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
-        
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
-
-        @Published var restingEnergy: Double? = nil
-        @Published var restingEnergyTextFieldString: String = ""
-
-        @Published var restingEnergyPeriod: HealthPeriodOption = .average
-        @Published var restingEnergyIntervalValue: Int = 1
-        @Published var restingEnergyInterval: HealthAppInterval = .week
-        
-        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var restingEnergyUsesHealthMeasurements: Bool = false
-
-        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
-        
-        @Published var lbmSource: LeanBodyMassSourceOption? = nil
-        @Published var lbmFormula: LeanBodyMassFormula = .boer
-
-        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var lbmUsesHealthMeasurements: Bool = false
-
-        @Published var lbm: Double? = nil
-        @Published var lbmTextFieldString: String = ""
-
-        @Published var syncHealthWeight : Bool = false
-        
-        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
-            self.userEnergyUnit = userEnergyUnit
-            self.userWeightUnit = userWeightUnit
-        }
-    }
-}
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                }
-        }
-    }
 }

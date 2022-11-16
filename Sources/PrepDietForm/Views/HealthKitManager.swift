@@ -129,8 +129,13 @@ class HealthKitManager: ObservableObject {
 }
 
 extension HealthKitManager {
-    func getLatestWeight() async -> (Double, Date)? {
-        await getLatestQuantity(for: .bodyMass, using: .gramUnit(with: .kilo))
+    func latestWeight() async -> (Double, Date)? {
+        do {
+            try await HealthKitManager.shared.requestPermission(for: .bodyMass)
+            return await getLatestQuantity(for: .bodyMass, using: .gramUnit(with: .kilo))
+        } catch {
+            return nil
+        }
     }
 
     func getLatestHeight() async -> (Double, Date)? {

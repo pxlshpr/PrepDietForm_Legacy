@@ -40,7 +40,7 @@ struct TDEEForm: View {
     }
 
     var navigationView: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $viewModel.path) {
             form
             .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Maintenance Calories")
@@ -97,7 +97,5 @@ struct TDEEForm: View {
     @State var healthEnergyPeriod: HealthPeriodOption = .previousDay
     @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
-//    @State var path: [Route] = [.leanBodyMassForm]
-    @State var path: [Route] = []
     @State var useHealthAppData = false
 }

@@ -11,17 +11,21 @@ extension TDEEForm.ViewModel {
     }
 
     var lbmFormatted: String {
-        guard let lbm else {
-            return ""
-        }
-        return lbm.cleanAmount
+        lbm?.cleanAmount ?? ""
     }
 
     var lbmFormattedWithUnit: String {
-        guard let lbm else {
-            return ""
-        }
+        guard let lbm else { return "" }
         return lbm.cleanAmount + " " + userWeightUnit.shortDescription
+    }
+
+    var weightFormatted: String {
+        weight?.cleanAmount ?? ""
+    }
+
+    var weightFormattedWithUnit: String {
+        guard let weight else { return "" }
+        return weight.cleanAmount + " " + userWeightUnit.shortDescription
     }
 
     var notSetup: Bool {
@@ -71,7 +75,16 @@ extension TDEEForm.ViewModel {
             }
         )
     }
-    
+
+    func changeWeightSource(to newSource: MeasurementSourceOption) {
+        withAnimation {
+            weightSource = newSource
+        }
+        if newSource == .healthApp {
+            fetchWeightFromHealth()
+        }
+    }
+
     func changeLBMSoruce(to newSource: LeanBodyMassSourceOption) {
         withAnimation {
             lbmSource = newSource
@@ -244,6 +257,26 @@ extension TDEEForm.ViewModel {
         fetchRestingEnergyFromHealth()
     }
 
+    func fetchWeightFromHealth() {
+        withAnimation {
+            weightFetchStatus = .fetching
+        }
+        
+        Task {
+            guard let (weight, weightDate) = await HealthKitManager.shared.latestWeight() else {
+                return
+            }
+            if Date().numberOfDaysFrom(weightDate) > MaximumNumberOfDaysForWeight {
+                //TODO: ask user if they would like to old measurement
+            }
+            await MainActor.run {
+                self.weight = weight
+                self.weightTextFieldString = weight.cleanAmount
+                self.weightDate = weightDate
+            }
+        }
+    }
+    
     func fetchRestingEnergyFromHealth() {
         withAnimation {
             restingEnergyFetchStatus = .fetching
