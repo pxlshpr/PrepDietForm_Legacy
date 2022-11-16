@@ -141,7 +141,7 @@ extension TDEEForm.ViewModel {
             }
             withAnimation {
                 self.restingEnergy = energy
-                self.restingEnergyTextFieldString = "\(Int(energy))"
+                self.restingEnergyTextFieldString = "\(Int(energy.rounded()))"
             }
         default:
             break
@@ -381,7 +381,7 @@ extension TDEEForm.ViewModel {
                     withAnimation {
                         print("🔥 setting average: \(average)")
                         restingEnergy = average
-                        restingEnergyTextFieldString = "\(Int(average))"
+                        restingEnergyTextFieldString = "\(Int(average.rounded()))"
                         restingEnergyFetchStatus = .fetched
                     }
                 }

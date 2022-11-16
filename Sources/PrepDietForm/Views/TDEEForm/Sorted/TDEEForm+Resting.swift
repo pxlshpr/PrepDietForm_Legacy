@@ -396,6 +396,7 @@ extension TDEEForm {
                             }
                             Text(viewModel.restingEnergyFormatted)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .fixedSize(horizontal: true, vertical: false)
                                 .matchedGeometryEffect(id: "resting", in: namespace)
                                 .if(!viewModel.hasRestingEnergy) { view in
                                     view
@@ -414,6 +415,7 @@ extension TDEEForm {
                     TextField("energy in", text: viewModel.restingEnergyTextFieldStringBinding)
                         .keyboardType(.decimalPad)
                         .focused($restingEnergyTextFieldIsFocused)
+                        .fixedSize(horizontal: true, vertical: false)
                         .multilineTextAlignment(.trailing)
 //                        .fixedSize(horizontal: true, vertical: false)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
