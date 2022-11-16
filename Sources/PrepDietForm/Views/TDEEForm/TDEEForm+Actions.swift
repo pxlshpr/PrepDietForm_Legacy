@@ -50,7 +50,7 @@ extension TDEEForm {
     }
     
     func fillHealthKitWeight() async {
-        guard let (weight, weightDate) = await HealthKitManager.shared.latestWeight() else {
+        guard let (weight, weightDate) = await HealthKitManager.shared.latestWeight(unit: .kg) else {
             return
         }
         if Date().numberOfDaysFrom(weightDate) > MaximumNumberOfDaysForWeight {

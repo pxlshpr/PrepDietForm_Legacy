@@ -86,12 +86,12 @@ struct LeanBodyMassForm: View {
     }
     
     func tappedFatPercentage() {
-        viewModel.changeLBMSoruce(to: .fatPercentage)
+        viewModel.changeLBMSource(to: .fatPercentage)
         isFocused = true
     }
     
     func tappedManualEntry() {
-        viewModel.changeLBMSoruce(to: .userEntered)
+        viewModel.changeLBMSource(to: .userEntered)
         isFocused = true
     }
     

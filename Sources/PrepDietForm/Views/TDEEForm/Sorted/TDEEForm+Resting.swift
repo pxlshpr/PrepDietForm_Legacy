@@ -114,24 +114,45 @@ struct MeasurementLabel_Previews: PreviewProvider {
     }
 }
 
-extension TDEEForm {
+extension TDEEForm.ViewModel {
     
-    var restingEnergySection: some View {
-        let useHealthAppDataBinding = Binding<Bool>(
-            get: { useHealthAppData },
-            set: { newValue in
-                withAnimation {
-                    useHealthAppData = newValue
+    var restingEnergyFormulaUsingSyncedHealthDataBinding: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                switch self.restingEnergyFormula {
+                case .katchMcardle:
+                    return self.lbmSource == .healthApp
+                default:
+                    /// return true if sex, weight and height are all healthApp
+                    return false
+                }
+            },
+            set: { isOn in
+                switch self.restingEnergyFormula {
+                case .katchMcardle:
+                    /// toggle lbm between health and userEntered
+                    self.changeLBMSource(to: isOn ? .healthApp : .userEntered)
+                default:
+                    //TODO: attempt to change the source of weight, height and sex to healthApp or all to userEntered
+                    break
                 }
             }
         )
-        
-        var useHealthAppToggle: some View {
-            Toggle(isOn: useHealthAppDataBinding) {
+    }
+    
+    var restingEnergyFormulaUsingSyncedHealthData: Bool {
+        restingEnergyFormulaUsingSyncedHealthDataBinding.wrappedValue
+    }
+}
+extension TDEEForm {
+    
+    var restingEnergySection: some View {
+        var syncWithHealthAppToggle: some View {
+            Toggle(isOn: viewModel.restingEnergyFormulaUsingSyncedHealthDataBinding) {
                 HStack {
                     appleHealthSymbol
                         .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
-                    Text("Sync\(useHealthAppData ? "ed" : "") with Health App")
+                    Text("Sync\(viewModel.restingEnergyFormulaUsingSyncedHealthData ? "ed" : "") with Health App")
                 }
             }
             .toggleStyle(.button)
@@ -188,7 +209,7 @@ extension TDEEForm {
                     .frame(width: 300)
                     .padding(.vertical, 5)
                 flowView
-                useHealthAppToggle
+                syncWithHealthAppToggle
                     .padding(.bottom)
             }
         }
@@ -241,7 +262,7 @@ extension TDEEForm {
                         MeasurementLabel(
                             label: "lean body mass",
                             valueString: viewModel.lbmFormattedWithUnit,
-                            useHealthAppData: useHealthAppData
+                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
                 } else {
@@ -254,7 +275,7 @@ extension TDEEForm {
                         MeasurementLabel(
                             label: "sex",
                             valueString: "male",
-                            useHealthAppData: useHealthAppData
+                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
                     Button {
@@ -263,7 +284,7 @@ extension TDEEForm {
                         MeasurementLabel(
                             label: "weight",
                             valueString: "93.6 kg",
-                            useHealthAppData: useHealthAppData
+                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
                     Button {
@@ -272,7 +293,7 @@ extension TDEEForm {
                         MeasurementLabel(
                             label: "height",
                             valueString: "177 cm",
-                            useHealthAppData: useHealthAppData
+                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
                 }
@@ -407,7 +428,7 @@ extension TDEEForm {
                 case .healthApp:
                     health
                 case .formula:
-                    EmptyView()
+                    health
                 case .userEntered:
                     manualEntry
                 default:

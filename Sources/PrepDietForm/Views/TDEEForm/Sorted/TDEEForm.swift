@@ -97,5 +97,5 @@ struct TDEEForm: View {
     @State var healthEnergyPeriod: HealthPeriodOption = .previousDay
     @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
-    @State var useHealthAppData = false
+//    @State var useHealthAppData = false
 }

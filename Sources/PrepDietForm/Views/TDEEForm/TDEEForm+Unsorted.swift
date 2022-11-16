@@ -136,11 +136,11 @@ extension TDEEForm {
                 return PickerLabel(
                     string,
                     prefix: prefix,
-                    systemImage: useHealthAppData ? nil : "chevron.right",
+                    systemImage: viewModel.restingEnergyFormulaUsingSyncedHealthData ? nil : "chevron.right",
 //                    imageColor: <#T##Color#>,
-                    backgroundColor:  useHealthAppData ? Color(.systemGroupedBackground) : backgroundColor,
-                    foregroundColor: useHealthAppData ? Color(.secondaryLabel) : Color.primary,
-                    prefixColor: useHealthAppData ? Color(.tertiaryLabel) : Color.secondary,
+                    backgroundColor:  viewModel.restingEnergyFormulaUsingSyncedHealthData ? Color(.systemGroupedBackground) : backgroundColor,
+                    foregroundColor: viewModel.restingEnergyFormulaUsingSyncedHealthData ? Color(.secondaryLabel) : Color.primary,
+                    prefixColor: viewModel.restingEnergyFormulaUsingSyncedHealthData ? Color(.tertiaryLabel) : Color.secondary,
 //                    imageScale: <#T##Image.Scale#>,
                     infiniteMaxHeight: false
                 )
@@ -187,11 +187,8 @@ extension TDEEForm {
         }
         
         let useHealthAppDataBinding = Binding<Bool>(
-            get: { useHealthAppData },
+            get: { viewModel.restingEnergyFormulaUsingSyncedHealthData },
             set: { newValue in
-                withAnimation {
-                    useHealthAppData = newValue
-                }
             }
         )
         return FormStyledSection(header: restingHeader, horizontalPadding: 0, verticalPadding: 0) {
@@ -209,7 +206,7 @@ extension TDEEForm {
                     Toggle(isOn: useHealthAppDataBinding) {
                         HStack {
                             appleHealthSymbol
-                            Text("\(useHealthAppData ? "Using " : "Use") Health App Data")
+                            Text("\(viewModel.restingEnergyFormulaUsingSyncedHealthData ? "Using " : "Use") Health App Data")
                         }
                     }
                     .toggleStyle(.button)

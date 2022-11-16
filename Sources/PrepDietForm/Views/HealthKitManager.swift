@@ -128,11 +128,37 @@ class HealthKitManager: ObservableObject {
 //   }
 }
 
+extension WeightUnit {
+    var healthKitUnit: HKUnit {
+        switch self {
+        case .g:
+            return .gram()
+        case .kg:
+            return .gramUnit(with: .kilo)
+        case .oz:
+            return .ounce()
+        case .lb:
+            return .pound()
+        case .mg:
+            return .gramUnit(with: .milli)
+        }
+    }
+}
+
 extension HealthKitManager {
-    func latestWeight() async -> (Double, Date)? {
+    func latestWeight(unit: WeightUnit) async -> (Double, Date)? {
         do {
             try await HealthKitManager.shared.requestPermission(for: .bodyMass)
-            return await getLatestQuantity(for: .bodyMass, using: .gramUnit(with: .kilo))
+            return await getLatestQuantity(for: .bodyMass, using: unit.healthKitUnit)
+        } catch {
+            return nil
+        }
+    }
+
+    func latestLeanBodyMass(unit: WeightUnit) async -> (Double, Date)? {
+        do {
+            try await HealthKitManager.shared.requestPermission(for: .leanBodyMass)
+            return await getLatestQuantity(for: .leanBodyMass, using: unit.healthKitUnit)
         } catch {
             return nil
         }

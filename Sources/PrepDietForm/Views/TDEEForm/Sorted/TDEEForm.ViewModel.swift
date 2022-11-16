@@ -71,7 +71,7 @@ extension TDEEForm.ViewModel {
             get: { self.lbmSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
-                self.changeLBMSoruce(to: newSource)
+                self.changeLBMSource(to: newSource)
             }
         )
     }
@@ -85,9 +85,66 @@ extension TDEEForm.ViewModel {
         }
     }
 
-    func changeLBMSoruce(to newSource: LeanBodyMassSourceOption) {
+    func changeLBMSource(to newSource: LeanBodyMassSourceOption) {
         withAnimation {
             lbmSource = newSource
+        }
+        if newSource == .healthApp {
+            Task {
+                await fetchLBMFromHealth()
+                await MainActor.run {
+                    withAnimation {
+                        calculateRestingEnergy()
+                    }
+                }
+            }
+        }
+    }
+    
+    var weightInKg: Double? {
+        guard let weight else { return nil }
+        switch userWeightUnit {
+        case .kg:
+            return weight
+        case .lb:
+            return (WeightUnit.lb.g/WeightUnit.kg.g) * weight
+        default:
+            return nil
+        }
+    }
+
+    var lbmInKg: Double? {
+        guard let lbm else { return nil }
+        switch userWeightUnit {
+        case .kg:
+            return lbm
+        case .lb:
+            return (WeightUnit.lb.g/WeightUnit.kg.g) * lbm
+        default:
+            return nil
+        }
+    }
+
+    func calculateRestingEnergy() {
+        guard restingEnergySource == .formula else {
+            return
+        }
+        switch restingEnergyFormula {
+        case .katchMcardle:
+            guard let lbmInKg else {
+                self.restingEnergy = nil
+                return
+            }
+            var energy = 370 + (21.6 * lbmInKg)
+            if userEnergyUnit == .kJ {
+                energy = energy * KcalsPerKilojule
+            }
+            withAnimation {
+                self.restingEnergy = energy
+                self.restingEnergyTextFieldString = "\(Int(energy))"
+            }
+        default:
+            break
         }
     }
     
@@ -148,6 +205,8 @@ extension TDEEForm.ViewModel {
         switch restingEnergySource {
         case .healthApp:
             fetchRestingEnergyFromHealth()
+        case .formula:
+            calculateRestingEnergy()
         default:
             break
         }
@@ -263,18 +322,42 @@ extension TDEEForm.ViewModel {
         }
         
         Task {
-            guard let (weight, weightDate) = await HealthKitManager.shared.latestWeight() else {
+            guard let (weight, date) = await HealthKitManager.shared.latestWeight(unit: userWeightUnit) else {
                 return
             }
-            if Date().numberOfDaysFrom(weightDate) > MaximumNumberOfDaysForWeight {
+            if Date().numberOfDaysFrom(date) > MaximumNumberOfDaysForWeight {
                 //TODO: ask user if they would like to old measurement
             }
             await MainActor.run {
                 withAnimation {
+                    self.weightFetchStatus = .fetched
                     self.weight = weight
                     self.weightTextFieldString = weight.cleanAmount
-                    self.weightDate = weightDate
+                    self.weightDate = date
                 }
+            }
+        }
+    }
+    
+    func fetchLBMFromHealth() async {
+        await MainActor.run {
+            withAnimation {
+                lbmFetchStatus = .fetching
+            }
+        }
+        
+        guard let (lbm, date) = await HealthKitManager.shared.latestLeanBodyMass(unit: userWeightUnit) else {
+            return
+        }
+        if Date().numberOfDaysFrom(date) > MaximumNumberOfDaysForWeight {
+            //TODO: ask user if they would like to old measurement
+        }
+        await MainActor.run {
+            withAnimation {
+                self.lbmFetchStatus = .fetched
+                self.lbm = lbm
+                self.lbmTextFieldString = lbm.cleanAmount
+                self.lbmDate = date
             }
         }
     }
