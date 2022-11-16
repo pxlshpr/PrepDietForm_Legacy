@@ -426,9 +426,14 @@ extension TDEEForm {
                         }
                     }
                 } label: {
-                    PickerLabel(viewModel.restingEnergyPeriod.menuDescription)
-                        .animation(.none, value: viewModel.restingEnergyPeriod)
-                        .fixedSize(horizontal: true, vertical: false)
+                    PickerLabel(
+                        viewModel.restingEnergyPeriod.menuDescription,
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                    )
+                    .animation(.none, value: viewModel.restingEnergyPeriod)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
@@ -440,10 +445,15 @@ extension TDEEForm {
                         }
                     }
                 } label: {
-                    PickerLabel("\(viewModel.restingEnergyIntervalValue)")
-                        .animation(.none, value: viewModel.restingEnergyIntervalValue)
-                        .animation(.none, value: viewModel.restingEnergyInterval)
-                        .fixedSize(horizontal: true, vertical: false)
+                    PickerLabel(
+                        "\(viewModel.restingEnergyIntervalValue)",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                    )
+                    .animation(.none, value: viewModel.restingEnergyIntervalValue)
+                    .animation(.none, value: viewModel.restingEnergyInterval)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
@@ -455,10 +465,15 @@ extension TDEEForm {
                         }
                     }
                 } label: {
-                    PickerLabel("\(viewModel.restingEnergyInterval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")")
-                        .animation(.none, value: viewModel.restingEnergyInterval)
-                        .animation(.none, value: viewModel.restingEnergyIntervalValue)
-                        .fixedSize(horizontal: true, vertical: false)
+                    PickerLabel(
+                        "\(viewModel.restingEnergyInterval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex)
+                    )
+                    .animation(.none, value: viewModel.restingEnergyInterval)
+                    .animation(.none, value: viewModel.restingEnergyIntervalValue)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
@@ -678,7 +693,7 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
             if let systemImage {
                 Image(systemName: systemImage)
 //                    .foregroundColor(.white)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
             } else if showHealthAppIcon {
                 appleHealthSymbol
             }

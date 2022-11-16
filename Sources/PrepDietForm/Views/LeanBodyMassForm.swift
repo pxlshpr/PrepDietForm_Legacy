@@ -71,7 +71,7 @@ struct LeanBodyMassForm: View {
             HStack {
                 appleHealthSymbol
                     .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
-                Text("Sync\(viewModel.syncHealthWeight ? "ed" : "") with Health App")
+                Text("Sync\(viewModel.weightSource == .healthApp ? "ed" : "") with Health App")
             }
         }
         .toggleStyle(.button)

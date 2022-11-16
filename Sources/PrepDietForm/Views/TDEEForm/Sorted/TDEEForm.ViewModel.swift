@@ -270,9 +270,11 @@ extension TDEEForm.ViewModel {
                 //TODO: ask user if they would like to old measurement
             }
             await MainActor.run {
-                self.weight = weight
-                self.weightTextFieldString = weight.cleanAmount
-                self.weightDate = weightDate
+                withAnimation {
+                    self.weight = weight
+                    self.weightTextFieldString = weight.cleanAmount
+                    self.weightDate = weightDate
+                }
             }
         }
     }
