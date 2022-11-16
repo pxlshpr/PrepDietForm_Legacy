@@ -191,12 +191,7 @@ extension HealthKitManager {
             throw HealthKitManagerError.dateCreationError
         }
         
-        /// If we're getting the average of more than 3 weeks
-        if dateRange.upperBound.numberOfDaysFrom(dateRange.lowerBound) > 21 {
-            return try await averageSumUsingTotal(for: typeIdentifier, using: unit, in: dateRange)
-        } else {
-            return try await averageSumUsingIntervals(for: typeIdentifier, using: unit, in: dateRange)
-        }
+        return try await averageSumUsingIntervals(for: typeIdentifier, using: unit, in: dateRange)
     }
 
     func averageSumUsingIntervals(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>) async throws -> Double? {
@@ -231,7 +226,9 @@ extension HealthKitManager {
             sumQuantities[day] = sumQuantity
         }
         
-        guard !sumQuantities.isEmpty else { return nil }
+        guard !sumQuantities.isEmpty else {
+            return nil
+        }
         
         let sum = sumQuantities
             .values
@@ -240,6 +237,7 @@ extension HealthKitManager {
         return sum / Double(sumQuantities.count)
     }
     
+    /// We had previously used this to try and speed up the query to no avail. This seemingly only marginally improved the efficiency if at all (it was slower sometimes)—with a tradeoff of accuracy as the results don't correlate precisely with what HealthKit reports.
     func averageSumUsingTotal(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>) async throws -> Double? {
         let lower = dateRange.lowerBound.moveDayBy(1)
         let upper = dateRange.upperBound.moveDayBy(1)

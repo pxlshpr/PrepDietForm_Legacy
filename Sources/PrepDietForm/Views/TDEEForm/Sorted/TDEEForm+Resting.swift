@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 import PrepDataTypes
+import ActivityIndicatorView
 
 extension TDEEForm {
     
@@ -219,7 +220,7 @@ extension TDEEForm {
             VStack {
                 topSection
                 Group {
-                    if viewModel.failedToFetchRestingEnergy {
+                    if viewModel.restingEnergyFetchStatus == .notAuthorized {
                         permissionRequiredContent
                     } else {
                         healthPeriodContent
@@ -235,15 +236,21 @@ extension TDEEForm {
         var energyRow: some View {
             HStack {
                 Spacer()
-                Text(viewModel.restingEnergyFormatted)
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
-                    .matchedGeometryEffect(id: "resting", in: namespace)
+                if viewModel.restingEnergyFetchStatus == .fetching {
+                    ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                        .frame(width: 25, height: 25)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text(viewModel.restingEnergyFormatted)
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .matchedGeometryEffect(id: "resting", in: namespace)
+                        .if(!viewModel.hasRestingEnergy) { view in
+                            view
+                                .redacted(reason: .placeholder)
+                        }
+                }
                 Text(viewModel.userEnergyUnit.shortDescription)
                     .foregroundColor(.secondary)
-            }
-            .if(!viewModel.hasRestingEnergy) { view in
-                view
-                    .redacted(reason: .placeholder)
             }
             .padding(.trailing)
         }
@@ -433,6 +440,41 @@ extension TDEEForm {
             .padding(.horizontal, 20)
             .padding(.top, 10)
     }
+}
+
+extension TDEEForm {
+    class ViewModel: ObservableObject {
+        let userEnergyUnit: EnergyUnit
+        
+        @Published var hasAppeared = false
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+
+        @Published var restingEnergy: Double? = nil
+        
+        @Published var restingEnergyPeriod: HealthPeriodOption = .average
+        @Published var restingEnergyIntervalValue: Int = 1
+        @Published var restingEnergyInterval: HealthAppInterval = .week
+        
+        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
+
+        init(userEnergyUnit: EnergyUnit) {
+            self.userEnergyUnit = userEnergyUnit
+        }
+    }
+}
+
+enum HealthKitFetchStatus {
+    case notFetched
+    case fetching
+    case fetched
+    case notAuthorized
 }
 
 struct TDEEForm_Previews: PreviewProvider {
