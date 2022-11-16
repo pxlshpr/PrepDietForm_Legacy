@@ -44,6 +44,7 @@ struct TDEEForm: View {
             .toolbar { trailingContent }
             .toolbar { leadingContent }
             .onChange(of: viewModel.restingEnergyUsesHealthMeasurements, perform: syncHealthKitMeasurementsChanged)
+            .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }

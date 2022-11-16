@@ -72,8 +72,11 @@ extension TDEEForm.ViewModel {
         withAnimation {
             restingEnergySource = newSource
         }
-        if restingEnergySource == .healthApp {
+        switch restingEnergySource {
+        case .healthApp:
             fetchRestingEnergyFromHealth()
+        default:
+            break
         }
     }
     var restingEnergyPeriodBinding: Binding<HealthPeriodOption> {

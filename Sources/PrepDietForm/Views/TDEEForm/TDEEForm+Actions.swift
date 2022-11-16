@@ -17,6 +17,15 @@ extension TDEEForm {
         viewModel.updateHealthAppData()
     }
     
+    func restingEnergySourceChanged(to newSource: RestingEnergySourceOption) {
+        switch newSource {
+        case .userEntered:
+            restingEnergyTextFieldIsFocused = true
+        default:
+            break
+        }
+    }
+    
     //TODO: Move this to ViewModel
     func syncHealthKitMeasurementsChanged(to syncHealthKitMeasurements: Bool) {
         if syncHealthKitMeasurements {
