@@ -4,46 +4,10 @@ import SwiftUISugar
 
 struct HealthAppPeriodPicker: View {
     
-    enum Interval: CaseIterable {
-        case day
-        case week
-        case month
-        
-        var description: String {
-            switch self {
-            case .day:
-                return "day"
-            case .week:
-                return "week"
-            case .month:
-                return "month"
-            }
-        }
-        
-        var minQuantity: Int {
-            switch self {
-            case .day:
-                return 2
-            default:
-                return 1
-            }
-        }
-        var maxQuantity: Int {
-            switch self {
-            case .day:
-                return 6
-            case .week:
-                return 3
-            case .month:
-                return 12
-            }
-        }
-    }
-    
     @State var selection: Int = 1
     
     @State var quantity: Int = 1
-    @State var interval: Interval = .week
+    @State var interval: HealthAppInterval = .week
     
     var typePicker: some View {
         let selectionBinding = Binding<Int>(
@@ -85,7 +49,7 @@ struct HealthAppPeriodPicker: View {
                             }
                             Menu {
                                 Picker(selection: $interval, label: EmptyView()) {
-                                    ForEach(Interval.allCases, id: \.self) { interval in
+                                    ForEach(HealthAppInterval.allCases, id: \.self) { interval in
                                         Text("\(interval.description)\(quantity > 1 ? "s" : "")").tag(interval)
                                     }
                                 }

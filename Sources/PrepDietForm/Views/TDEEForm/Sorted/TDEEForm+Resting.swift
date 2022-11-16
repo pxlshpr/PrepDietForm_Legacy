@@ -215,44 +215,15 @@ extension TDEEForm {
         var healthContent: some View {
             VStack {
                 topSection
-                if viewModel.permissionDeniedForResting {
-                    VStack {
-                        VStack(alignment: .center, spacing: 5) {
-                            Text("Health app integration requires permissions to be granted in:")
-                                .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(.secondary)
-                            Text("Settings → Privacy & Security → Health → Prep")
-                                .font(.footnote)
-                                .foregroundColor(Color(.tertiaryLabel))
-                        }
-                        .multilineTextAlignment(.center)
-                        Button {
-                            UIApplication.shared.open(URL(string: "App-prefs:Privacy&path=HEALTH")!)
-//                            UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)&path=HEALTH")!)
-                        } label: {
-                            HStack {
-                                Image(systemName: "gear")
-                                Text("Go to Settings")
-                                    .fixedSize(horizontal: true, vertical: false)
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .foregroundColor(Color.accentColor)
-                            )
-                        }
-                        .buttonStyle(.borderless)
-                        .padding(.top, 5)
+                Group {
+                    if viewModel.failedToFetchRestingEnergy {
+                        permissionRequiredContent
+                    } else {
+                        healthPeriodContent
                     }
-                        .padding()
-                        .padding(.horizontal)
-                } else {
-                    Text("Health stuff goes here")
-                        .padding()
-                        .padding(.horizontal)
                 }
+                .padding()
+                .padding(.horizontal)
                 HStack {
                     Spacer()
                     Text("2,024")
@@ -261,11 +232,114 @@ extension TDEEForm {
                     Text("kcal")
                         .foregroundColor(.secondary)
                 }
-                .if(viewModel.permissionDeniedForResting) { view in
+                .if(!viewModel.hasRestingEnergy) { view in
                     view
                         .redacted(reason: .placeholder)
                 }
                 .padding(.trailing)
+            }
+        }
+        
+        var healthPeriodContent: some View {
+            var periodTypeMenu: some View {
+                let binding = Binding<HealthPeriodOption>(
+                    get: { viewModel.restingEnergyPeriod },
+                    set: { newPeriod in
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            viewModel.restingEnergyPeriod = newPeriod
+                        }
+                    }
+                )
+                
+                return Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(HealthPeriodOption.allCases, id: \.self) {
+                            Text($0.pickerDescription).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(viewModel.restingEnergyPeriod.menuDescription)
+                        .animation(.none, value: viewModel.restingEnergyPeriod)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            
+            var periodValueMenu: some View {
+                Menu {
+                    
+                } label: {
+                    PickerLabel("2")
+                }
+            }
+            
+            var periodIntervalMenu: some View {
+                Menu {
+                    
+                } label: {
+                    PickerLabel("weeks")
+                }
+            }
+            
+            var intervalRow: some View {
+                HStack {
+                    Spacer()
+                    HStack(spacing: 5) {
+                        Text("the past")
+                            .foregroundColor(Color(.secondaryLabel))
+                        periodValueMenu
+                        periodIntervalMenu
+                    }
+                    Spacer()
+                }
+            }
+            
+            return VStack(spacing: 5) {
+                HStack {
+                    Spacer()
+                    HStack {
+                        Text("Use")
+                            .foregroundColor(.secondary)
+                        periodTypeMenu
+                    }
+                    Spacer()
+                }
+                if viewModel.restingEnergyPeriod == .average {
+                    intervalRow
+                }
+            }
+        }
+        
+        var permissionRequiredContent: some View  {
+            VStack {
+                VStack(alignment: .center, spacing: 5) {
+                    Text("Health app integration requires permissions to be granted in:")
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(.secondary)
+                    Text("Settings → Privacy & Security → Health → Prep")
+                        .font(.footnote)
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+                .multilineTextAlignment(.center)
+                Button {
+                    UIApplication.shared.open(URL(string: "App-prefs:Privacy&path=HEALTH")!)
+//                            UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)&path=HEALTH")!)
+                } label: {
+                    HStack {
+                        Image(systemName: "gear")
+                        Text("Go to Settings")
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .foregroundColor(Color.accentColor)
+                    )
+                }
+                .buttonStyle(.borderless)
+                .padding(.top, 5)
             }
         }
         
@@ -315,24 +389,29 @@ extension TDEEForm {
     }
 }
 
+
 extension TDEEForm {
     class ViewModel: ObservableObject {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var permissionDeniedForResting: Bool = false
+//        @Published var isEditing = false
+//        @Published var presentationDetent: PresentationDetent = .height(270)
+//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
 
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
-//        @Published var permissionDeniedForResting: Bool = true
-
+        @Published var isEditing = true
+        @Published var presentationDetent: PresentationDetent = .large
+        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
         
+        @Published var restingEnergy: Double? = nil
+        @Published var fetchedRestingEnergy: Bool = false
+        
+        @Published var restingEnergyPeriod: HealthPeriodOption = .average
+        @Published var restingEnergyIntervalValue: Int = 1
+        @Published var restingEnergyInterval: HealthAppInterval = .week
     }
 }
+
 
 struct TDEEForm_Previews: PreviewProvider {
     static var previews: some View {

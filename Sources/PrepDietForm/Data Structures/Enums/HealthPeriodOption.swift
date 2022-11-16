@@ -1,10 +1,10 @@
 import Foundation
 
-enum HealthKitEnergyPeriodOption: CaseIterable {
+enum HealthPeriodOption: CaseIterable {
     case previousDay
     case average
     
-    var menuDescription: String {
+    var pickerDescription: String {
         switch self {
         case .previousDay:
             return "Previous Day"
@@ -12,12 +12,12 @@ enum HealthKitEnergyPeriodOption: CaseIterable {
             return "Daily Average"
         }
     }
-    var pickerDescription: String {
+    var menuDescription: String {
         switch self {
         case .previousDay:
-            return "Previous Day"
+            return "previous day's value"
         case .average:
-            return "Average of"
+            return "daily average of"
         }
     }
 }

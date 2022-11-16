@@ -371,7 +371,7 @@ extension TDEEForm {
         var periodPicker: some View {
             Menu {
                 Picker(selection: $healthEnergyPeriod, label: EmptyView()) {
-                    ForEach(HealthKitEnergyPeriodOption.allCases, id: \.self) {
+                    ForEach(HealthPeriodOption.allCases, id: \.self) {
                         Text($0.menuDescription).tag($0)
                     }
                 }

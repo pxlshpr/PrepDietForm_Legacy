@@ -16,6 +16,14 @@ extension TDEEForm.ViewModel {
     var maintenanceEnergy: Double? {
         nil
     }
+    
+    var failedToFetchRestingEnergy: Bool {
+        fetchedRestingEnergy && !hasRestingEnergy
+    }
+    
+    var hasRestingEnergy: Bool {
+        restingEnergy != nil
+    }
 }
 
 struct TDEEForm: View {
@@ -105,7 +113,7 @@ struct TDEEForm: View {
     @State var healthRestingEnergy: Double? = nil
     @State var healthActiveEnergy: Double? = nil
     
-    @State var healthEnergyPeriod: HealthKitEnergyPeriodOption = .previousDay
+    @State var healthEnergyPeriod: HealthPeriodOption = .previousDay
     @State var healthEnergyPeriodInterval: DateComponents = DateComponents(day: 1)
     
     @State var path: [Route] = []
