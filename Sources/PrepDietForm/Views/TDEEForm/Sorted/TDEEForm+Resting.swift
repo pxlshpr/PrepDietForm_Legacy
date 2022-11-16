@@ -4,6 +4,58 @@ import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
 
+//func label(_ label: String, _ valueString: String) -> some View {
+
+struct MeasurementLabel: View {
+    @Environment(\.colorScheme) var colorScheme
+    
+    let label: String
+    let valueString: String
+    let useHealthAppData: Bool
+    
+    var body: some View {
+        PickerLabel(
+            string,
+            prefix: prefix,
+            systemImage: useHealthAppData ? nil : "chevron.right",
+            imageColor: imageColor,
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            prefixColor: prefixColor,
+            infiniteMaxHeight: false
+        )
+    }
+    var backgroundColor: Color {
+        guard !valueString.isEmpty else {
+            return .accentColor
+        }
+        let defaultColor = colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
+        return useHealthAppData ? Color(.systemGroupedBackground) : defaultColor
+    }
+    
+    var foregroundColor: Color {
+        guard !valueString.isEmpty else {
+            return .white
+        }
+        return useHealthAppData ? Color(.secondaryLabel) : Color.primary
+    }
+    var prefixColor: Color {
+        useHealthAppData ? Color(.tertiaryLabel) : Color.secondary
+    }
+    
+    var string: String {
+        valueString.isEmpty ? label : valueString
+    }
+    
+    var prefix: String? {
+        valueString.isEmpty ? nil : label
+    }
+    
+    var imageColor: Color {
+        valueString.isEmpty ? .white : Color(.tertiaryLabel)
+    }
+}
+
 extension TDEEForm {
     
     var restingEnergySection: some View {
@@ -112,48 +164,6 @@ extension TDEEForm {
         }
         
         var flowView: some View {
-            func label(_ label: String, _ valueString: String) -> some View {
-                var backgroundColor: Color {
-                    guard !valueString.isEmpty else {
-                        return .accentColor
-                    }
-                    let defaultColor = colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
-                    return useHealthAppData ? Color(.systemGroupedBackground) : defaultColor
-                }
-                
-                var foregroundColor: Color {
-                    guard !valueString.isEmpty else {
-                        return .white
-                    }
-                    return useHealthAppData ? Color(.secondaryLabel) : Color.primary
-                }
-                var prefixColor: Color {
-                    useHealthAppData ? Color(.tertiaryLabel) : Color.secondary
-                }
-                
-                var string: String {
-                    valueString.isEmpty ? label : valueString
-                }
-                
-                var prefix: String? {
-                    valueString.isEmpty ? nil : label
-                }
-                
-                var imageColor: Color {
-                    valueString.isEmpty ? .white : Color(.tertiaryLabel)
-                }
-                
-                return PickerLabel(
-                    string,
-                    prefix: prefix,
-                    systemImage: useHealthAppData ? nil : "chevron.right",
-                    imageColor: imageColor,
-                    backgroundColor: backgroundColor,
-                    foregroundColor: foregroundColor,
-                    prefixColor: prefixColor,
-                    infiniteMaxHeight: false
-                )
-            }
             
             return FlowView(alignment: .center, spacing: 10, padding: 17) {
                 ZStack {
@@ -170,7 +180,11 @@ extension TDEEForm {
                     Button {
                         path.append(.leanBodyMassForm)
                     } label: {
-                        label("lean body mass", viewModel.lbmFormatted)
+                        MeasurementLabel(
+                            label: "lean body mass",
+                            valueString: viewModel.lbmFormattedWithUnit,
+                            useHealthAppData: useHealthAppData
+                        )
                     }
                 } else {
                     Menu {
@@ -179,17 +193,29 @@ extension TDEEForm {
                             Text("Female").tag(false)
                         }
                     } label: {
-                        label("sex", "male")
+                        MeasurementLabel(
+                            label: "sex",
+                            valueString: "male",
+                            useHealthAppData: useHealthAppData
+                        )
                     }
                     Button {
                         path.append(.weightForm)
                     } label: {
-                        label("weight", "93.6 kg")
+                        MeasurementLabel(
+                            label: "weight",
+                            valueString: "93.6 kg",
+                            useHealthAppData: useHealthAppData
+                        )
                     }
                     Button {
                         path.append(.heightForm)
                     } label: {
-                        label("height", "177 cm")
+                        MeasurementLabel(
+                            label: "height",
+                            valueString: "177 cm",
+                            useHealthAppData: useHealthAppData
+                        )
                     }
                 }
             }
@@ -493,7 +519,7 @@ enum LeanBodyMassSourceOption: CaseIterable {
         case .healthApp:
             return "Health App"
         case .fatPercentage:
-            return "Fat Percentage"
+            return "Fat Percent"
         case .userEntered:
             return "Let me enter it"
         }
@@ -519,7 +545,7 @@ enum LeanBodyMassSourceOption: CaseIterable {
         case .healthApp:
             return "Health App"
         case .fatPercentage:
-            return "Fat Percentage"
+            return "Convert Fat Percent"
         case .userEntered:
             return "Manual Entry"
         }
@@ -573,12 +599,13 @@ struct LeanBodyMassForm: View {
                         case .userEntered:
                             EmptyView()
                         case .fatPercentage:
-                            EmptyView()
+                            weightRow
+                            useHealthAppToggle
                         case .formula:
                             EmptyView()
 //                            formulaContent
                         }
-                        lbmRow
+                        bottomRow
                     }
                 } else {
                     emptyContent
@@ -586,6 +613,39 @@ struct LeanBodyMassForm: View {
             }
         }
     }
+
+    var weightRow: some View {
+        var formulaMenu: some View {
+            Button {
+            } label: {
+                MeasurementLabel(
+                    label: "weight",
+                    valueString: "93.55 kg",
+                    useHealthAppData: viewModel.syncHealthWeight
+                )
+            }
+        }
+        return HStack {
+            HStack {
+                Text("of")
+                    .foregroundColor(.secondary)
+                formulaMenu
+            }
+        }
+        .padding(.top, 8)
+    }
+    
+    var useHealthAppToggle: some View {
+        Toggle(isOn: formToggleBinding($viewModel.syncHealthWeight)) {
+            HStack {
+                appleHealthSymbol
+                    .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+                Text("Sync\(viewModel.syncHealthWeight ? "ed" : "") with Health App")
+            }
+        }
+        .toggleStyle(.button)
+    }
+
     
     func tappedSyncWithHealth() {
         
@@ -596,7 +656,7 @@ struct LeanBodyMassForm: View {
     }
     
     func tappedFatPercentage() {
-        viewModel.changeLBMSoruce(to: .userEntered)
+        viewModel.changeLBMSoruce(to: .fatPercentage)
         isFocused = true
     }
     
@@ -618,7 +678,7 @@ struct LeanBodyMassForm: View {
         Text("Lean body mass is the weight of your body minus your body fat (adipose tissue).")
     }
     
-    var lbmRow: some View {
+    var bottomRow: some View {
         @ViewBuilder
         var health: some View {
             if viewModel.lbmFetchStatus != .notAuthorized {
@@ -649,15 +709,24 @@ struct LeanBodyMassForm: View {
         }
         
         var manualEntry: some View {
-            HStack {
+            var prompt: String {
+                viewModel.lbmSource == .userEntered ? "lead body mass in" : "fat percent"
+            }
+            var binding: Binding<String> {
+                viewModel.lbmTextFieldStringBinding
+            }
+            var unitString: String {
+                viewModel.lbmSource == .fatPercentage ? "%" : viewModel.userWeightUnit.shortDescription
+            }
+            return HStack {
                 Spacer()
-                TextField("lean body mass in", text: viewModel.lbmTextFieldStringBinding)
+                TextField(prompt, text: binding)
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
                     .multilineTextAlignment(.trailing)
                     .font(.system(.title3, design: .rounded, weight: .semibold))
                     .matchedGeometryEffect(id: "lbm", in: namespace)
-                Text(viewModel.userWeightUnit.shortDescription)
+                Text(unitString)
                     .foregroundColor(.secondary)
             }
         }
@@ -669,6 +738,8 @@ struct LeanBodyMassForm: View {
             case .formula:
                 EmptyView()
             case .userEntered:
+                manualEntry
+            case .fatPercentage:
                 manualEntry
             default:
                 EmptyView()
@@ -808,6 +879,8 @@ extension TDEEForm {
         @Published var lbm: Double? = nil
         @Published var lbmTextFieldString: String = ""
 
+        @Published var syncHealthWeight : Bool = false
+        
         init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
             self.userEnergyUnit = userEnergyUnit
             self.userWeightUnit = userWeightUnit
