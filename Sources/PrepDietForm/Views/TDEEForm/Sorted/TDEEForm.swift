@@ -21,10 +21,17 @@ extension TDEEForm.ViewModel {
 struct TDEEForm: View {
     
     @Namespace var namespace
+    @Environment(\.scenePhase) var scenePhase
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-
     @StateObject var viewModel = ViewModel()
+    
+    let userEnergyUnit: EnergyUnit
+    let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
+    
+    init(userEnergyUnit: EnergyUnit = .kcal) {
+        self.userEnergyUnit = userEnergyUnit
+    }
     
     @ViewBuilder
     var body: some View {
@@ -36,6 +43,7 @@ struct TDEEForm: View {
                     .onAppear(perform: blankViewAppeared)
             }
         }
+        .onReceive(didEnterForeground, perform: didEnterForeground)
         .presentationDetents(viewModel.detents, selection: $viewModel.presentationDetent)
         .presentationDragIndicator(.hidden)
     }

@@ -21,7 +21,7 @@ extension TDEEForm {
             }
             
             var empty: some View {
-                Text("Choose sources to determine your resting and active energies first.")
+                Text("Choose sources for your resting and active energy calculations.")
                     .font(.title3)
                     .foregroundColor(Color(.tertiaryLabel))
                     .multilineTextAlignment(.center)

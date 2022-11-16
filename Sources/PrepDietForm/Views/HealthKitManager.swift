@@ -6,16 +6,6 @@ class HealthKitManager: ObservableObject {
     
     let store: HKHealthStore = HKHealthStore()
     
-    func isAuthorized(for type: HKQuantityTypeIdentifier) -> Bool {
-        let status = store.authorizationStatus(for: HKQuantityType(type))
-        switch status {
-        case .sharingAuthorized:
-            return true
-        default:
-            return false
-        }
-    }
-    
     func requestPermission(for type: HKQuantityTypeIdentifier) async throws {
         guard HKHealthStore.isHealthDataAvailable() else {
             throw HealthKitManagerError.healthKitNotAvailable
@@ -166,10 +156,12 @@ extension HealthKitManager {
     }
 
     func getLatestRestingEnergy() async -> Double? {
+        //TODO: Make this take in a unit
         await getSumQuantity(for: .basalEnergyBurned, using: .kilocalorie())
     }
 
     func getLatestActiveEnergy() async -> Double? {
+        //TODO: Make this take in a unit
         await getSumQuantity(for: .activeEnergyBurned, using: .kilocalorie())
     }
 
@@ -185,7 +177,10 @@ extension HealthKitManager {
     }
 
     private func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantity {
-        
+
+        //TODO: Make this return it for a range or for a specific date (or use the range to specify a specific date)
+        //TODO: Allow us to call this with an int and an interval modifier (.day, .week, .month)
+
 //        let now = Date()
 //        let startDate = Date()
 ////        let startDate = Calendar.current.date(byAdding: .day, value: -30, to: now)!

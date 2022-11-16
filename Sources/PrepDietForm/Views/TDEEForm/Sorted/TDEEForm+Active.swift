@@ -60,7 +60,7 @@ extension TDEEForm {
         
         var emptyContent: some View {
             VStack(spacing: 10) {
-                emptyButton("Sync with Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
                 emptyButton("Apply Activity Multiplier", systemImage: "dial.medium.fill")
                 emptyButton("Let me type it in", systemImage: "keyboard")
             }

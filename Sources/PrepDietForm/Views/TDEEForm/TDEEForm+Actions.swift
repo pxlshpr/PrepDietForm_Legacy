@@ -11,6 +11,17 @@ extension TDEEForm {
             }
         }
     }
+  
+    func didEnterForeground(notification: Notification) {
+        updateHealthAppData()
+    }
+    
+    func updateHealthAppData() {
+        guard viewModel.permissionDeniedForResting else {
+            return
+        }
+        
+    }
     
     func syncHealthKitMeasurementsChanged(to syncHealthKitMeasurements: Bool) {
         if syncHealthKitMeasurements {

@@ -19,8 +19,8 @@ extension TDEEForm {
                         appleHealthSymbol
                     }
                     Text(string)
-                        .font(.title3)
-                        .foregroundColor(.primary)
+//                        .font(.title3)
+                        .foregroundColor(.secondary)
                 }
                 .frame(height: 35)
                 .padding(.horizontal, 20)
@@ -88,16 +88,11 @@ extension TDEEForm {
                     .foregroundColor(.secondary)
                     .animation(.none, value: viewModel.restingEnergySource)
                     .fixedSize(horizontal: true, vertical: false)
-//                    HStack(spacing: 5) {
-//                        Image(systemName: "function")
-//                            .foregroundColor(.secondary)
-//                        Text("Calculated")
-//                            .foregroundColor(.secondary)
-//                        Image(systemName: "chevron.up.chevron.down")
-//                            .foregroundColor(Color(.tertiaryLabel))
-//                            .imageScale(.small)
-//                    }
                 }
+                .contentShape(Rectangle())
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .light)
+                })
             }
             
             return HStack {
@@ -184,6 +179,9 @@ extension TDEEForm {
                 switch source {
                 case .healthApp:
                     healthContent
+                        .onAppear {
+                            print("Appeared")
+                        }
                 default:
                     healthContent
                 }
@@ -197,9 +195,6 @@ extension TDEEForm {
                 do {
                     try await HealthKitManager.shared.requestPermission(for: .basalEnergyBurned)
                     
-                    if !HealthKitManager.shared.isAuthorized(for: .basalEnergyBurned) {
-                        viewModel.permissionDeniedForResting = true
-                    }
                     withAnimation {
                         viewModel.restingEnergySource = .healthApp
                     }
@@ -211,7 +206,7 @@ extension TDEEForm {
 
         var emptyContent: some View {
             VStack(spacing: 10) {
-                emptyButton("Sync with Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
                 emptyButton("Calculate using Formula", systemImage: "function")
                 emptyButton("Let me type it in", systemImage: "keyboard")
             }
@@ -223,7 +218,7 @@ extension TDEEForm {
                 if viewModel.permissionDeniedForResting {
                     VStack {
                         VStack(alignment: .center, spacing: 5) {
-                            Text("Apple Health integration requires permissions to be granted in:")
+                            Text("Health app integration requires permissions to be granted in:")
                                 .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(.secondary)
                             Text("Settings → Privacy & Security → Health → Prep")
@@ -232,7 +227,8 @@ extension TDEEForm {
                         }
                         .multilineTextAlignment(.center)
                         Button {
-                            UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)&path=HEALTH")!)
+                            UIApplication.shared.open(URL(string: "App-prefs:Privacy&path=HEALTH")!)
+//                            UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)&path=HEALTH")!)
                         } label: {
                             HStack {
                                 Image(systemName: "gear")
@@ -324,15 +320,15 @@ extension TDEEForm {
         @Published var hasAppeared = false
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
         
-//        @Published var isEditing = false
-//        @Published var presentationDetent: PresentationDetent = .height(270)
-//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var permissionDeniedForResting: Bool = false
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var permissionDeniedForResting: Bool = false
 
-        @Published var isEditing = true
-        @Published var presentationDetent: PresentationDetent = .large
-        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
-        @Published var permissionDeniedForResting: Bool = true
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
+//        @Published var permissionDeniedForResting: Bool = true
 
         
     }
