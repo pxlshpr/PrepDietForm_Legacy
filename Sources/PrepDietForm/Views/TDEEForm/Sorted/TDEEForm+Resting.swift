@@ -264,18 +264,8 @@ extension TDEEForm {
         
         var healthPeriodContent: some View {
             var periodTypeMenu: some View {
-                let binding = Binding<HealthPeriodOption>(
-                    get: { viewModel.restingEnergyPeriod },
-                    set: { newPeriod in
-                        Haptics.feedback(style: .soft)
-                        withAnimation {
-                            viewModel.restingEnergyPeriod = newPeriod
-                        }
-                    }
-                )
-                
-                return Menu {
-                    Picker(selection: binding, label: EmptyView()) {
+               Menu {
+                   Picker(selection: viewModel.restingEnergyPeriodBinding, label: EmptyView()) {
                         ForEach(HealthPeriodOption.allCases, id: \.self) {
                             Text($0.pickerDescription).tag($0)
                         }
@@ -288,23 +278,9 @@ extension TDEEForm {
             }
             
             var periodValueMenu: some View {
-                let binding = Binding<Int>(
-                    get: { viewModel.restingEnergyIntervalValue },
-                    set: { newValue in
-                        guard newValue >= viewModel.restingEnergyInterval.minValue,
-                              newValue <= viewModel.restingEnergyInterval.maxValue else {
-                            return
-                        }
-                        Haptics.feedback(style: .soft)
-                        withAnimation {
-                            viewModel.restingEnergyIntervalValue = newValue
-                        }
-                        viewModel.fetchRestingEnergyFromHealth()
-                    }
-                )
-                return Menu {
-                    Picker(selection: binding, label: EmptyView()) {
-                        ForEach(Array(viewModel.restingEnergyInterval.minValue...viewModel.restingEnergyInterval.maxValue), id: \.self) { quantity in
+                Menu {
+                    Picker(selection: viewModel.restingEnergyIntervalValueBinding, label: EmptyView()) {
+                        ForEach(viewModel.restingEnergyIntervalValues, id: \.self) { quantity in
                             Text("\(quantity)").tag(quantity)
                         }
                     }
@@ -317,18 +293,8 @@ extension TDEEForm {
             }
             
             var periodIntervalMenu: some View {
-                let binding = Binding<HealthAppInterval>(
-                    get: { viewModel.restingEnergyInterval },
-                    set: { newInterval in
-                        Haptics.feedback(style: .soft)
-                        withAnimation {
-                            viewModel.restingEnergyInterval = newInterval
-                        }
-                        viewModel.fetchRestingEnergyFromHealth()
-                    }
-                )
-                return Menu {
-                    Picker(selection: binding, label: EmptyView()) {
+                Menu {
+                    Picker(selection: viewModel.restingEnergyIntervalBinding, label: EmptyView()) {
                         ForEach(HealthAppInterval.allCases, id: \.self) { interval in
                             Text("\(interval.description)\(viewModel.restingEnergyIntervalValue > 1 ? "s" : "")").tag(interval)
                         }

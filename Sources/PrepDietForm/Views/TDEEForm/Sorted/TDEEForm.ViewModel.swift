@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepDataTypes
+import SwiftHaptics
 
 extension TDEEForm.ViewModel {
     var restingEnergyFormatted: String {
@@ -32,6 +33,80 @@ extension TDEEForm.ViewModel {
 }
 
 extension TDEEForm.ViewModel {
+    
+    var restingEnergyIntervalValues: [Int] {
+        Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
+    }
+    
+    var restingEnergyPeriodBinding: Binding<HealthPeriodOption> {
+        Binding<HealthPeriodOption>(
+            get: { self.restingEnergyPeriod },
+            set: { newPeriod in
+                Haptics.feedback(style: .soft)
+                self.changeRestingEnergyPeriod(to: newPeriod)
+            }
+        )
+    }
+
+    func changeRestingEnergyPeriod(to newPeriod: HealthPeriodOption) {
+        withAnimation {
+            self.restingEnergyPeriod = newPeriod
+            if newPeriod == .previousDay {
+                restingEnergyIntervalValue = 1
+                restingEnergyInterval = .day
+            }
+        }
+        fetchRestingEnergyFromHealth()
+    }
+    
+    var restingEnergyIntervalValueBinding: Binding<Int> {
+        Binding<Int>(
+            get: { self.restingEnergyIntervalValue },
+            set: { newValue in
+                Haptics.feedback(style: .soft)
+                self.changeRestingEnergyIntervalValue(to: newValue)
+            }
+        )
+    }
+    
+    func changeRestingEnergyIntervalValue(to newValue: Int) {
+        guard newValue >= restingEnergyInterval.minValue,
+              newValue <= restingEnergyInterval.maxValue else {
+            return
+        }
+        withAnimation {
+            restingEnergyIntervalValue = newValue
+        }
+        fetchRestingEnergyFromHealth()
+    }
+    var restingEnergyIntervalBinding: Binding<HealthAppInterval> {
+        Binding<HealthAppInterval>(
+            get: { self.restingEnergyInterval },
+            set: { newInterval in
+                Haptics.feedback(style: .soft)
+                self.changeRestingEnergyInterval(to: newInterval)
+            }
+        )
+    }
+    
+    func changeRestingEnergyInterval(to newInterval: HealthAppInterval) {
+        func correctRestingEnergyIntervalValueIfNeeded() {
+            if restingEnergyIntervalValue < newInterval.minValue {
+                restingEnergyIntervalValue = newInterval.minValue
+            }
+            if restingEnergyIntervalValue > newInterval.maxValue {
+                restingEnergyIntervalValue = newInterval.maxValue
+            }
+        }
+        
+        withAnimation {
+            restingEnergyInterval = newInterval
+            correctRestingEnergyIntervalValueIfNeeded()
+        }
+        
+        fetchRestingEnergyFromHealth()
+    }
+    
     func updateHealthAppData() {
         fetchRestingEnergyFromHealth()
     }
