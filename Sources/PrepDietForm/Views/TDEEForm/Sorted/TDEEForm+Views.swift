@@ -4,7 +4,8 @@ extension TDEEForm {
     
     var promptSection: some View {
         VStack {
-            Text("This is an estimate of how many calories you would need to consume to *maintain* your current weight.")
+            viewModel.maintenanceEnergyFooterText
+                .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.secondaryLabel))
             if viewModel.notSetup {

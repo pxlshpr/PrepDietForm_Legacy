@@ -109,11 +109,17 @@ extension TDEEForm.ViewModel {
         }
     }
 
+    var maintenanceEnergyFooterText: Text {
+        let energy = userEnergyUnit == .kcal ? "calories" : "kiljoules"
+        return Text("This is an estimate of how many \(energy) you would have to consume to *maintain* your current weight.")
+    }
+    
     var restingEnergyFooterString: String? {
+        let prefix = "This is an estimate of the energy your body uses each day while minimally active."
         if restingEnergySource == .healthApp {
-            return "This will update daily."
+            return prefix + " This will sync with your Health data and update daily."
         }
-        return nil
+        return prefix
     }
     
     func updateHealthAppData() {
