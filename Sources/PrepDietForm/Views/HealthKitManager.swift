@@ -187,10 +187,11 @@ extension HealthKitManager {
 
     func averageSum(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
         let sumQuantities = try await sumQuantities(for: typeIdentifier, overPast: value, interval: interval)
-        for (date, sumQuantity) in sumQuantities {
+        for (date, sumQuantity) in sumQuantities.sorted(by: { $0.key > $1.key }) {
             let value = sumQuantity.doubleValue(for: unit)
             print("\(value) on \(date.calendarDayString)")
         }
+        //TODO: now sum up the values and return the total
         return nil
     }
 
@@ -223,11 +224,13 @@ extension HealthKitManager {
             throw HealthKitManagerError.dateCreationError
         }
 
-        /// Always get samples up to a day past the end range (i.e. tomorrow), so that we get all of today's results
-        let endDate = range.lowerBound.moveDayBy(1)
+        /// Always get samples up to the start of tomorrow, so that we get all of today's results too in case we need it
+        let endDate = Date().startOfDay.moveDayBy(1)
         
         let datePredicate = HKQuery.predicateForSamples(withStart: range.lowerBound, end: endDate)
 
+        print("Creating datePredicate with: \(range.lowerBound.calendarDayString) to \(endDate.calendarDayString)")
+        
         /// Create the query descriptor.
         let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
         let samplesPredicate = HKSamplePredicate.quantitySample(type: type, predicate: datePredicate)

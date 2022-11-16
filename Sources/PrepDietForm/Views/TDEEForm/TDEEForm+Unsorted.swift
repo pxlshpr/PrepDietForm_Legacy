@@ -14,19 +14,19 @@ extension TDEEForm {
     }
 
     func initialTask() async {
-        guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
-            return
-        }
-        await MainActor.run {
-            self.healthRestingEnergy = restingEnergy
-        }
-
-        guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
-            return
-        }
-        await MainActor.run {
-            self.healthActiveEnergy = activeEnergy
-        }
+//        guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
+//            return
+//        }
+//        await MainActor.run {
+//            self.healthRestingEnergy = restingEnergy
+//        }
+//
+//        guard let activeEnergy = await HealthKitManager.shared.getLatestActiveEnergy() else {
+//            return
+//        }
+//        await MainActor.run {
+//            self.healthActiveEnergy = activeEnergy
+//        }
     }
     
     var maintenanceEnergy: Double? {

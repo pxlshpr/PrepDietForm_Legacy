@@ -208,6 +208,7 @@ extension TDEEForm {
                         interval: viewModel.restingEnergyInterval
                     ) else {
                         /// [ ] If we got nothing, show the empty state with a hint that they might need to give permissions
+                        return
                     }
                     print("We here")
                     

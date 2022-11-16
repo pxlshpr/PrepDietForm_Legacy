@@ -60,6 +60,6 @@ enum HealthAppInterval: CaseIterable {
             return nil
         }
 
-        return startDate...endDate
+        return startDate.moveDayBy(-1)...endDate.moveDayBy(-1)
     }
 }
