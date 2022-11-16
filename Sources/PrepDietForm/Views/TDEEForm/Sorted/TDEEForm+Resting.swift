@@ -199,20 +199,7 @@ extension TDEEForm {
                         viewModel.restingEnergySource = .healthApp
                     }
                     
-                    /// [ ] Do this in the ViewModel
-                    /// [ ] Store the energyUnit in the view model
-                    /// [ ] Get the default range here (daily average of past week for resting energy)
-                    guard let average = try await HealthKitManager.shared.averageSumOfRestingEnergy(
-                        using: userEnergyUnit,
-                        overPast: viewModel.restingEnergyIntervalValue,
-                        interval: viewModel.restingEnergyInterval
-                    ) else {
-                        /// [ ] If we got nothing, show the empty state with a hint that they might need to give permissions
-                        return
-                    }
-                    print("We here")
-                    
-                    /// [ ] Make sure we persist this to the backend once the user saves it
+                    viewModel.fetchRestingEnergyFromHealth()
 
                 } catch {
                     
@@ -240,20 +227,25 @@ extension TDEEForm {
                 }
                 .padding()
                 .padding(.horizontal)
-                HStack {
-                    Spacer()
-                    Text("2,024")
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .matchedGeometryEffect(id: "resting", in: namespace)
-                    Text("kcal")
-                        .foregroundColor(.secondary)
-                }
-                .if(!viewModel.hasRestingEnergy) { view in
-                    view
-                        .redacted(reason: .placeholder)
-                }
-                .padding(.trailing)
+                energyRow
             }
+        }
+        
+        @ViewBuilder
+        var energyRow: some View {
+            HStack {
+                Spacer()
+                Text(viewModel.restingEnergyFormatted)
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .matchedGeometryEffect(id: "resting", in: namespace)
+                Text(viewModel.userEnergyUnit.shortDescription)
+                    .foregroundColor(.secondary)
+            }
+            .if(!viewModel.hasRestingEnergy) { view in
+                view
+                    .redacted(reason: .placeholder)
+            }
+            .padding(.trailing)
         }
         
         var healthPeriodContent: some View {
@@ -293,6 +285,7 @@ extension TDEEForm {
                         withAnimation {
                             viewModel.restingEnergyIntervalValue = newValue
                         }
+                        viewModel.fetchRestingEnergyFromHealth()
                     }
                 )
                 return Menu {
@@ -317,6 +310,7 @@ extension TDEEForm {
                         withAnimation {
                             viewModel.restingEnergyInterval = newInterval
                         }
+                        viewModel.fetchRestingEnergyFromHealth()
                     }
                 )
                 return Menu {
@@ -440,29 +434,6 @@ extension TDEEForm {
             .padding(.top, 10)
     }
 }
-
-
-extension TDEEForm {
-    class ViewModel: ObservableObject {
-        @Published var hasAppeared = false
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
-        
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .healthApp
-        
-        @Published var restingEnergy: Double? = nil
-        @Published var fetchedRestingEnergy: Bool = false
-        
-        @Published var restingEnergyPeriod: HealthPeriodOption = .average
-        @Published var restingEnergyIntervalValue: Int = 1
-        @Published var restingEnergyInterval: HealthAppInterval = .week
-    }
-}
-
 
 struct TDEEForm_Previews: PreviewProvider {
     static var previews: some View {

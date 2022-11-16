@@ -187,12 +187,13 @@ extension HealthKitManager {
 
     func averageSum(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
         let sumQuantities = try await sumQuantities(for: typeIdentifier, overPast: value, interval: interval)
-        for (date, sumQuantity) in sumQuantities.sorted(by: { $0.key > $1.key }) {
-            let value = sumQuantity.doubleValue(for: unit)
-            print("\(value) on \(date.calendarDayString)")
-        }
-        //TODO: now sum up the values and return the total
-        return nil
+        guard !sumQuantities.isEmpty else { return nil }
+        
+        let sum = sumQuantities
+            .values
+            .map { $0.doubleValue(for: unit) }
+            .reduce(0, +)
+        return sum / Double(sumQuantities.count)
     }
 
     func sumQuantities(for typeIdentifier: HKQuantityTypeIdentifier, overPast value: Int, interval: HealthAppInterval) async throws -> [Date: HKQuantity] {
@@ -229,8 +230,6 @@ extension HealthKitManager {
         
         let datePredicate = HKQuery.predicateForSamples(withStart: range.lowerBound, end: endDate)
 
-        print("Creating datePredicate with: \(range.lowerBound.calendarDayString) to \(endDate.calendarDayString)")
-        
         /// Create the query descriptor.
         let type = HKSampleType.quantityType(forIdentifier: typeIdentifier)!
         let samplesPredicate = HKSamplePredicate.quantitySample(type: type, predicate: datePredicate)
@@ -238,13 +237,34 @@ extension HealthKitManager {
         /// We want the sum of each day
         let everyDay = DateComponents(day: 1)
         
+
         let asyncQuery = HKStatisticsCollectionQueryDescriptor(
             predicate: samplesPredicate,
             options: .cumulativeSum,
             anchorDate: endDate,
             intervalComponents: everyDay
         )
-        return try await asyncQuery.result(for: store)
+        var start = CFAbsoluteTimeGetCurrent()
+        let collection = try await asyncQuery.result(for: store)
+        print("Collection took: \(CFAbsoluteTimeGetCurrent()-start)")
+
+        /// [ ] If it's greater than a month, use a direct sum of the period and divide it by the number of days—otherwise get the intervals to favour accuracy.
+        /// [ ] In either case, show an activity indicator on value while we're loading it
+        ///
+        let lower = range.lowerBound.moveDayBy(1)
+        let upper = range.upperBound.moveDayBy(1)
+        let datePredicateNew = HKQuery.predicateForSamples(withStart: lower, end: upper)
+        let samplesPredicateNew = HKSamplePredicate.quantitySample(type: type, predicate: datePredicateNew)
+        let asyncQueryNew = HKStatisticsQueryDescriptor(predicate: samplesPredicateNew, options: .cumulativeSum)
+        
+        start = CFAbsoluteTimeGetCurrent()
+        let result = try await asyncQueryNew.result(for: store)
+        if let sum = result?.sumQuantity()?.doubleValue(for: .kilocalorie()) {
+            print("Sum took: \(CFAbsoluteTimeGetCurrent()-start)")
+            print("We here with a sum of \(sum) between: \(lower), \(upper), giving us an average of \(sum/Double(upper.numberOfDaysFrom(lower)))")
+        }
+        
+        return collection
     }
 
     private func getLatestQuantitySample(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantitySample {
@@ -259,42 +279,6 @@ extension HealthKitManager {
         }
         return sample
     }
-    
-    //MARK: - Legacy to be removed
-    
-    private func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier) async throws -> HKQuantity {
-        let statisticsCollection = try await statisticsCollection(for: typeIdentifier, overPast: 1, interval: .day)
-        guard let statistics = statisticsCollection.statistics(for: Date().moveDayBy(-1)) else {
-            throw HealthKitManagerError.couldNotGetSample
-        }
-        guard let sumQuantity = statistics.sumQuantity() else {
-            throw HealthKitManagerError.couldNotGetSample
-        }
-        return sumQuantity
-    }
-    
-    func getLatestRestingEnergy() async -> Double? {
-        //TODO: Make this take in a unit
-        await getSumQuantity(for: .basalEnergyBurned, using: .kilocalorie())
-    }
-
-    func getLatestActiveEnergy() async -> Double? {
-        //TODO: Make this take in a unit
-        await getSumQuantity(for: .activeEnergyBurned, using: .kilocalorie())
-    }
-
-
-    func getSumQuantity(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit) async -> Double? {
-        do {
-            let sumQuantity = try await getSumQuantity(for: typeIdentifier)
-            return sumQuantity.doubleValue(for: unit)
-        } catch {
-            print("Error getting sum quantity")
-            return nil
-        }
-    }
-
-    
 }
 
 enum HealthKitManagerError: Error {
@@ -304,4 +288,12 @@ enum HealthKitManagerError: Error {
     case couldNotGetStatistics
     case couldNotGetSumQuantity
     case dateCreationError
+}
+
+public extension Date {
+    func moveHoursBy(_ hourIncrement: Int) -> Date {
+        var components = DateComponents()
+        components.hour = hourIncrement
+        return Calendar.current.date(byAdding: components, to: self)!
+    }
 }

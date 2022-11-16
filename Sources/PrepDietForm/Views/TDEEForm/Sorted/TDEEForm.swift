@@ -4,41 +4,18 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
-extension TDEEForm.ViewModel {
-    var notSetup: Bool {
-        true
-    }
-    
-    var detents: Set<PresentationDetent> {
-        notSetup ? [.height(270), .large] : [.medium, .large]
-    }
-    
-    var maintenanceEnergy: Double? {
-        nil
-    }
-    
-    var failedToFetchRestingEnergy: Bool {
-        fetchedRestingEnergy && !hasRestingEnergy
-    }
-    
-    var hasRestingEnergy: Bool {
-        restingEnergy != nil
-    }
-}
-
 struct TDEEForm: View {
     
     @Namespace var namespace
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-    @StateObject var viewModel = ViewModel()
+    @StateObject var viewModel: ViewModel
     
-    let userEnergyUnit: EnergyUnit
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
     init(userEnergyUnit: EnergyUnit = .kcal) {
-        self.userEnergyUnit = userEnergyUnit
+        _viewModel = StateObject(wrappedValue: ViewModel(userEnergyUnit: userEnergyUnit))
     }
     
     @ViewBuilder
