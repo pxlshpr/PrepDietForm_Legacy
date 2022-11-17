@@ -22,8 +22,8 @@ public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
     
     var requiresHeight: Bool {
         switch self {
-        case .henryOxford, .schofield:
-            return true
+        case .henryOxford, .schofield, .katchMcardle, .cunningham:
+            return false
         default:
             return false
         }
