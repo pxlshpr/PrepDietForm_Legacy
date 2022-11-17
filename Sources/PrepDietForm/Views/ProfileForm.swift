@@ -37,7 +37,9 @@ struct ProfileForm: View {
             AgeSection()
             BiologicalSexSection()
             WeightSection()
-            HeightSection()
+            if viewModel.restingEnergyFormula.requiresHeight {
+                HeightSection()
+            }
         }
         .navigationTitle(viewModel.restingEnergyFormula.menuDescription + " Formula")
         .toolbar { trailingContent }

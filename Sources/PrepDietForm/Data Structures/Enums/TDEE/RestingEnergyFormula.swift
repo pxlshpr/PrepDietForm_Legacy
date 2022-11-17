@@ -19,6 +19,16 @@ public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
         [.rozaShizgal, .cunningham, .harrisBenedict]
     }
 
+    
+    var requiresHeight: Bool {
+        switch self {
+        case .henryOxford, .schofield:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var pickerDescription: String {
         switch self {
         case .schofield:

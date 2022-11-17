@@ -583,28 +583,24 @@ extension TDEEForm.ViewModel {
 extension TDEEForm.ViewModel {
     
     var hasProfile: Bool {
-        (sex == .male || sex == .female)
-        && age != nil && weight != nil && height != nil
+        let hasCore = (sex == .male || sex == .female)
+            && age != nil && weight != nil
+        return restingEnergyFormula.requiresHeight ? hasCore && height != nil : hasCore
     }
     
     var profileIsSynced: Bool {
         hasProfile
         && (weightSource == .healthApp || heightSource == .healthApp)
     }
-    var profileButtonString: String {
-        guard let sex, (sex == .male || sex == .female),
-              let age, let weight, let height else {
-            return ""
-        }
-        /// 35yo 96.5kg 177cm male
-        return "\(age)yo \(Int(weight.rounded())) \(userWeightUnit.shortDescription) \(Int(height.rounded()))\(userHeightUnit.shortDescription)"
-    }
+    
     var shouldShowSyncAllForProfileForm: Bool {
         var countNotSynced = 0
         if sexSource != .healthApp { countNotSynced += 1 }
         if weightSource != .healthApp { countNotSynced += 1 }
-        if heightSource != .healthApp { countNotSynced += 1 }
         if ageSource != .healthApp { countNotSynced += 1 }
+        if restingEnergyFormula.requiresHeight {
+            if heightSource != .healthApp { countNotSynced += 1 }
+        }
         return countNotSynced > 1
     }
 
@@ -613,22 +609,33 @@ extension TDEEForm.ViewModel {
         withAnimation {
             sexFetchStatus = .fetching
             weightFetchStatus = .fetching
-            heightFetchStatus = .fetching
             dobFetchStatus = .fetching
+            if restingEnergyFormula.requiresHeight {
+                heightFetchStatus = .fetching
+            }
         }
             
         Task {
             do {
+                let quantityTypes: [HKQuantityTypeIdentifier]
+                if restingEnergyFormula.requiresHeight {
+                    quantityTypes = [.bodyMass, .height]
+                } else {
+                    quantityTypes = [.height]
+                }
+                
                 /// request permissions for all required parameters in one sheet
                 try await HealthKitManager.shared.requestPermissions(
                     characteristicTypes: [.biologicalSex, .dateOfBirth],
-                    quantityTypes: [.bodyMass, .height]
+                    quantityTypes: quantityTypes
                 )
                 await MainActor.run {
                     changeSexSource(to: .healthApp)
                     changeWeightSource(to: .healthApp)
-                    changeHeightSource(to: .healthApp)
                     changeAgeSource(to: .healthApp)
+                    if restingEnergyFormula.requiresHeight {
+                        changeHeightSource(to: .healthApp)
+                    }
                 }
             } catch {
                 //TODO: Handle error
@@ -678,6 +685,14 @@ extension TDEEForm.ViewModel {
         case .katchMcardle, .cunningham:
             guard let lbmInKg else { return nil }
             return restingEnergyFormula.calculate(lbmInKg: lbmInKg, energyUnit: userEnergyUnit)
+        case .henryOxford, .schofield:
+            guard let age, let weightInKg, let sex else { return nil }
+            return restingEnergyFormula.calculate(
+                age: age,
+                weightInKg: weightInKg,
+                sex: sex,
+                energyUnit: userEnergyUnit
+            )
         default:
             guard let age, let weightInKg, let heightInCm, let sex else { return nil }
             return restingEnergyFormula.calculate(

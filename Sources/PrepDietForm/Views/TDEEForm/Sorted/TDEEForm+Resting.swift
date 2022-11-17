@@ -246,14 +246,13 @@ extension TDEEForm {
                         if viewModel.hasProfile,
                            let age = viewModel.age,
                            let sex = viewModel.sex,
-                           let weight = viewModel.weight,
-                           let height = viewModel.height
+                           let weight = viewModel.weight
                         {
                             ProfileLabel(
                                 age: age,
                                 sex: sex,
                                 weight: weight,
-                                height: height,
+                                height: viewModel.height,
                                 weightUnit: viewModel.userWeightUnit,
                                 heightUnit: viewModel.userHeightUnit,
                                 isSynced: viewModel.profileIsSynced

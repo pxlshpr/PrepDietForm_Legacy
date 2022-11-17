@@ -102,11 +102,21 @@ struct ProfileLabel: View {
     let age: Int
     let sex: HKBiologicalSex
     let weight: Double
-    let height: Double
+    let height: Double?
     let weightUnit: WeightUnit
     let heightUnit: HeightUnit
     
     let isSynced: Bool
+    
+    init(age: Int, sex: HKBiologicalSex, weight: Double, height: Double? = nil, weightUnit: WeightUnit, heightUnit: HeightUnit, isSynced: Bool) {
+        self.age = age
+        self.sex = sex
+        self.weight = weight
+        self.height = height
+        self.weightUnit = weightUnit
+        self.heightUnit = heightUnit
+        self.isSynced = isSynced
+    }
     
     var body: some View {
         ZStack {
@@ -114,7 +124,9 @@ struct ProfileLabel: View {
             HStack {
                 pair(age, "yo")
                 pair(Int(weight), weightUnit.shortDescription)
-                pair(Int(height), heightUnit.shortDescription)
+                if let height {
+                    pair(Int(height), heightUnit.shortDescription)
+                }
                 Text(sex.description.lowercased())
                     .foregroundColor(primaryColor)
             }
