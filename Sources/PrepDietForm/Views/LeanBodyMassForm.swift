@@ -220,7 +220,7 @@ struct LeanBodyMassForm: View {
 //        .padding(.horizontal, 17)
     }
     
-    func lbmSourceChange(to newSource: LeanBodyMassSourceOption?) {
+    func lbmSourceChanged(to newSource: LeanBodyMassSourceOption?) {
         switch newSource {
         case .userEntered:
             isFocused = true
@@ -234,8 +234,11 @@ struct LeanBodyMassForm: View {
             FormStyledSection(footer: footer) {
                 content
             }
+            if viewModel.lbmSource == .fatPercentage {
+                WeightForm()
+            }
         }
         .navigationTitle("Lean Body Mass")
-        .onChange(of: viewModel.lbmSource, perform: lbmSourceChange)
+        .onChange(of: viewModel.lbmSource, perform: lbmSourceChanged)
     }
 }

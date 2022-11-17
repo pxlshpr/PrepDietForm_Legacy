@@ -719,7 +719,7 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
             if let systemImage {
                 Image(systemName: systemImage)
 //                    .foregroundColor(.white)
-                    .foregroundColor(.white)
+                    .foregroundColor(.white.opacity(0.7))
             } else if showHealthAppIcon {
                 appleHealthSymbol
             }
@@ -728,8 +728,8 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
                 .foregroundColor(.white)
 //                .foregroundColor(.secondary)
         }
-        .frame(minHeight: 35)
-        .padding(.horizontal, 20)
+        .frame(minHeight: 30)
+        .padding(.horizontal, 15)
         .padding(.vertical, 5)
         .background (
             Capsule(style: .continuous)

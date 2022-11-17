@@ -47,6 +47,10 @@ extension TDEEForm.ViewModel {
     var hasLeanBodyMass: Bool {
         lbm != nil
     }
+    
+    var hasWeight: Bool {
+        weight != nil
+    }
 
     var hasDynamicRestingEnergy: Bool {
         restingEnergySource == .healthApp
@@ -58,12 +62,25 @@ extension TDEEForm.ViewModel {
         || (lbmSource == .formula && lbmUsesHealthMeasurements)
     }
 
+    var hasDynamicWeight: Bool {
+        weightSource == .healthApp
+    }
 }
 
 extension TDEEForm.ViewModel {
     
     var restingEnergyIntervalValues: [Int] {
         Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
+    }
+
+    var weightSourceBinding: Binding<MeasurementSourceOption> {
+        Binding<MeasurementSourceOption>(
+            get: { self.weightSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeWeightSource(to: newSource)
+            }
+        )
     }
 
     var lbmSourceBinding: Binding<LeanBodyMassSourceOption> {
@@ -198,6 +215,26 @@ extension TDEEForm.ViewModel {
         )
     }
     
+    var weightTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.weightTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.weight = nil
+                    self.weightTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.weight = double
+                withAnimation {
+                    self.weightTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
     func changeRestingEnergySource(to newSource: RestingEnergySourceOption) {
         withAnimation {
             restingEnergySource = newSource
@@ -312,8 +349,11 @@ extension TDEEForm.ViewModel {
         return prefix
     }
     
-    func updateHealthAppData() {
-        fetchRestingEnergyFromHealth()
+    func updateHealthAppDataIfNeeded() {
+        if restingEnergySource == .healthApp {
+            fetchRestingEnergyFromHealth()
+        }
+        //TODO: If its formula, fetch any measurements we have received new permissions for
     }
 
     func fetchWeightFromHealth() {
