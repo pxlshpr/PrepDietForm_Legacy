@@ -481,9 +481,11 @@ extension TDEEForm.ViewModel {
                     characteristicTypes: [.biologicalSex],
                     quantityTypes: [.bodyMass, .height]
                 )
-                changeSexSource(to: .healthApp)
-                changeWeightSource(to: .healthApp)
-                changeHeightSource(to: .healthApp)
+                await MainActor.run {
+                    changeSexSource(to: .healthApp)
+                    changeWeightSource(to: .healthApp)
+                    changeHeightSource(to: .healthApp)
+                }
             } catch {
                 //TODO: Handle error
             }
