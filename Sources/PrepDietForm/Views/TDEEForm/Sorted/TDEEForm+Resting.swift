@@ -115,27 +115,6 @@ struct MeasurementLabel_Previews: PreviewProvider {
     }
 }
 
-extension TDEEForm.ViewModel {
-    
-    var restingEnergyFormulaUsingSyncedHealthData: Bool {
-        switch self.restingEnergyFormula {
-        case .katchMcardle:
-            switch lbmSource {
-            case .healthApp:
-                return true
-            case .fatPercentage:
-                return weightSource == .healthApp
-            case .formula:
-                return weightSource == .healthApp
-            default:
-                return false
-            }
-        default:
-            /// return true if sex, weight and height are all healthApp
-            return false
-        }
-    }
-}
 extension TDEEForm {
     
     var restingEnergySection: some View {
@@ -264,11 +243,28 @@ extension TDEEForm {
                     Button {
                         viewModel.path.append(.profileForm)
                     } label: {
-                        MeasurementLabel(
-                            label: "set profile",
-                            valueString: "",
-                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
-                        )
+                        if viewModel.hasProfile,
+                           let age = viewModel.age,
+                           let sex = viewModel.sex,
+                           let weight = viewModel.weight,
+                           let height = viewModel.height
+                        {
+                            ProfileLabel(
+                                age: age,
+                                sex: sex,
+                                weight: weight,
+                                height: height,
+                                weightUnit: viewModel.userWeightUnit,
+                                heightUnit: viewModel.userHeightUnit,
+                                isSynced: viewModel.profileIsSynced
+                            )
+                        } else {
+                            MeasurementLabel(
+                                label: "set profile",
+                                valueString: "",
+                                useHealthAppData: false
+                            )
+                        }
                     }
 //                    Menu {
 //                        Picker(selection: .constant(true), label: EmptyView()) {

@@ -38,7 +38,7 @@ extension HeightUnit {
 
 extension TDEEForm.ViewModel {
     var notSetup: Bool {
-        false
+        true
     }
     
     var detents: Set<PresentationDetent> {
@@ -581,6 +581,24 @@ extension TDEEForm.ViewModel {
 
 //MARK: - Profile Form
 extension TDEEForm.ViewModel {
+    
+    var hasProfile: Bool {
+        (sex == .male || sex == .female)
+        && age != nil && weight != nil && height != nil
+    }
+    
+    var profileIsSynced: Bool {
+        hasProfile
+        && (weightSource == .healthApp || heightSource == .healthApp)
+    }
+    var profileButtonString: String {
+        guard let sex, (sex == .male || sex == .female),
+              let age, let weight, let height else {
+            return ""
+        }
+        /// 35yo 96.5kg 177cm male
+        return "\(age)yo \(Int(weight.rounded())) \(userWeightUnit.shortDescription) \(Int(height.rounded()))\(userHeightUnit.shortDescription)"
+    }
     var shouldShowSyncAllForProfileForm: Bool {
         var countNotSynced = 0
         if sexSource != .healthApp { countNotSynced += 1 }
@@ -622,6 +640,24 @@ extension TDEEForm.ViewModel {
 //MARK: - Resting Energy
 
 extension TDEEForm.ViewModel {
+    
+    var restingEnergyFormulaUsingSyncedHealthData: Bool {
+        switch self.restingEnergyFormula {
+        case .katchMcardle:
+            switch lbmSource {
+            case .healthApp:
+                return true
+            case .fatPercentage:
+                return weightSource == .healthApp
+            case .formula:
+                return weightSource == .healthApp
+            default:
+                return false
+            }
+        default:
+            return profileIsSynced
+        }
+    }
     
     var restingEnergyFormatted: String {
         switch restingEnergySource {
