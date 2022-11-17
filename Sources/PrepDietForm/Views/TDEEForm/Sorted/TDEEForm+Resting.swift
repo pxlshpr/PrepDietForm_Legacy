@@ -126,7 +126,7 @@ extension TDEEForm.ViewModel {
             case .fatPercentage:
                 return weightSource == .healthApp
             case .formula:
-                return sexSource == .healthApp && heightSource == .healthApp && weightSource == .healthApp
+                return weightSource == .healthApp
             default:
                 return false
             }

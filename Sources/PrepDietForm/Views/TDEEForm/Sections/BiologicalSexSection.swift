@@ -87,6 +87,7 @@ struct BiologicalSexSection: View {
                             if viewModel.sexSource == .userEntered {
                                 Image(systemName: "chevron.up.chevron.down")
                                     .imageScale(.small)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
