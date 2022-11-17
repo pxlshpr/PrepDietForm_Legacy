@@ -621,7 +621,7 @@ extension TDEEForm.ViewModel {
                 if restingEnergyFormula.requiresHeight {
                     quantityTypes = [.bodyMass, .height]
                 } else {
-                    quantityTypes = [.height]
+                    quantityTypes = [.bodyMass]
                 }
                 
                 /// request permissions for all required parameters in one sheet

@@ -25,10 +25,18 @@ public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
         case .henryOxford, .schofield, .katchMcardle, .cunningham:
             return false
         default:
+            return true
+        }
+    }
+   
+    var usesLeanBodyMass: Bool {
+        switch self {
+        case .katchMcardle, .cunningham:
+            return true
+        default:
             return false
         }
     }
-    
     var pickerDescription: String {
         switch self {
         case .schofield:

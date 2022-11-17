@@ -130,11 +130,11 @@ struct ProfileLabel: View {
                 Text(sex.description.lowercased())
                     .foregroundColor(primaryColor)
             }
+            .fixedSize(horizontal: true, vertical: false)
             .frame(height: 25)
             .padding(.horizontal, 12)
             .padding(.vertical, 5)
         }
-        .fixedSize(horizontal: true, vertical: true)
     }
     
     var primaryColor: Color {

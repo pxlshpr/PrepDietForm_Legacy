@@ -229,7 +229,7 @@ extension TDEEForm {
                     .padding(.bottom, 2)
                 }
                 .fixedSize(horizontal: true, vertical: true)
-                if viewModel.restingEnergyFormula == .katchMcardle {
+                if viewModel.restingEnergyFormula.usesLeanBodyMass {
                     Button {
                         viewModel.path.append(.leanBodyMassForm)
                     } label: {
