@@ -399,7 +399,12 @@ extension TDEEForm.ViewModel {
     }
     
     var lbmFormatted: String {
-        lbm?.cleanAmount ?? ""
+        switch lbmSource {
+        case .formula, .fatPercentage:
+            return calculatedLeanBodyMass?.clean ?? ""
+        default:
+            return lbm?.clean ?? ""
+        }
     }
     
     var calculatedLBMFormatted: String {
