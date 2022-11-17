@@ -2,19 +2,19 @@ import Foundation
 
 public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
     case katchMcardle = 1
-    case mifflinStJeor
-    case cunningham
-    case harrisBenedict
-    case rozaShizgal
     case henryOxford
+    case mifflinStJeor
     case schofield
+    case cunningham
+    case rozaShizgal
+    case harrisBenedict
 
     static var latest: [RestingEnergyFormula] {
-        [.henryOxford, .katchMcardle, .mifflinStJeor, .cunningham, .schofield]
+        [.henryOxford, .katchMcardle, .mifflinStJeor, .schofield]
     }
 
     static var legacy: [RestingEnergyFormula] {
-        [.rozaShizgal, .harrisBenedict]
+        [.rozaShizgal, .cunningham, .harrisBenedict]
     }
 
     var pickerDescription: String {

@@ -215,20 +215,21 @@ extension TDEEForm {
                 Menu {
                     Picker(selection: viewModel.restingEnergyFormulaBinding, label: EmptyView()) {
                         ForEach(RestingEnergyFormula.latest, id: \.self) { formula in
-                            Text(formula.pickerDescription).tag(formula)
+                            Text(formula.pickerDescription + " • " + formula.year).tag(formula)
                         }
                         Divider()
                         ForEach(RestingEnergyFormula.legacy, id: \.self) {
-                            Text($0.pickerDescription).tag($0)
+                            Text($0.pickerDescription + " • " + $0.year).tag($0)
                         }
                     }
                 } label: {
-                    PickerLabel(
-                        viewModel.restingEnergyFormula.year,
-                        prefix: viewModel.restingEnergyFormula.menuDescription,
-                        foregroundColor: .secondary,
-                        prefixColor: .primary
-                    )
+//                    PickerLabel(
+//                        viewModel.restingEnergyFormula.year,
+//                        prefix: viewModel.restingEnergyFormula.menuDescription,
+//                        foregroundColor: .secondary,
+//                        prefixColor: .primary
+//                    )
+                    PickerLabel(viewModel.restingEnergyFormula.menuDescription)
                     .animation(.none, value: viewModel.restingEnergyFormula)
                     .fixedSize(horizontal: true, vertical: false)
                 }
@@ -238,6 +239,7 @@ extension TDEEForm {
                     Text("Using")
                         .foregroundColor(.secondary)
                     formulaMenu
+                    Text("formula")
                 }
             }
             .padding(.top, 8)
@@ -564,7 +566,6 @@ extension TDEEForm {
                         Text("Using")
                             .foregroundColor(.secondary)
                         periodTypeMenu
-                        Text("formula")
                     }
                     Spacer()
                 }
