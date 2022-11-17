@@ -13,10 +13,21 @@ extension TDEEForm.ViewModel {
     var lbmFormatted: String {
         lbm?.cleanAmount ?? ""
     }
+    
+    var calculatedLBMFormatted: String {
+        calculatedLeanBodyMass?.cleanAmount ?? "empty"
+    }
 
     var lbmFormattedWithUnit: String {
-        guard let lbm else { return "" }
-        return lbm.cleanAmount + " " + userWeightUnit.shortDescription
+        let value: Double?
+        switch lbmSource {
+        case .formula, .fatPercentage:
+            value = calculatedLeanBodyMass
+        default:
+            value = lbm
+        }
+        guard let value else { return "" }
+        return value.cleanAmount + " " + userWeightUnit.shortDescription
     }
 
     var weightFormatted: String {
@@ -45,7 +56,31 @@ extension TDEEForm.ViewModel {
     }
 
     var hasLeanBodyMass: Bool {
-        lbm != nil
+        switch lbmSource {
+        case .fatPercentage:
+            return calculatedLeanBodyMass != nil
+        case .formula:
+            //TODO: check if we have a height and weight
+            return false
+        case .healthApp, .userEntered:
+            return lbm != nil
+        default:
+            return false
+        }
+    }
+    
+    var calculatedLeanBodyMass: Double? {
+        switch lbmSource {
+        case .fatPercentage:
+            guard let percent = lbm, let weight else { return nil }
+            guard percent >= 0, percent <= 100 else { return nil }
+            return (1.0 - (percent/100.0)) * weight
+        case .formula:
+            //TODO: Calculate it here
+            return nil
+        default:
+            return nil
+        }
     }
     
     var hasWeight: Bool {

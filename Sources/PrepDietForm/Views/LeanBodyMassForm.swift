@@ -23,8 +23,9 @@ struct LeanBodyMassForm: View {
                         case .userEntered:
                             EmptyView()
                         case .fatPercentage:
-                            weightRow
-                            syncWithHealthAppToggle
+                            EmptyView()
+//                            weightRow
+//                            syncWithHealthAppToggle
                         case .formula:
                             EmptyView()
 //                            formulaContent
@@ -104,8 +105,11 @@ struct LeanBodyMassForm: View {
         }
     }
 
-    var footer: some View {
-        Text("Lean body mass is the weight of your body minus your body fat (adipose tissue).")
+    var infoSection: some View {
+        FormStyledSection {
+            Text("Lean body mass is the weight of your body minus your body fat (adipose tissue).")
+                .foregroundColor(.secondary)
+        }
     }
     
     var bottomRow: some View {
@@ -228,14 +232,72 @@ struct LeanBodyMassForm: View {
             break
         }
     }
+    
+    var calculatedSection: some View {
+        var headerRow: some View {
+            HStack {
+                Image(systemName: "function")
+                Text("Calculated")
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.secondary)
+//            .fixedSize(horizontal: true, vertical: false)
+        }
+        
+        var lbmRow: some View {
+            HStack {
+                Spacer()
+//                Text("calculated")
+//                    .font(.subheadline)
+//                    .foregroundColor(Color(.tertiaryLabel))
+                Text(viewModel.calculatedLBMFormatted)
+                    .foregroundColor(.secondary)
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .if(!viewModel.hasLeanBodyMass) { view in
+                        view
+                            .redacted(reason: .placeholder)
+                    }
+                Text(viewModel.userWeightUnit.shortDescription)
+                    .foregroundColor(.secondary)
+            }
+        }
+
+        return FormStyledSection {
+            VStack {
+                headerRow
+                lbmRow
+            }
+        }
+    }
  
+    var footer: some View {
+        var string: String {
+            switch viewModel.lbmSource {
+            case .userEntered:
+                return "You will need to ensure your lean body mass is kept up to date for an accurate calculation."
+            case .healthApp:
+                return "Your lean body mass will be kept in sync with the Health App."
+            case .formula:
+                return "Choose an formula to calculate your lean body mass with."
+            case .fatPercentage:
+                return "Enter your fat percentage to calculate your lean body mass."
+            default:
+                return "Choose how you want to enter your lean body mass."
+            }
+        }
+        return Text(string)
+    }
+    
     var body: some View {
         FormStyledScrollView {
+            infoSection
             FormStyledSection(footer: footer) {
                 content
             }
             if viewModel.lbmSource == .fatPercentage {
                 WeightForm()
+                calculatedSection
             }
         }
         .navigationTitle("Lean Body Mass")

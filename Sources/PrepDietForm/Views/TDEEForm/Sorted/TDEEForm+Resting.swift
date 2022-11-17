@@ -638,8 +638,8 @@ enum MeasurementSourceOption: CaseIterable {
 }
 
 enum LeanBodyMassSourceOption: CaseIterable {
-    case formula
     case healthApp
+    case formula
     case fatPercentage
     case userEntered
     
