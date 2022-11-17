@@ -273,7 +273,7 @@ struct LeanBodyMassForm: View {
             case .healthApp:
                 return "Your lean body mass will be kept in sync with the Health App."
             case .formula:
-                return "Use a formula to calculate your lean body mass with."
+                return "Use a formula to calculate your lean body mass."
             case .fatPercentage:
                 return "Enter your fat percentage to calculate your lean body mass."
             default:
