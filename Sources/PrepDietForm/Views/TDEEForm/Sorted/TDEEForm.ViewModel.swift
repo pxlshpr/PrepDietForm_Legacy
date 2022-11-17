@@ -425,11 +425,8 @@ extension TDEEForm.ViewModel {
 
     var hasLeanBodyMass: Bool {
         switch lbmSource {
-        case .fatPercentage:
+        case .fatPercentage, .formula:
             return calculatedLeanBodyMass != nil
-        case .formula:
-            //TODO: check if we have a height and weight
-            return false
         case .healthApp, .userEntered:
             return lbm != nil
         default:
