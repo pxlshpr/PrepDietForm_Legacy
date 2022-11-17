@@ -3,6 +3,15 @@ import PrepDataTypes
 import SwiftHaptics
 import HealthKit
 
+extension DateComponents {
+    var age: Int? {
+        let calendar = Calendar.current
+        let now = calendar.dateComponents([.year, .month, .day], from: Date())
+        let ageComponents = calendar.dateComponents([.year], from: self, to: now)
+        return ageComponents.year
+    }
+}
+
 extension HeightUnit {
     var cm: Double {
         switch self {
@@ -108,6 +117,88 @@ extension TDEEForm.ViewModel {
     
     var hasDynamicSex: Bool {
         sexSource == .healthApp
+    }
+}
+
+//MARK: - Age
+
+extension TDEEForm.ViewModel {
+    var ageSourceBinding: Binding<MeasurementSourceOption> {
+        Binding<MeasurementSourceOption>(
+            get: { self.ageSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeAgeSource(to: newSource)
+            }
+        )
+    }
+    
+    func changeAgeSource(to newSource: MeasurementSourceOption) {
+        withAnimation {
+            ageSource = newSource
+        }
+        if newSource == .healthApp {
+            fetchDOBFromHealth()
+        }
+    }
+    
+    var ageTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.ageTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.dob = nil
+                    self.age = nil
+                    self.ageTextFieldString = newValue
+                    return
+                }
+                guard let integer = Int(newValue) else {
+                    return
+                }
+                self.age = integer
+                withAnimation {
+                    self.ageTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    func fetchDOBFromHealth() {
+        withAnimation {
+            dobFetchStatus = .fetching
+        }
+        
+        Task {
+            guard let dob = await HealthKitManager.shared.currentDateOfBirthComponents() else {
+                return
+            }
+            await MainActor.run {
+                withAnimation {
+                    self.dobFetchStatus = .fetched
+                    self.dob = dob
+                    if let age = dob.age {
+                        self.age = age
+                        self.ageTextFieldString = "\(age)"
+                    } else {
+                        self.age = nil
+                        self.ageTextFieldString = ""
+                    }
+                }
+            }
+        }
+    }
+    
+    var ageFormatted: String {
+        guard let age = age else { return "" }
+        return "\(age)"
+    }
+
+    var hasAge: Bool {
+        age != nil
+    }
+    
+    var hasDynamicAge: Bool {
+        ageSource == .healthApp
     }
 }
 
@@ -446,6 +537,10 @@ extension TDEEForm.ViewModel {
         lbmSource == .healthApp
         || (lbmSource == .formula && lbmUsesHealthMeasurements)
     }
+}
+
+//MARK: - LBM Form
+extension TDEEForm.ViewModel {
     
     var shouldShowSyncAllForLBMForm: Bool {
         guard lbmSource == .formula else { return false }
@@ -456,7 +551,7 @@ extension TDEEForm.ViewModel {
         /// return true if the user has picked `.formula` as the source and we have at least two parameters not synced
         return countNotSynced > 1
     }
-    
+
     func tappedSyncAllOnLBMForm() {
         
         withAnimation {
@@ -476,6 +571,46 @@ extension TDEEForm.ViewModel {
                     changeSexSource(to: .healthApp)
                     changeWeightSource(to: .healthApp)
                     changeHeightSource(to: .healthApp)
+                }
+            } catch {
+                //TODO: Handle error
+            }
+        }
+    }
+}
+
+//MARK: - Profile Form
+extension TDEEForm.ViewModel {
+    var shouldShowSyncAllForProfileForm: Bool {
+        var countNotSynced = 0
+        if sexSource != .healthApp { countNotSynced += 1 }
+        if weightSource != .healthApp { countNotSynced += 1 }
+        if heightSource != .healthApp { countNotSynced += 1 }
+        if ageSource != .healthApp { countNotSynced += 1 }
+        return countNotSynced > 1
+    }
+
+    func tappedSyncAllOnProfileForm() {
+        
+        withAnimation {
+            sexFetchStatus = .fetching
+            weightFetchStatus = .fetching
+            heightFetchStatus = .fetching
+            dobFetchStatus = .fetching
+        }
+            
+        Task {
+            do {
+                /// request permissions for all required parameters in one sheet
+                try await HealthKitManager.shared.requestPermissions(
+                    characteristicTypes: [.biologicalSex, .dateOfBirth],
+                    quantityTypes: [.bodyMass, .height]
+                )
+                await MainActor.run {
+                    changeSexSource(to: .healthApp)
+                    changeWeightSource(to: .healthApp)
+                    changeHeightSource(to: .healthApp)
+                    changeAgeSource(to: .healthApp)
                 }
             } catch {
                 //TODO: Handle error

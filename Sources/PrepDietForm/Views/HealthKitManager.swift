@@ -179,6 +179,16 @@ extension HealthKitManager {
             return nil
         }
     }
+    
+    func currentDateOfBirthComponents() async -> DateComponents? {
+        do {
+            return try store.dateOfBirthComponents()
+        } catch {
+            print("Error getting date of birth")
+            return nil
+        }
+    }
+
 
     func latestLeanBodyMass(unit: WeightUnit) async -> (Double, Date)? {
         do {

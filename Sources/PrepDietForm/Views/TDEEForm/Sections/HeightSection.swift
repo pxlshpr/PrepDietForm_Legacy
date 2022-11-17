@@ -41,24 +41,29 @@ struct HeightSection: View {
     }
     
     var emptyContent: some View {
-        VStack(spacing: 10) {
-            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//        VStack(spacing: 10) {
+//            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//        }
+        HStack {
+            Spacer()
+            emptyButton2("Sync", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            Spacer()
+            emptyButton2("Enter", systemImage: "keyboard", action: tappedManualEntry)
+            Spacer()
         }
     }
 
+    @ViewBuilder
     var footer: some View {
-        var string: String {
-            switch viewModel.heightSource {
-            case .userEntered:
-                return "You will need to ensure your height is kept up to date for an accurate calculation."
-            case .healthApp:
-                return "Your height will be kept in sync with the Health App."
-            default:
-                return "Choose to sync your height with the Health App or enter it yourself."
-            }
+        switch viewModel.heightSource {
+        case .userEntered:
+            Text("You will need to update your height manually.")
+        case .healthApp:
+            Text("Your height will be kept in sync with the Health App.")
+        default:
+            EmptyView()
         }
-        return Text(string)
     }
     
     var bottomRow: some View {

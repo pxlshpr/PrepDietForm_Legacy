@@ -40,22 +40,22 @@ struct BiologicalSexSection: View {
     }
     
     var emptyContent: some View {
-        VStack(spacing: 10) {
-            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-            emptyButton("Let me specify it", systemImage: "hand.tap", action: tappedManualEntry)
+//        VStack(spacing: 10) {
+//            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//            emptyButton("Let me specify it", systemImage: "hand.tap", action: tappedManualEntry)
+//        }
+        HStack {
+            Spacer()
+            emptyButton2("Sync", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            Spacer()
+            emptyButton2("Enter", systemImage: "keyboard", action: tappedManualEntry)
+            Spacer()
         }
     }
 
     @ViewBuilder
     var footer: some View {
-        switch viewModel.sexSource {
-        case .userEntered:
-            EmptyView()
-        case .healthApp:
-            EmptyView()
-        default:
-            Text("This is the biological sex used in the calculation. Choose to import it from the Health App or pick it yourself.")
-        }
+        Text("This is the biological sex you would like to use in the formula.")
     }
     
     var bottomRow: some View {
@@ -78,7 +78,8 @@ struct BiologicalSexSection: View {
                             Text(viewModel.sexFormatted ?? "not specified")
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
 //                                .foregroundColor(viewModel.sexSource == .userEntered ? .accentColor : .primary)
-                                .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
+//                                .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
+                                .foregroundColor(.primary)
                                 .animation(.none, value: viewModel.sex)
                                 .animation(.none, value: viewModel.sexSource)
                                 .fixedSize(horizontal: true, vertical: true)

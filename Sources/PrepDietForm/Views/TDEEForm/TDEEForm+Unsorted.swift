@@ -7,10 +7,8 @@ import HealthKit
 extension TDEEForm {
     
     enum Route: Hashable {
-        case healthAppPeriod
         case leanBodyMassForm
-        case weightForm
-        case heightForm
+        case profileForm
     }
 
     func initialTask() async {
@@ -172,16 +170,6 @@ extension TDEEForm {
                 } label: {
                     label("fat", "29 %")
                 }
-                Button {
-                    viewModel.path.append(.weightForm)
-                } label: {
-                    label("weight", "93.55 kg")
-                }
-                Button {
-                    viewModel.path.append(.heightForm)
-                } label: {
-                    label("height", "177 cm")
-                }
             }
             .padding(.bottom, 5)
         }
@@ -306,22 +294,18 @@ extension TDEEForm {
     @ViewBuilder
     func navigationDestination(for route: Route) -> some View {
         switch route {
-        case .healthAppPeriod:
-            HealthAppPeriodPicker()
+        case .profileForm:
+            ProfileForm()
+                .environmentObject(viewModel)
         case .leanBodyMassForm:
             LeanBodyMassForm()
-                .environmentObject(viewModel)
-        case .heightForm:
-            HeightSection()
-        case .weightForm:
-            WeightSection()
                 .environmentObject(viewModel)
         }
     }
     
     var activeEnergyHealthAppPeriodLink: some View {
         Button {
-            viewModel.path.append(.healthAppPeriod)
+//            viewModel.path.append(.healthAppPeriod)
         } label: {
             HStack(spacing: 5) {
                 Text("Average of past 2 weeks")

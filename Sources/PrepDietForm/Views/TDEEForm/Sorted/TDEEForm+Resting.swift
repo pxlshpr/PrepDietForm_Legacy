@@ -268,7 +268,7 @@ extension TDEEForm {
                     }
                 } else {
                     Button {
-                        viewModel.path.append(.leanBodyMassForm)
+                        viewModel.path.append(.profileForm)
                     } label: {
                         MeasurementLabel(
                             label: "set profile",
@@ -809,77 +809,4 @@ enum HealthKitFetchStatus {
     case fetching
     case fetched
     case notAuthorized
-}
-
-extension TDEEForm {
-    class ViewModel: ObservableObject {
-        let userEnergyUnit: EnergyUnit
-        let userWeightUnit: WeightUnit
-        let userHeightUnit: HeightUnit
-
-        @Published var path: [Route] = []
-        
-        @Published var hasAppeared = false
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
-        
-        @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
-
-        @Published var restingEnergy: Double? = nil
-        @Published var restingEnergyTextFieldString: String = ""
-
-        @Published var restingEnergyPeriod: HealthPeriodOption = .average
-        @Published var restingEnergyIntervalValue: Int = 1
-        @Published var restingEnergyInterval: HealthAppInterval = .week
-        
-        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var restingEnergyUsesHealthMeasurements: Bool = false
-
-        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
-        
-        @Published var lbmSource: LeanBodyMassSourceOption? = nil
-        @Published var lbmFormula: LeanBodyMassFormula = .boer
-        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var lbmUsesHealthMeasurements: Bool = false
-        @Published var lbm: Double? = nil
-        @Published var lbmTextFieldString: String = ""
-        @Published var lbmDate: Date? = nil
-
-        @Published var weightSource: MeasurementSourceOption? = nil
-        @Published var weightFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var weight: Double? = nil
-        @Published var weightTextFieldString: String = ""
-        @Published var weightDate: Date? = nil
-
-        @Published var heightSource: MeasurementSourceOption? = nil
-        @Published var heightFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var height: Double? = nil
-        @Published var heightTextFieldString: String = ""
-        @Published var heightDate: Date? = nil
-
-        @Published var sexSource: MeasurementSourceOption? = nil
-        @Published var sexFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var sex: HKBiologicalSex? = nil
-
-        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
-            self.userEnergyUnit = userEnergyUnit
-            self.userWeightUnit = userWeightUnit
-            self.userHeightUnit = userHeightUnit
-        }
-    }
-}
-
-struct TDEEForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
-                    TDEEFormPreview()
-                }
-        }
-    }
 }
