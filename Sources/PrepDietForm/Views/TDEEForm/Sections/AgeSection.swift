@@ -252,10 +252,19 @@ extension TDEEForm {
         @Published var age: Int? = nil
         @Published var ageTextFieldString: String = ""
 
-        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
+        var detents: Set<PresentationDetent>
+        
+        init(isSetup: Bool, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
             self.userEnergyUnit = userEnergyUnit
             self.userWeightUnit = userWeightUnit
             self.userHeightUnit = userHeightUnit
+            
+            if isSetup {
+                detents = [.medium]
+            } else {
+                detents = [.height(270)]
+            }
+
         }
     }
 }

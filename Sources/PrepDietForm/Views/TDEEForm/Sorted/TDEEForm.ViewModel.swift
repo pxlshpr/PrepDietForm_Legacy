@@ -41,10 +41,6 @@ extension TDEEForm.ViewModel {
         true
     }
     
-    var detents: Set<PresentationDetent> {
-        notSetup ? [.height(270), .large] : [.medium, .large]
-    }
-    
     var maintenanceEnergy: Double? {
         nil
     }

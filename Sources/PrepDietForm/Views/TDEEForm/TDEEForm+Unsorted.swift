@@ -218,19 +218,26 @@ extension TDEEForm {
     }
     
     func transitionToCollapsedState() {
+        viewModel.detents.insert(.medium)
         Haptics.successFeedback()
         withAnimation {
             viewModel.isEditing = false
-            viewModel.presentationDetent = .height(270)
-//            viewModel.presentationDetent = .medium
+            viewModel.presentationDetent = .medium
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            viewModel.detents = [.medium]
         }
     }
     
     func transitionToEditState() {
+        viewModel.detents.insert(.large)
         Haptics.feedback(style: .rigid)
         withAnimation {
             viewModel.isEditing = true
             viewModel.presentationDetent = .large
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            viewModel.detents = [.large]
         }
     }
 }
