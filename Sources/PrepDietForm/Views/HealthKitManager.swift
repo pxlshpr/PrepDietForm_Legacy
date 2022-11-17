@@ -172,7 +172,7 @@ extension HealthKitManager {
 
     func currentBiologicalSex() async -> HKBiologicalSex? {
         do {
-            try await HealthKitManager.shared.requestPermission(for: .bodyMass)
+            try await HealthKitManager.shared.requestPermission(for: .biologicalSex)
             return try store.biologicalSex().biologicalSex
         } catch {
             print("Error getting biological sex")
