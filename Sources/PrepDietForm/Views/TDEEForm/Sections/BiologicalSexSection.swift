@@ -45,7 +45,7 @@ struct BiologicalSexSection: View {
 //            emptyButton("Let me specify it", systemImage: "hand.tap", action: tappedManualEntry)
 //        }
         FlowView(alignment: .center, spacing: 10, padding: 37) {
-            emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            emptyButton2("Import from Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
             emptyButton2("Choose", systemImage: "hand.tap", action: tappedManualEntry)
         }
     }

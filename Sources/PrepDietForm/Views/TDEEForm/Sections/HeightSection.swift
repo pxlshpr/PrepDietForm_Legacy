@@ -46,7 +46,7 @@ struct HeightSection: View {
 //            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
 //        }
         FlowView(alignment: .center, spacing: 10, padding: 37) {
-            emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            emptyButton2("Sync with Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
             emptyButton2("Enter manually", systemImage: "keyboard", action: tappedManualEntry)
         }
     }
