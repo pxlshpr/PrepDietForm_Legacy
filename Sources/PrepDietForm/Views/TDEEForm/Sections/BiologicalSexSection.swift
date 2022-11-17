@@ -90,13 +90,14 @@ struct BiologicalSexSection: View {
                     }
                 } label: {
                     HStack(spacing: 5) {
-                        Text(viewModel.sexFormatted)
+                        Text(viewModel.sexFormatted ?? "choose")
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
                     .foregroundColor(.accentColor)
                     .matchedGeometryEffect(id: "sex", in: namespace)
                     .animation(.none, value: viewModel.sex)
+                    .animation(.none, value: viewModel.sexSource)
                     .fixedSize(horizontal: true, vertical: true)
                 }
                 .simultaneousGesture(TapGesture().onEnded {

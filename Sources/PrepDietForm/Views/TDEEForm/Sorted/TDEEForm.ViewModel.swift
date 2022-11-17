@@ -108,14 +108,14 @@ extension TDEEForm.ViewModel {
         }
     }
     
-    var sexFormatted: String {
+    var sexFormatted: String? {
         switch sex {
         case .male:
             return "male"
         case .female:
             return "female"
         default:
-            return ""
+            return nil
         }
     }
     var hasSex: Bool {
