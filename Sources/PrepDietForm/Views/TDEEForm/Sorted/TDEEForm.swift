@@ -16,13 +16,20 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(isSetup: Bool = false, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
+    init(isSetup: Bool = true, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
         let viewModel = ViewModel(
             isSetup: isSetup,
             userEnergyUnit: userEnergyUnit,
             userWeightUnit: userWeightUnit,
             userHeightUnit: userHeightUnit
         )
+        if isSetup {
+            globalPrimaryDetent = .collapsed
+            globalSecondaryDetent = .collapsed
+        } else {
+            globalPrimaryDetent = .empty
+            globalSecondaryDetent = .empty
+        }
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -37,7 +44,7 @@ struct TDEEForm: View {
             }
         }
         .onReceive(didEnterForeground, perform: didEnterForeground)
-        .presentationDetents(viewModel.detents, selection: $viewModel.presentationDetent)
+        .presentationDetents([.custom(TDEEFormPrimaryDetent.self), .custom(TDEEFormSecondaryDetent.self)], selection: $viewModel.presentationDetent)
         .presentationDragIndicator(.hidden)
     }
 

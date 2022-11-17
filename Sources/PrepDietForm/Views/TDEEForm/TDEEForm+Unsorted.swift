@@ -46,6 +46,7 @@ extension TDEEForm {
             Button {
                 Haptics.feedback(style: .soft)
                 dismiss()
+                resetTDEEFormDetents()
             } label: {
                 closeButtonLabel
             }
@@ -218,26 +219,52 @@ extension TDEEForm {
     }
     
     func transitionToCollapsedState() {
-        viewModel.detents.insert(.medium)
         Haptics.successFeedback()
+        let onPrimaryDetent = viewModel.presentationDetent == .custom(TDEEFormPrimaryDetent.self)
+        /// We could be on either detent here (expanded or expanded2—which the differences between aren't noticeable)
+        if onPrimaryDetent {
+            globalSecondaryDetent = viewModel.isSetup ? .collapsed : .empty
+        } else {
+            globalPrimaryDetent = viewModel.isSetup ? .collapsed : .empty
+        }
         withAnimation {
             viewModel.isEditing = false
-            viewModel.presentationDetent = .medium
+            
+            /// Always go to the opposite one
+            if onPrimaryDetent {
+                viewModel.presentationDetent = .custom(TDEEFormSecondaryDetent.self)
+            } else {
+                viewModel.presentationDetent = .custom(TDEEFormPrimaryDetent.self)
+            }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            viewModel.detents = [.medium]
+            globalSecondaryDetent = viewModel.isSetup ? .collapsed : .empty
+            globalPrimaryDetent = viewModel.isSetup ? .collapsed : .empty
         }
     }
     
     func transitionToEditState() {
-        viewModel.detents.insert(.large)
         Haptics.feedback(style: .rigid)
+        let onSecondaryDetent = viewModel.presentationDetent == .custom(TDEEFormSecondaryDetent.self)
+        if onSecondaryDetent {
+            globalPrimaryDetent = .expanded
+        } else {
+            globalSecondaryDetent = .expanded
+        }
         withAnimation {
             viewModel.isEditing = true
-            viewModel.presentationDetent = .large
+            if onSecondaryDetent {
+                viewModel.presentationDetent = .custom(TDEEFormPrimaryDetent.self)
+            } else {
+                viewModel.presentationDetent = .custom(TDEEFormSecondaryDetent.self)
+            }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            viewModel.detents = [.large]
+            if onSecondaryDetent {
+                globalSecondaryDetent = .expanded2
+            } else {
+                globalPrimaryDetent = .expanded2
+            }
         }
     }
 }

@@ -191,6 +191,7 @@ func emptyButton2(_ string: String, systemImage: String? = nil, showHealthAppIco
     }
 }
 
+
 extension TDEEForm {
     class ViewModel: ObservableObject {
         let userEnergyUnit: EnergyUnit
@@ -199,7 +200,7 @@ extension TDEEForm {
 
         @Published var path: [Route] = []
         @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var presentationDetent: PresentationDetent = .custom(TDEEFormPrimaryDetent.self)
         @Published var restingEnergySource: RestingEnergySourceOption? = nil
 //        @Published var path: [Route] = [.profileForm]
 //        @Published var isEditing = true
@@ -252,19 +253,13 @@ extension TDEEForm {
         @Published var age: Int? = nil
         @Published var ageTextFieldString: String = ""
 
-        var detents: Set<PresentationDetent>
-        
+        let isSetup: Bool
         init(isSetup: Bool, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
             self.userEnergyUnit = userEnergyUnit
             self.userWeightUnit = userWeightUnit
             self.userHeightUnit = userHeightUnit
             
-            if isSetup {
-                detents = [.medium]
-            } else {
-                detents = [.height(270)]
-            }
-
+            self.isSetup = isSetup
         }
     }
 }
