@@ -4,10 +4,10 @@ import SwiftUISugar
 extension TDEEForm {
     var form: some View {
         FormStyledScrollView {
-            if !viewModel.isEditing {
-                viewContents
-            } else {
+            if viewModel.isEditing {
                 editContents
+            } else {
+                viewContents
             }
         }
     }

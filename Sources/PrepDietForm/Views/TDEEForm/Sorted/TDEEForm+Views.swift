@@ -5,7 +5,7 @@ extension TDEEForm {
     var promptSection: some View {
         VStack {
             viewModel.maintenanceEnergyFooterText
-                .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
+//                .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.secondaryLabel))
             if viewModel.notSetup {

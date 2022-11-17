@@ -221,7 +221,8 @@ extension TDEEForm {
         Haptics.successFeedback()
         withAnimation {
             viewModel.isEditing = false
-            viewModel.presentationDetent = .height(270)
+//            viewModel.presentationDetent = .height(270)
+            viewModel.presentationDetent = .medium
         }
     }
     

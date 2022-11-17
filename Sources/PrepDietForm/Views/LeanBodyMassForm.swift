@@ -334,6 +334,8 @@ struct LeanBodyMassForm: View {
             }
             supplementaryContent
         }
+        .scrollDismissesKeyboard(.interactively)
+        .interactiveDismissDisabled(viewModel.isEditing)
         .navigationTitle("Lean Body Mass")
         .toolbar { trailingContent }
         .onChange(of: viewModel.lbmSource, perform: lbmSourceChanged)

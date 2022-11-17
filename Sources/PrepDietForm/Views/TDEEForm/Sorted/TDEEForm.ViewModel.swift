@@ -38,7 +38,7 @@ extension HeightUnit {
 
 extension TDEEForm.ViewModel {
     var notSetup: Bool {
-        true
+        false
     }
     
     var detents: Set<PresentationDetent> {

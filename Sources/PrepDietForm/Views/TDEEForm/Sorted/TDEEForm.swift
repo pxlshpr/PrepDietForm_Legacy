@@ -43,7 +43,7 @@ struct TDEEForm: View {
     var navigationView: some View {
         NavigationStack(path: $viewModel.path) {
             form
-            .scrollDismissesKeyboard(.immediately)
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Maintenance Calories")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { trailingContent }

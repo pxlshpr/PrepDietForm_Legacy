@@ -83,7 +83,7 @@ extension TDEEForm {
                             .matchedGeometryEffect(id: "maintenance-bg", in: namespace)
                     )
                 viewModel.maintenanceEnergyFooterText
-                    .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
+//                    .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
                     .fixedSize(horizontal: false, vertical: true)
                     .foregroundColor(Color(.secondaryLabel))
                     .font(.footnote)
