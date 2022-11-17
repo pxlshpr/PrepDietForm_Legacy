@@ -236,10 +236,11 @@ extension TDEEForm {
             }
             return HStack {
                 HStack {
-                    Text("Using")
-                        .foregroundColor(.secondary)
+                    Text("using")
+                        .foregroundColor(Color(.tertiaryLabel))
                     formulaMenu
                     Text("formula")
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
             }
             .padding(.top, 8)
@@ -563,8 +564,8 @@ extension TDEEForm {
                 HStack {
                     Spacer()
                     HStack {
-                        Text("Using")
-                            .foregroundColor(.secondary)
+                        Text("using")
+                            .foregroundColor(Color(.tertiaryLabel))
                         periodTypeMenu
                     }
                     Spacer()
@@ -689,13 +690,13 @@ enum LeanBodyMassSourceOption: CaseIterable {
     var pickerDescription: String {
         switch self {
         case .formula:
-            return "Formula"
+            return "Calculate"
         case .healthApp:
             return "Health App"
         case .fatPercentage:
-            return "Fat Percent"
+            return "Fat percentage"
         case .userEntered:
-            return "Let me enter it"
+            return "Enter manually"
         }
     }
     
@@ -715,13 +716,13 @@ enum LeanBodyMassSourceOption: CaseIterable {
     var menuDescription: String {
         switch self {
         case .formula:
-            return "Formula"
+            return "Calculate"
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .fatPercentage:
-            return "Convert Fat Percent"
+            return "Convert fat percentage"
         case .userEntered:
-            return "Manual Entry"
+            return "Enter manually"
         }
     }
 }

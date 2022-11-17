@@ -116,7 +116,7 @@ extension TDEEForm {
         var formulaRow: some View {
             HStack {
                 HStack {
-                    Text("Using")
+                    Text("using")
                         .foregroundColor(.secondary)
                     PickerLabel("Katch-McArdle")
                     Text("equation")

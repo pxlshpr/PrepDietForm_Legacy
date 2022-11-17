@@ -8,11 +8,11 @@ enum RestingEnergySourceOption: CaseIterable {
     var menuDescription: String {
         switch self {
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .formula:
             return "Calculate"
         case .userEntered:
-            return "Enter Manually"
+            return "Enter manually"
         }
     }
     

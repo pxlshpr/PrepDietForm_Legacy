@@ -59,8 +59,10 @@ struct LeanBodyMassForm: View {
             return HStack {
                 HStack {
                     Text("Using")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color(.tertiaryLabel))
                     menu
+                    Text("formula")
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
             }
             .padding(.top, 8)
