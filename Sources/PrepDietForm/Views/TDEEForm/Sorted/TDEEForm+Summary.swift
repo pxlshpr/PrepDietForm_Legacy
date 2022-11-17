@@ -43,7 +43,7 @@ extension TDEEForm {
                             .imageScale(.medium)
                         appleHealthSymbol
                             .imageScale(.small)
-                            .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+//                            .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
                     }
                     Text("2,024")
                         .matchedGeometryEffect(id: "resting", in: namespace)

@@ -82,13 +82,13 @@ extension TDEEForm {
                             .foregroundColor(Color(.secondarySystemGroupedBackground))
                             .matchedGeometryEffect(id: "maintenance-bg", in: namespace)
                     )
-                viewModel.maintenanceEnergyFooterText
+//                viewModel.maintenanceEnergyFooterText
 //                    .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .foregroundColor(Color(.secondaryLabel))
-                    .font(.footnote)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
+//                    .fixedSize(horizontal: false, vertical: false)
+//                    .foregroundColor(Color(.secondaryLabel))
+//                    .font(.footnote)
+//                    .frame(maxWidth: .infinity, alignment: .leading)
+//                    .padding(.horizontal, 20)
                     .padding(.bottom, 10)
             }
             .padding(.horizontal, 20)
