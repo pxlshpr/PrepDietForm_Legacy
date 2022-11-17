@@ -477,9 +477,9 @@ extension TDEEForm.ViewModel {
                     characteristicTypes: [.biologicalSex],
                     quantityTypes: [.bodyMass, .height]
                 )
-                fetchSexFromHealth()
-                fetchHeightFromHealth()
-                fetchWeightFromHealth()
+                changeSexSource(to: .healthApp)
+                changeWeightSource(to: .healthApp)
+                changeHeightSource(to: .healthApp)
             } catch {
                 //TODO: Handle error
             }
