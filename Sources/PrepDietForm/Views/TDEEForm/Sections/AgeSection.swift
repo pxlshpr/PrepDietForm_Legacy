@@ -200,14 +200,14 @@ extension TDEEForm {
         let userWeightUnit: WeightUnit
         let userHeightUnit: HeightUnit
 
-//        @Published var path: [Route] = []
-//        @Published var isEditing = false
-//        @Published var presentationDetent: PresentationDetent = .height(270)
-//        @Published var restingEnergySource: RestingEnergySourceOption? = nil
-        @Published var path: [Route] = [.profileForm]
-        @Published var isEditing = true
-        @Published var presentationDetent: PresentationDetent = .large
-        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
+        @Published var path: [Route] = []
+        @Published var isEditing = false
+        @Published var presentationDetent: PresentationDetent = .height(270)
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+//        @Published var path: [Route] = [.profileForm]
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
 
 
         @Published var hasAppeared = false
