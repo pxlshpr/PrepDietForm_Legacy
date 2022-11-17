@@ -99,6 +99,8 @@ import PrepDataTypes
 
 struct ProfileLabel: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     let age: Int
     let sex: HKBiologicalSex
     let weight: Double
@@ -156,7 +158,10 @@ struct ProfileLabel: View {
     }
     
     var background: some View {
-        Capsule(style: .continuous)
+        var color: Color {
+            colorScheme == .light ? Color(hex: "e8e9ea") : Color(hex: "434447")
+        }
+        return Capsule(style: .continuous)
             .if(isSynced, transform: { view in
                 view
                     .foregroundStyle(
@@ -172,7 +177,7 @@ struct ProfileLabel: View {
             })
                 .if(!isSynced, transform: { view in
                     view
-                        .foregroundColor(Color(.systemGroupedBackground))
+                        .foregroundColor(color)
                 })
     }
 }
