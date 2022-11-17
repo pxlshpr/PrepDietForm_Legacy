@@ -5,7 +5,7 @@ enum RestingEnergySourceOption: CaseIterable {
     case formula
     case userEntered
     
-    var menuDescription: String {
+    var pickerDescription: String {
         switch self {
         case .healthApp:
             return "Sync with Health App"
@@ -16,14 +16,14 @@ enum RestingEnergySourceOption: CaseIterable {
         }
     }
     
-    var pickerDescription: String {
+    var menuDescription: String {
         switch self {
         case .healthApp:
             return "Health App"
         case .formula:
             return "Calculate"
         case .userEntered:
-            return "Enter Manually"
+            return "Enter manually"
         }
     }
     
