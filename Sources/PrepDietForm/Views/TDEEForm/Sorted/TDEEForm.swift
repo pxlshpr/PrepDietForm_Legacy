@@ -16,10 +16,11 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg) {
+    init(userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
         let viewModel = ViewModel(
             userEnergyUnit: userEnergyUnit,
-            userWeightUnit: userWeightUnit
+            userWeightUnit: userWeightUnit,
+            userHeightUnit: userHeightUnit
         )
         _viewModel = StateObject(wrappedValue: viewModel)
     }

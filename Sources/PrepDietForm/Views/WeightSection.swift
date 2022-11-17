@@ -4,7 +4,7 @@ import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
 
-struct WeightForm: View {
+struct WeightSection: View {
     
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
     @Namespace var namespace

@@ -24,11 +24,8 @@ struct LeanBodyMassForm: View {
                             EmptyView()
                         case .fatPercentage:
                             EmptyView()
-//                            weightRow
-//                            syncWithHealthAppToggle
                         case .formula:
-                            EmptyView()
-//                            formulaContent
+                            formulaContent
                         }
                         bottomRow
                     }
@@ -39,51 +36,48 @@ struct LeanBodyMassForm: View {
         }
     }
 
-    var weightRow: some View {
-        var formulaMenu: some View {
-            Button {
-                viewModel.path.append(.weightForm)
-            } label: {
-                MeasurementLabel(
-                    label: "weight",
-                    valueString: viewModel.weightFormattedWithUnit,
-                    useHealthAppData: viewModel.weightSource == .healthApp
-                )
+    var formulaContent: some View {
+        var formulaRow: some View {
+            var menu: some View {
+                Menu {
+                    Picker(selection: viewModel.lbmFormulaBinding, label: EmptyView()) {
+                        ForEach(LeanBodyMassFormula.allCases, id: \.self) {
+                            Text($0.pickerDescription).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        viewModel.lbmFormula.year,
+                        prefix: viewModel.lbmFormula.menuDescription,
+                        foregroundColor: .secondary,
+                        prefixColor: .primary
+                    )
+                    .animation(.none, value: viewModel.lbmFormula)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
             }
-        }
-        return HStack {
-            HStack {
-                Text("of")
-                    .foregroundColor(.secondary)
-                formulaMenu
+            return HStack {
+                HStack {
+                    Text("Using")
+                        .foregroundColor(.secondary)
+                    menu
+                }
             }
+            .padding(.top, 8)
         }
-        .padding(.top, 8)
+        
+        return VStack {
+            formulaRow
+                .padding(.bottom)
+        }
     }
     
-    var syncWithHealthAppToggle: some View {
-        let binding = Binding<Bool>(
-            get: { viewModel.weightSource == .healthApp },
-            set: { isHealthApp in
-                viewModel.changeWeightSource(to: isHealthApp ? .healthApp : .userEntered)
-            }
-        )
-        return Toggle(isOn: binding) {
-            HStack {
-                appleHealthSymbol
-                    .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
-                Text("Sync\(viewModel.weightSource == .healthApp ? "ed" : "") with Health App")
-            }
-        }
-        .toggleStyle(.button)
-    }
-
     func tappedSyncWithHealth() {
-        
+        viewModel.changeLBMSource(to: .healthApp)
     }
     
     func tappedFormula() {
-        
+        viewModel.changeLBMSource(to: .formula)
     }
     
     func tappedFatPercentage() {
@@ -279,7 +273,7 @@ struct LeanBodyMassForm: View {
             case .healthApp:
                 return "Your lean body mass will be kept in sync with the Health App."
             case .formula:
-                return "Choose an formula to calculate your lean body mass with."
+                return "Use a formula to calculate your lean body mass with."
             case .fatPercentage:
                 return "Enter your fat percentage to calculate your lean body mass."
             default:
@@ -289,16 +283,52 @@ struct LeanBodyMassForm: View {
         return Text(string)
     }
     
+    var percentageSupplementaryContent: some View {
+        Group {
+            Text("of")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            WeightSection()
+            Text("=")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            calculatedSection
+        }
+    }
+    
+    var formulaSupplementaryContent: some View {
+        Group {
+            Text("with")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            WeightSection()
+            HeightSection()
+            Text("=")
+                .font(.title)
+                .foregroundColor(Color(.quaternaryLabel))
+            calculatedSection
+        }
+    }
+    
+    @ViewBuilder
+    var supplementaryContent: some View {
+        switch viewModel.lbmSource {
+        case .fatPercentage:
+            percentageSupplementaryContent
+        case .formula:
+            formulaSupplementaryContent
+        default:
+            EmptyView()
+        }
+    }
+    
     var body: some View {
         FormStyledScrollView {
             infoSection
             FormStyledSection(footer: footer) {
                 content
             }
-            if viewModel.lbmSource == .fatPercentage {
-                WeightForm()
-                calculatedSection
-            }
+            supplementaryContent
         }
         .navigationTitle("Lean Body Mass")
         .onChange(of: viewModel.lbmSource, perform: lbmSourceChanged)

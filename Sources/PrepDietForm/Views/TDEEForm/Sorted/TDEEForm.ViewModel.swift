@@ -1,6 +1,31 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
+import HealthKit
+
+extension HeightUnit {
+    var cm: Double {
+        switch self {
+        case .cm:
+            return 1
+        case .ft:
+            return 30.48
+        case .m:
+            return 100
+        }
+    }
+    
+    var healthKitUnit: HKUnit {
+        switch self {
+        case .cm:
+            return .meterUnit(with: .centi)
+        case .ft:
+            return .foot()
+        case .m:
+            return .meter()
+        }
+    }
+}
 
 extension TDEEForm.ViewModel {
     var restingEnergyFormatted: String {
@@ -10,6 +35,299 @@ extension TDEEForm.ViewModel {
         return restingEnergy.formattedEnergy
     }
 
+    var notSetup: Bool {
+        true
+    }
+    
+    var detents: Set<PresentationDetent> {
+        notSetup ? [.height(270), .large] : [.medium, .large]
+    }
+    
+    var maintenanceEnergy: Double? {
+        nil
+    }
+    
+    var hasRestingEnergy: Bool {
+        restingEnergy != nil
+    }
+
+    var hasDynamicRestingEnergy: Bool {
+        restingEnergySource == .healthApp
+        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
+    }
+}
+
+//MARK: - Height
+extension TDEEForm.ViewModel {
+    var heightSourceBinding: Binding<MeasurementSourceOption> {
+        Binding<MeasurementSourceOption>(
+            get: { self.heightSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeHeightSource(to: newSource)
+            }
+        )
+    }
+    
+    func changeHeightSource(to newSource: MeasurementSourceOption) {
+        withAnimation {
+            heightSource = newSource
+        }
+        if newSource == .healthApp {
+            fetchHeightFromHealth()
+        }
+    }
+    
+    var heightInCm: Double? {
+        guard let height else { return nil }
+        return userHeightUnit.cm * height
+    }
+    
+    var heightTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.heightTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.height = nil
+                    self.heightTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.height = double
+                withAnimation {
+                    self.heightTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    func fetchHeightFromHealth() {
+        withAnimation {
+            heightFetchStatus = .fetching
+        }
+        
+        Task {
+            guard let (height, date) = await HealthKitManager.shared.latestHeight(unit: userHeightUnit) else {
+                return
+            }
+            await MainActor.run {
+                withAnimation {
+                    self.heightFetchStatus = .fetched
+                    self.height = height
+                    self.heightTextFieldString = height.cleanAmount
+                    self.heightDate = date
+                }
+            }
+        }
+    }
+    
+    var heightFormatted: String {
+        height?.cleanAmount ?? ""
+    }
+
+    var heightFormattedWithUnit: String {
+        guard let height else { return "" }
+        return height.cleanAmount + " " + userHeightUnit.shortDescription
+    }
+
+    var hasHeight: Bool {
+        height != nil
+    }
+    
+    var hasDynamicHeight: Bool {
+        heightSource == .healthApp
+    }
+}
+
+//MARK: - Weight
+extension TDEEForm.ViewModel {
+    var weightSourceBinding: Binding<MeasurementSourceOption> {
+        Binding<MeasurementSourceOption>(
+            get: { self.weightSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeWeightSource(to: newSource)
+            }
+        )
+    }
+    
+    func changeWeightSource(to newSource: MeasurementSourceOption) {
+        withAnimation {
+            weightSource = newSource
+        }
+        if newSource == .healthApp {
+            fetchWeightFromHealth()
+        }
+    }
+    
+    var weightInKg: Double? {
+        guard let weight else { return nil }
+        switch userWeightUnit {
+        case .kg:
+            return weight
+        case .lb:
+            return (WeightUnit.lb.g/WeightUnit.kg.g) * weight
+        default:
+            return nil
+        }
+    }
+    
+    var weightTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.weightTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.weight = nil
+                    self.weightTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.weight = double
+                withAnimation {
+                    self.weightTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    func fetchWeightFromHealth() {
+        withAnimation {
+            weightFetchStatus = .fetching
+        }
+        
+        Task {
+            guard let (weight, date) = await HealthKitManager.shared.latestWeight(unit: userWeightUnit) else {
+                return
+            }
+            await MainActor.run {
+                withAnimation {
+                    self.weightFetchStatus = .fetched
+                    self.weight = weight
+                    self.weightTextFieldString = weight.cleanAmount
+                    self.weightDate = date
+                }
+            }
+        }
+    }
+    
+    var weightFormatted: String {
+        weight?.cleanAmount ?? ""
+    }
+
+    var weightFormattedWithUnit: String {
+        guard let weight else { return "" }
+        return weight.cleanAmount + " " + userWeightUnit.shortDescription
+    }
+
+    var hasWeight: Bool {
+        weight != nil
+    }
+    
+    var hasDynamicWeight: Bool {
+        weightSource == .healthApp
+    }
+}
+
+//MARK: - LBM
+extension TDEEForm.ViewModel {
+    var lbmSourceBinding: Binding<LeanBodyMassSourceOption> {
+        Binding<LeanBodyMassSourceOption>(
+            get: { self.lbmSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeLBMSource(to: newSource)
+            }
+        )
+    }
+    
+    func changeLBMSource(to newSource: LeanBodyMassSourceOption) {
+        withAnimation {
+            lbmSource = newSource
+        }
+        if newSource == .healthApp {
+            Task {
+                await fetchLBMFromHealth()
+                await MainActor.run {
+                    withAnimation {
+                        calculateRestingEnergy()
+                    }
+                }
+            }
+        }
+    }
+    
+    var lbmInKg: Double? {
+        guard let lbm else { return nil }
+        switch userWeightUnit {
+        case .kg:
+            return lbm
+        case .lb:
+            return (WeightUnit.lb.g/WeightUnit.kg.g) * lbm
+        default:
+            return nil
+        }
+    }
+    
+    var lbmTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.lbmTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.lbm = nil
+                    self.lbmTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.lbm = double
+                withAnimation {
+                    self.lbmTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    var lbmFormulaBinding: Binding<LeanBodyMassFormula> {
+        Binding<LeanBodyMassFormula>(
+            get: { self.lbmFormula },
+            set: { newFormula in
+                Haptics.feedback(style: .soft)
+                self.changeLBMFormula(to: newFormula)
+            }
+        )
+    }
+    
+    func changeLBMFormula(to newFormula: LeanBodyMassFormula) {
+        withAnimation {
+            self.lbmFormula = newFormula
+        }
+    }
+    
+    func fetchLBMFromHealth() async {
+        await MainActor.run {
+            withAnimation {
+                lbmFetchStatus = .fetching
+            }
+        }
+        
+        guard let (lbm, date) = await HealthKitManager.shared.latestLeanBodyMass(unit: userWeightUnit) else {
+            return
+        }
+        await MainActor.run {
+            withAnimation {
+                self.lbmFetchStatus = .fetched
+                self.lbm = lbm
+                self.lbmTextFieldString = lbm.cleanAmount
+                self.lbmDate = date
+            }
+        }
+    }
+    
     var lbmFormatted: String {
         lbm?.cleanAmount ?? ""
     }
@@ -28,31 +346,6 @@ extension TDEEForm.ViewModel {
         }
         guard let value else { return "" }
         return value.cleanAmount + " " + userWeightUnit.shortDescription
-    }
-
-    var weightFormatted: String {
-        weight?.cleanAmount ?? ""
-    }
-
-    var weightFormattedWithUnit: String {
-        guard let weight else { return "" }
-        return weight.cleanAmount + " " + userWeightUnit.shortDescription
-    }
-
-    var notSetup: Bool {
-        true
-    }
-    
-    var detents: Set<PresentationDetent> {
-        notSetup ? [.height(270), .large] : [.medium, .large]
-    }
-    
-    var maintenanceEnergy: Double? {
-        nil
-    }
-    
-    var hasRestingEnergy: Bool {
-        restingEnergy != nil
     }
 
     var hasLeanBodyMass: Bool {
@@ -83,98 +376,18 @@ extension TDEEForm.ViewModel {
         }
     }
     
-    var hasWeight: Bool {
-        weight != nil
-    }
-
-    var hasDynamicRestingEnergy: Bool {
-        restingEnergySource == .healthApp
-        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
-    }
-    
     var hasDynamicLeanBodyMass: Bool {
         lbmSource == .healthApp
         || (lbmSource == .formula && lbmUsesHealthMeasurements)
     }
-
-    var hasDynamicWeight: Bool {
-        weightSource == .healthApp
-    }
 }
+
+//MARK: - Resting Energy
 
 extension TDEEForm.ViewModel {
     
     var restingEnergyIntervalValues: [Int] {
         Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
-    }
-
-    var weightSourceBinding: Binding<MeasurementSourceOption> {
-        Binding<MeasurementSourceOption>(
-            get: { self.weightSource ?? .userEntered },
-            set: { newSource in
-                Haptics.feedback(style: .soft)
-                self.changeWeightSource(to: newSource)
-            }
-        )
-    }
-
-    var lbmSourceBinding: Binding<LeanBodyMassSourceOption> {
-        Binding<LeanBodyMassSourceOption>(
-            get: { self.lbmSource ?? .userEntered },
-            set: { newSource in
-                Haptics.feedback(style: .soft)
-                self.changeLBMSource(to: newSource)
-            }
-        )
-    }
-
-    func changeWeightSource(to newSource: MeasurementSourceOption) {
-        withAnimation {
-            weightSource = newSource
-        }
-        if newSource == .healthApp {
-            fetchWeightFromHealth()
-        }
-    }
-
-    func changeLBMSource(to newSource: LeanBodyMassSourceOption) {
-        withAnimation {
-            lbmSource = newSource
-        }
-        if newSource == .healthApp {
-            Task {
-                await fetchLBMFromHealth()
-                await MainActor.run {
-                    withAnimation {
-                        calculateRestingEnergy()
-                    }
-                }
-            }
-        }
-    }
-    
-    var weightInKg: Double? {
-        guard let weight else { return nil }
-        switch userWeightUnit {
-        case .kg:
-            return weight
-        case .lb:
-            return (WeightUnit.lb.g/WeightUnit.kg.g) * weight
-        default:
-            return nil
-        }
-    }
-
-    var lbmInKg: Double? {
-        guard let lbm else { return nil }
-        switch userWeightUnit {
-        case .kg:
-            return lbm
-        case .lb:
-            return (WeightUnit.lb.g/WeightUnit.kg.g) * lbm
-        default:
-            return nil
-        }
     }
 
     func calculateRestingEnergy() {
@@ -230,46 +443,6 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    var lbmTextFieldStringBinding: Binding<String> {
-        Binding<String>(
-            get: { self.lbmTextFieldString },
-            set: { newValue in
-                guard !newValue.isEmpty else {
-                    self.lbm = nil
-                    self.lbmTextFieldString = newValue
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self.lbm = double
-                withAnimation {
-                    self.lbmTextFieldString = newValue
-                }
-            }
-        )
-    }
-    
-    var weightTextFieldStringBinding: Binding<String> {
-        Binding<String>(
-            get: { self.weightTextFieldString },
-            set: { newValue in
-                guard !newValue.isEmpty else {
-                    self.weight = nil
-                    self.weightTextFieldString = newValue
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self.weight = double
-                withAnimation {
-                    self.weightTextFieldString = newValue
-                }
-            }
-        )
-    }
-    
     func changeRestingEnergySource(to newSource: RestingEnergySourceOption) {
         withAnimation {
             restingEnergySource = newSource
@@ -293,7 +466,7 @@ extension TDEEForm.ViewModel {
             }
         )
     }
-    
+
     func changeRestingEnergyFormula(to newFormula: RestingEnergyFormula) {
         withAnimation {
             self.restingEnergyFormula = newFormula
@@ -343,6 +516,7 @@ extension TDEEForm.ViewModel {
         }
         fetchRestingEnergyFromHealth()
     }
+    
     var restingEnergyIntervalBinding: Binding<HealthAppInterval> {
         Binding<HealthAppInterval>(
             get: { self.restingEnergyInterval },
@@ -391,52 +565,6 @@ extension TDEEForm.ViewModel {
         //TODO: If its formula, fetch any measurements we have received new permissions for
     }
 
-    func fetchWeightFromHealth() {
-        withAnimation {
-            weightFetchStatus = .fetching
-        }
-        
-        Task {
-            guard let (weight, date) = await HealthKitManager.shared.latestWeight(unit: userWeightUnit) else {
-                return
-            }
-            if Date().numberOfDaysFrom(date) > MaximumNumberOfDaysForWeight {
-                //TODO: ask user if they would like to old measurement
-            }
-            await MainActor.run {
-                withAnimation {
-                    self.weightFetchStatus = .fetched
-                    self.weight = weight
-                    self.weightTextFieldString = weight.cleanAmount
-                    self.weightDate = date
-                }
-            }
-        }
-    }
-    
-    func fetchLBMFromHealth() async {
-        await MainActor.run {
-            withAnimation {
-                lbmFetchStatus = .fetching
-            }
-        }
-        
-        guard let (lbm, date) = await HealthKitManager.shared.latestLeanBodyMass(unit: userWeightUnit) else {
-            return
-        }
-        if Date().numberOfDaysFrom(date) > MaximumNumberOfDaysForWeight {
-            //TODO: ask user if they would like to old measurement
-        }
-        await MainActor.run {
-            withAnimation {
-                self.lbmFetchStatus = .fetched
-                self.lbm = lbm
-                self.lbmTextFieldString = lbm.cleanAmount
-                self.lbmDate = date
-            }
-        }
-    }
-    
     func fetchRestingEnergyFromHealth() {
         withAnimation {
             restingEnergyFetchStatus = .fetching

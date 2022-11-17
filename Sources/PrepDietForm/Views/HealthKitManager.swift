@@ -146,6 +146,15 @@ extension WeightUnit {
 }
 
 extension HealthKitManager {
+    func latestHeight(unit: HeightUnit) async -> (Double, Date)? {
+        do {
+            try await HealthKitManager.shared.requestPermission(for: .height)
+            return await getLatestQuantity(for: .height, using: unit.healthKitUnit)
+        } catch {
+            return nil
+        }
+    }
+
     func latestWeight(unit: WeightUnit) async -> (Double, Date)? {
         do {
             try await HealthKitManager.shared.requestPermission(for: .bodyMass)

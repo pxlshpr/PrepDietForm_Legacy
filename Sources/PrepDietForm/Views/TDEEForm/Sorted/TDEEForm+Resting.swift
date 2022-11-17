@@ -699,14 +699,25 @@ enum LeanBodyMassFormula: CaseIterable {
         }
     }
     
+    var year: String {
+        switch self {
+        case .boer:
+            return "1984"
+        case .james:
+            return "1976"
+        case .hume:
+            return "1966"
+        }
+    }
+    
     var menuDescription: String {
         switch self {
         case .boer:
-            return "Boer (1984)"
+            return "Boer"
         case .james:
-            return "James (1976)"
+            return "James"
         case .hume:
-            return "Hume (1966)"
+            return "Hume"
         }
     }
 }
@@ -750,6 +761,7 @@ extension TDEEForm {
     class ViewModel: ObservableObject {
         let userEnergyUnit: EnergyUnit
         let userWeightUnit: WeightUnit
+        let userHeightUnit: HeightUnit
 
         @Published var path: [Route] = []
         
@@ -789,11 +801,16 @@ extension TDEEForm {
         @Published var weightTextFieldString: String = ""
         @Published var weightDate: Date? = nil
 
-        @Published var syncHealthWeight : Bool = false
-        
-        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit) {
+        @Published var heightSource: MeasurementSourceOption? = nil
+        @Published var heightFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var height: Double? = nil
+        @Published var heightTextFieldString: String = ""
+        @Published var heightDate: Date? = nil
+
+        init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
             self.userEnergyUnit = userEnergyUnit
             self.userWeightUnit = userWeightUnit
+            self.userHeightUnit = userHeightUnit
         }
     }
 }

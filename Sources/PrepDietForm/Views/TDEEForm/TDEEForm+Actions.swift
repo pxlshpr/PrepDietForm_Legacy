@@ -1,7 +1,5 @@
 import SwiftUI
 
-let MaximumNumberOfDaysForWeight = 30
-
 extension TDEEForm {
     
     func blankViewAppeared() {
@@ -52,9 +50,6 @@ extension TDEEForm {
     func fillHealthKitWeight() async {
         guard let (weight, weightDate) = await HealthKitManager.shared.latestWeight(unit: .kg) else {
             return
-        }
-        if Date().numberOfDaysFrom(weightDate) > MaximumNumberOfDaysForWeight {
-            //TODO: ask user if they would like to old measurement
         }
         await MainActor.run {
             self.weightDouble = weight

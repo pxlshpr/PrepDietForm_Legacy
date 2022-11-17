@@ -80,10 +80,3 @@ struct HealthAppPeriodPicker: View {
         }
     }
 }
-
-
-struct HeightForm: View {
-    var body: some View {
-        Text("Height form")
-    }
-}

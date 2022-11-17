@@ -312,9 +312,9 @@ extension TDEEForm {
             LeanBodyMassForm()
                 .environmentObject(viewModel)
         case .heightForm:
-            HeightForm()
+            HeightSection()
         case .weightForm:
-            WeightForm()
+            WeightSection()
                 .environmentObject(viewModel)
         }
     }
