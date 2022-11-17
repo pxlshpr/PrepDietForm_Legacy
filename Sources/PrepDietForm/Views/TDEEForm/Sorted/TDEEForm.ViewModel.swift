@@ -675,17 +675,18 @@ extension TDEEForm.ViewModel {
     var calculatedRestingEnergy: Double? {
         guard restingEnergySource == .formula else { return nil }
         switch restingEnergyFormula {
-        case .katchMcardle:
-            guard let lbmInKg else {
-                return nil
-            }
-            var energy = 370 + (21.6 * lbmInKg)
-            if userEnergyUnit == .kJ {
-                energy = energy * KcalsPerKilojule
-            }
-            return energy
+        case .katchMcardle, .cunningham:
+            guard let lbmInKg else { return nil }
+            return restingEnergyFormula.calculate(lbmInKg: lbmInKg, energyUnit: userEnergyUnit)
         default:
-            return nil
+            guard let age, let weightInKg, let heightInCm, let sex else { return nil }
+            return restingEnergyFormula.calculate(
+                age: age,
+                weightInKg: weightInKg,
+                heightInCm: heightInCm,
+                sex: sex,
+                energyUnit: userEnergyUnit
+            )
         }
     }
 
