@@ -37,6 +37,25 @@ class HealthKitManager: ObservableObject {
         }
     }
     
+    func requestPermission(for characteristicType: HKCharacteristicTypeIdentifier) async throws {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            throw HealthKitManagerError.healthKitNotAvailable
+        }
+        
+        let characteristicTypes: [HKCharacteristicTypeIdentifier] = [
+            characteristicType
+        ]
+        
+        var readTypes: [HKObjectType] = []
+        readTypes.append(contentsOf: characteristicTypes.compactMap { HKCharacteristicType($0) } )
+
+        do {
+            try await store.requestAuthorization(toShare: Set(), read: Set(readTypes))
+        } catch {
+            throw HealthKitManagerError.permissionsError(error)
+        }
+    }
+    
     func requestPermission() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
             return false
@@ -160,6 +179,16 @@ extension HealthKitManager {
             try await HealthKitManager.shared.requestPermission(for: .bodyMass)
             return await getLatestQuantity(for: .bodyMass, using: unit.healthKitUnit)
         } catch {
+            return nil
+        }
+    }
+
+    func currentBiologicalSex() async -> HKBiologicalSex? {
+        do {
+            try await HealthKitManager.shared.requestPermission(for: .bodyMass)
+            return try store.biologicalSex().biologicalSex
+        } catch {
+            print("Error getting biological sex")
             return nil
         }
     }

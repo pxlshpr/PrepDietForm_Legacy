@@ -57,6 +57,76 @@ extension TDEEForm.ViewModel {
     }
 }
 
+//MARK: - Biological Sex
+extension TDEEForm.ViewModel {
+    var sexSourceBinding: Binding<MeasurementSourceOption> {
+        Binding<MeasurementSourceOption>(
+            get: { self.sexSource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeSexSource(to: newSource)
+            }
+        )
+    }
+    
+    var sexPickerBinding: Binding<HKBiologicalSex> {
+        Binding<HKBiologicalSex>(
+            get: { self.sex ?? .male },
+            set: { newSex in
+                Haptics.feedback(style: .soft)
+                withAnimation {
+                    self.sex = newSex
+                }
+            }
+        )
+    }
+    
+    func changeSexSource(to newSource: MeasurementSourceOption) {
+        withAnimation {
+            sexSource = newSource
+        }
+        if newSource == .healthApp {
+            fetchSexFromHealth()
+        }
+    }
+    
+    func fetchSexFromHealth() {
+        withAnimation {
+            sexFetchStatus = .fetching
+        }
+        
+        Task {
+            guard let sex = await HealthKitManager.shared.currentBiologicalSex() else {
+                return
+            }
+            await MainActor.run {
+                withAnimation {
+                    self.sexFetchStatus = .fetched
+                    self.sex = sex
+                }
+            }
+        }
+    }
+    
+    var sexFormatted: String {
+        switch sex {
+        case .male:
+            return "male"
+        case .female:
+            return "female"
+        default:
+            return ""
+        }
+    }
+    var hasSex: Bool {
+        sex != nil
+    }
+    
+    var hasDynamicSex: Bool {
+        sexSource == .healthApp
+    }
+}
+
 //MARK: - Height
 extension TDEEForm.ViewModel {
     var heightSourceBinding: Binding<MeasurementSourceOption> {
@@ -369,6 +439,7 @@ extension TDEEForm.ViewModel {
             guard percent >= 0, percent <= 100 else { return nil }
             return (1.0 - (percent/100.0)) * weight
         case .formula:
+            
             //TODO: Calculate it here
             return nil
         default:

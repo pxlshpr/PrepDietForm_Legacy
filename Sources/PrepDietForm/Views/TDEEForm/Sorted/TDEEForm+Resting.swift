@@ -3,6 +3,7 @@ import SwiftHaptics
 import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
+import HealthKit
 
 //func label(_ label: String, _ valueString: String) -> some View {
 
@@ -719,7 +720,7 @@ enum LeanBodyMassFormula: CaseIterable {
         case .hume:
             return "Hume"
         }
-    }
+    }    
 }
 
 func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
@@ -806,6 +807,10 @@ extension TDEEForm {
         @Published var height: Double? = nil
         @Published var heightTextFieldString: String = ""
         @Published var heightDate: Date? = nil
+
+        @Published var sexSource: MeasurementSourceOption? = nil
+        @Published var sexFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var sex: HKBiologicalSex? = nil
 
         init(userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
             self.userEnergyUnit = userEnergyUnit

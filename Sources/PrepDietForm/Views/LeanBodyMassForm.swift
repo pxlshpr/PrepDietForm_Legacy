@@ -301,6 +301,7 @@ struct LeanBodyMassForm: View {
             Text("with")
                 .font(.title)
                 .foregroundColor(Color(.quaternaryLabel))
+            BiologicalSexSection()
             WeightSection()
             HeightSection()
             Text("=")
