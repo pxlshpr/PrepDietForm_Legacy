@@ -117,8 +117,8 @@ struct LeanBodyMassForm: View {
                             .frame(width: 25, height: 25)
                             .foregroundColor(.secondary)
                     } else {
-                        if viewModel.hasDynamicLeanBodyMass {
-                            Text("currently")
+                        if let date = viewModel.lbmDate {
+                            Text("as of \(date.tdeeFormat)")
                                 .font(.subheadline)
                                 .foregroundColor(Color(.tertiaryLabel))
                         }
@@ -138,7 +138,7 @@ struct LeanBodyMassForm: View {
         
         var manualEntry: some View {
             var prompt: String {
-                viewModel.lbmSource == .userEntered ? "lead body mass in" : "fat percent"
+                viewModel.lbmSource == .userEntered ? "lean body mass in" : "fat percent"
             }
             var binding: Binding<String> {
                 viewModel.lbmTextFieldStringBinding

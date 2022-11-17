@@ -1,23 +1,51 @@
 import Foundation
 
 public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
-    case harrisBenedict = 1
-    case rozaShizgal
+    case katchMcardle = 1
     case mifflinStJeor
-    case katchMcardle
+    case cunningham
+    case harrisBenedict
+    case rozaShizgal
+    case henryOxford
+    case schofield
 
     static var latest: [RestingEnergyFormula] {
-        [.katchMcardle, .mifflinStJeor]
+        [.henryOxford, .katchMcardle, .mifflinStJeor, .cunningham, .schofield]
     }
 
     static var legacy: [RestingEnergyFormula] {
         [.rozaShizgal, .harrisBenedict]
     }
 
-    var description: String {
+    var pickerDescription: String {
         switch self {
+        case .schofield:
+            return "Schofield (WHO)"
+        case .henryOxford:
+            return "Henry Oxford"
         case .harrisBenedict:
             return "Harris-Benedict"
+        case .cunningham:
+            return "Cunningham"
+        case .rozaShizgal:
+            return "Roza-Shizgal (Harris-Benedict Revised)"
+        case .mifflinStJeor:
+            return "Mifflin-St. Jeor"
+        case .katchMcardle:
+            return "Katch-McArdle"
+        }
+    }
+    
+    var menuDescription: String {
+        switch self {
+        case .schofield:
+            return "Schofield"
+        case .henryOxford:
+            return "Oxford"
+        case .harrisBenedict:
+            return "Harris-Benedict"
+        case .cunningham:
+            return "Cunningham"
         case .rozaShizgal:
             return "Roza-Shizgal"
         case .mifflinStJeor:
@@ -26,17 +54,22 @@ public enum RestingEnergyFormula: Int16, Hashable, Codable, CaseIterable {
             return "Katch-McArdle"
         }
     }
-    
     var year: String {
         switch self {
+        case .schofield:
+            return "1985"
+        case .henryOxford:
+            return "2005"
         case .harrisBenedict:
             return "1919"
+        case .cunningham:
+            return "1980"
         case .rozaShizgal:
             return "1984"
         case .mifflinStJeor:
             return "1990"
         case .katchMcardle:
-            return ""
+            return "1996"
         }
     }
 }

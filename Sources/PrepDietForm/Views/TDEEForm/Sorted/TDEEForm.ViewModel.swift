@@ -28,13 +28,6 @@ extension HeightUnit {
 }
 
 extension TDEEForm.ViewModel {
-    var restingEnergyFormatted: String {
-        guard let restingEnergy else {
-            return ""
-        }
-        return restingEnergy.formattedEnergy
-    }
-
     var notSetup: Bool {
         true
     }
@@ -45,15 +38,6 @@ extension TDEEForm.ViewModel {
     
     var maintenanceEnergy: Double? {
         nil
-    }
-    
-    var hasRestingEnergy: Bool {
-        restingEnergy != nil
-    }
-
-    var hasDynamicRestingEnergy: Bool {
-        restingEnergySource == .healthApp
-        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
     }
 }
 
@@ -71,7 +55,7 @@ extension TDEEForm.ViewModel {
     
     var sexPickerBinding: Binding<HKBiologicalSex> {
         Binding<HKBiologicalSex>(
-            get: { self.sex ?? .male },
+            get: { self.sex ?? .notSet },
             set: { newSex in
                 Haptics.feedback(style: .soft)
                 withAnimation {
@@ -321,22 +305,26 @@ extension TDEEForm.ViewModel {
         if newSource == .healthApp {
             Task {
                 await fetchLBMFromHealth()
-                await MainActor.run {
-                    withAnimation {
-                        calculateRestingEnergy()
-                    }
-                }
             }
         }
     }
     
+    var lbmValue: Double? {
+        switch lbmSource {
+        case .fatPercentage, .formula:
+            return calculatedLeanBodyMass
+        default:
+            return lbm
+        }
+    }
+    
     var lbmInKg: Double? {
-        guard let lbm else { return nil }
+        guard let lbmValue else { return nil }
         switch userWeightUnit {
         case .kg:
-            return lbm
+            return lbmValue
         case .lb:
-            return (WeightUnit.lb.g/WeightUnit.kg.g) * lbm
+            return (WeightUnit.lb.g/WeightUnit.kg.g) * lbmValue
         default:
             return nil
         }
@@ -353,6 +341,12 @@ extension TDEEForm.ViewModel {
                 }
                 guard let double = Double(newValue) else {
                     return
+                }
+                
+                if self.lbmSource == .fatPercentage {
+                    guard double < 100 else {
+                        return
+                    }
                 }
                 self.lbm = double
                 withAnimation {
@@ -494,31 +488,50 @@ extension TDEEForm.ViewModel {
 
 extension TDEEForm.ViewModel {
     
+    var restingEnergyFormatted: String {
+        switch restingEnergySource {
+        case .formula:
+            return calculatedRestingEnergy?.formattedEnergy ?? "zero"
+        default:
+            return restingEnergy?.formattedEnergy ?? ""
+        }
+    }
+
     var restingEnergyIntervalValues: [Int] {
         Array(restingEnergyInterval.minValue...restingEnergyInterval.maxValue)
     }
 
-    func calculateRestingEnergy() {
-        guard restingEnergySource == .formula else {
-            return
-        }
+    var calculatedRestingEnergy: Double? {
+        guard restingEnergySource == .formula else { return nil }
         switch restingEnergyFormula {
         case .katchMcardle:
             guard let lbmInKg else {
-                self.restingEnergy = nil
-                return
+                return nil
             }
             var energy = 370 + (21.6 * lbmInKg)
             if userEnergyUnit == .kJ {
                 energy = energy * KcalsPerKilojule
             }
-            withAnimation {
-                self.restingEnergy = energy
-                self.restingEnergyTextFieldString = "\(Int(energy.rounded()))"
-            }
+            return energy
         default:
-            break
+            return nil
         }
+    }
+
+    var hasRestingEnergy: Bool {
+        switch restingEnergySource {
+        case .formula:
+            return calculatedRestingEnergy != nil
+        case .healthApp, .userEntered:
+            return restingEnergy != nil
+        default:
+            return false
+        }
+    }
+
+    var hasDynamicRestingEnergy: Bool {
+        restingEnergySource == .healthApp
+        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
     }
     
     var restingEnergySourceBinding: Binding<RestingEnergySourceOption> {
@@ -559,7 +572,7 @@ extension TDEEForm.ViewModel {
         case .healthApp:
             fetchRestingEnergyFromHealth()
         case .formula:
-            calculateRestingEnergy()
+            break
         default:
             break
         }

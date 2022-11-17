@@ -148,16 +148,16 @@ extension TDEEForm.ViewModel {
 extension TDEEForm {
     
     var restingEnergySection: some View {
-        var syncWithHealthAppToggle: some View {
-            Toggle(isOn: viewModel.restingEnergyFormulaUsingSyncedHealthDataBinding) {
-                HStack {
-                    appleHealthSymbol
-                        .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
-                    Text("Sync\(viewModel.restingEnergyFormulaUsingSyncedHealthData ? "ed" : "") with Health App")
-                }
-            }
-            .toggleStyle(.button)
-        }
+//        var syncWithHealthAppToggle: some View {
+//            Toggle(isOn: viewModel.restingEnergyFormulaUsingSyncedHealthDataBinding) {
+//                HStack {
+//                    appleHealthSymbol
+//                        .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+//                    Text("Sync\(viewModel.restingEnergyFormulaUsingSyncedHealthData ? "ed" : "") with Health App")
+//                }
+//            }
+//            .toggleStyle(.button)
+//        }
         
         var sourceSection: some View {
             var sourceMenu: some View {
@@ -206,12 +206,7 @@ extension TDEEForm {
         var formulaContent: some View {
             VStack {
                 formulaRow
-                Divider()
-                    .frame(width: 300)
-                    .padding(.vertical, 5)
                 flowView
-                syncWithHealthAppToggle
-                    .padding(.bottom)
             }
         }
         
@@ -219,18 +214,23 @@ extension TDEEForm {
             var formulaMenu: some View {
                 Menu {
                     Picker(selection: viewModel.restingEnergyFormulaBinding, label: EmptyView()) {
-                        ForEach(RestingEnergyFormula.latest, id: \.self) {
-                            Text($0.description).tag($0)
+                        ForEach(RestingEnergyFormula.latest, id: \.self) { formula in
+                            Text(formula.pickerDescription).tag(formula)
                         }
                         Divider()
                         ForEach(RestingEnergyFormula.legacy, id: \.self) {
-                            Text($0.description).tag($0)
+                            Text($0.pickerDescription).tag($0)
                         }
                     }
                 } label: {
-                    PickerLabel(viewModel.restingEnergyFormula.description)
-                        .animation(.none, value: viewModel.restingEnergyFormula)
-                        .fixedSize(horizontal: true, vertical: false)
+                    PickerLabel(
+                        viewModel.restingEnergyFormula.year,
+                        prefix: viewModel.restingEnergyFormula.menuDescription,
+                        foregroundColor: .secondary,
+                        prefixColor: .primary
+                    )
+                    .animation(.none, value: viewModel.restingEnergyFormula)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             return HStack {
@@ -249,7 +249,7 @@ extension TDEEForm {
                 ZStack {
                     Capsule(style: .continuous)
                         .foregroundColor(Color(.clear))
-                    Text("with")
+                    Text(viewModel.restingEnergyFormula == .katchMcardle ? "with" : "as")
                         .foregroundColor(Color(.tertiaryLabel))
                     .frame(height: 25)
                     .padding(.vertical, 5)
@@ -261,42 +261,51 @@ extension TDEEForm {
                         viewModel.path.append(.leanBodyMassForm)
                     } label: {
                         MeasurementLabel(
-                            label: "lean body mass",
+                            label: viewModel.hasLeanBodyMass ? "lean body mass" : "set lean body mass",
                             valueString: viewModel.lbmFormattedWithUnit,
                             useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
                 } else {
-                    Menu {
-                        Picker(selection: .constant(true), label: EmptyView()) {
-                            Text("Male").tag(true)
-                            Text("Female").tag(false)
-                        }
-                    } label: {
-                        MeasurementLabel(
-                            label: "sex",
-                            valueString: "male",
-                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
-                        )
-                    }
                     Button {
-                        viewModel.path.append(.weightForm)
+                        viewModel.path.append(.leanBodyMassForm)
                     } label: {
                         MeasurementLabel(
-                            label: "weight",
-                            valueString: "93.6 kg",
+                            label: "set profile",
+                            valueString: "",
                             useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
                         )
                     }
-                    Button {
-                        viewModel.path.append(.heightForm)
-                    } label: {
-                        MeasurementLabel(
-                            label: "height",
-                            valueString: "177 cm",
-                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
-                        )
-                    }
+//                    Menu {
+//                        Picker(selection: .constant(true), label: EmptyView()) {
+//                            Text("Male").tag(true)
+//                            Text("Female").tag(false)
+//                        }
+//                    } label: {
+//                        MeasurementLabel(
+//                            label: "sex",
+//                            valueString: "male",
+//                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
+//                        )
+//                    }
+//                    Button {
+//                        viewModel.path.append(.weightForm)
+//                    } label: {
+//                        MeasurementLabel(
+//                            label: "weight",
+//                            valueString: "93.6 kg",
+//                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
+//                        )
+//                    }
+//                    Button {
+//                        viewModel.path.append(.heightForm)
+//                    } label: {
+//                        MeasurementLabel(
+//                            label: "height",
+//                            valueString: "177 cm",
+//                            useHealthAppData: viewModel.restingEnergyFormulaUsingSyncedHealthData
+//                        )
+//                    }
                 }
             }
             .padding(.bottom, 5)
@@ -410,6 +419,23 @@ extension TDEEForm {
                 }
             }
             
+            @ViewBuilder
+            var formula: some View {
+                HStack {
+                    Spacer()
+                    Text(viewModel.restingEnergyFormatted)
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .fixedSize(horizontal: true, vertical: false)
+                        .matchedGeometryEffect(id: "resting", in: namespace)
+                        .if(!viewModel.hasRestingEnergy) { view in
+                            view
+                                .redacted(reason: .placeholder)
+                        }
+                    Text(viewModel.userEnergyUnit.shortDescription)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
             var manualEntry: some View {
                 HStack {
                     Spacer()
@@ -431,7 +457,7 @@ extension TDEEForm {
                 case .healthApp:
                     health
                 case .formula:
-                    health
+                    formula
                 case .userEntered:
                     manualEntry
                 default:

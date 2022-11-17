@@ -200,6 +200,7 @@ extension HealthKitManager {
             let date = sample.startDate
             return (quantity, date)
         } catch {
+            //TODO: This might be an indiciator of needing permissions
             print("Error getting quantity")
             return nil
         }
