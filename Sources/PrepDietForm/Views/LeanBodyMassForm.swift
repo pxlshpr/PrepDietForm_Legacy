@@ -124,7 +124,7 @@ struct LeanBodyMassForm: View {
                                 .font(.subheadline)
                                 .foregroundColor(Color(.tertiaryLabel))
                         }
-                        Text(viewModel.restingEnergyFormatted)
+                        Text(viewModel.lbmFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
                             .matchedGeometryEffect(id: "lbm", in: namespace)
                             .if(!viewModel.hasLeanBodyMass) { view in
