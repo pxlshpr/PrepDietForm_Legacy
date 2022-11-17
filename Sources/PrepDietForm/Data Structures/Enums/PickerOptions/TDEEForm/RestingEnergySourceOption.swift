@@ -10,9 +10,9 @@ enum RestingEnergySourceOption: CaseIterable {
         case .healthApp:
             return "Health App"
         case .formula:
-            return "Formula"
+            return "Calculate"
         case .userEntered:
-            return "Let me enter it"
+            return "Enter Manually"
         }
     }
     
@@ -21,9 +21,9 @@ enum RestingEnergySourceOption: CaseIterable {
         case .healthApp:
             return "Health App"
         case .formula:
-            return "Formula"
+            return "Calculate"
         case .userEntered:
-            return "Manual Entry"
+            return "Enter Manually"
         }
     }
     

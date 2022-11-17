@@ -91,11 +91,17 @@ struct LeanBodyMassForm: View {
     }
     
     var emptyContent: some View {
-        VStack(spacing: 10) {
-            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-            emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
-            emptyButton("Convert Fat Percentage", systemImage: "percent", action: tappedFatPercentage)
-            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//        VStack(spacing: 10) {
+//            emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//            emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
+//            emptyButton("Convert Fat Percentage", systemImage: "percent", action: tappedFatPercentage)
+//            emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//        }
+        FlowView(alignment: .center, spacing: 10, padding: 37) {
+            emptyButton2("Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+            emptyButton2("Calculate", systemImage: "function", action: tappedFormula)
+            emptyButton2("Fat Percentage", systemImage: "percent", action: tappedFatPercentage)
+            emptyButton2("Enter Manually", systemImage: "keyboard", action: tappedManualEntry)
         }
     }
 

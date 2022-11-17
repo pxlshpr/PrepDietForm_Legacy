@@ -59,10 +59,20 @@ extension TDEEForm {
         }
         
         var emptyContent: some View {
-            VStack(spacing: 10) {
-                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-                emptyButton("Apply Activity Multiplier", systemImage: "dial.medium.fill")
-                emptyButton("Let me type it in", systemImage: "keyboard")
+//            VStack(spacing: 10) {
+//                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//                emptyButton("Apply Activity Multiplier", systemImage: "dial.medium.fill")
+//                emptyButton("Let me type it in", systemImage: "keyboard")
+//            }
+//            HStack {
+//                emptyButton2("Sync", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//                emptyButton2("Activity Level", systemImage: "dial.medium.fill")
+//                emptyButton2("Enter", systemImage: "keyboard")
+//            }
+            FlowView(alignment: .center, spacing: 10, padding: 37) {
+                emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+                emptyButton2("Activity Level", systemImage: "dial.medium.fill")
+                emptyButton2("Enter Manually", systemImage: "keyboard")
             }
         }
         

@@ -181,7 +181,7 @@ func emptyButton2(_ string: String, systemImage: String? = nil, showHealthAppIco
             }
             Text(string)
                 .fixedSize(horizontal: false, vertical: true)
-                .foregroundColor(.primary)
+                .foregroundColor(.secondary)
         }
         .frame(minHeight: 30)
 //        .frame(maxWidth: .infinity)

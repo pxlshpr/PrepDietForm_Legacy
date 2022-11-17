@@ -369,10 +369,24 @@ extension TDEEForm {
         }
 
         var emptyContent: some View {
-            VStack(spacing: 10) {
-                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
-                emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
-                emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//            VStack(spacing: 10) {
+//                emptyButton("Sync with Health app", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//                emptyButton("Calculate using a Formula", systemImage: "function", action: tappedFormula)
+//                emptyButton("Let me type it in", systemImage: "keyboard", action: tappedManualEntry)
+//            }
+//            HStack {
+//                Spacer()
+//                emptyButton2("Sync", showHealthAppIcon: true, action: tappedSyncWithHealth)
+//                Spacer()
+//                emptyButton2("Calculate", systemImage: "function", action: tappedFormula)
+//                Spacer()
+//                emptyButton2("Enter", systemImage: "keyboard", action: tappedManualEntry)
+//                Spacer()
+//            }
+            FlowView(alignment: .center, spacing: 10, padding: 17) {
+                emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+                emptyButton2("Calculate", systemImage: "function", action: tappedFormula)
+                emptyButton2("Enter Manually", systemImage: "keyboard", action: tappedManualEntry)
             }
         }
         
@@ -550,6 +564,7 @@ extension TDEEForm {
                         Text("Using")
                             .foregroundColor(.secondary)
                         periodTypeMenu
+                        Text("formula")
                     }
                     Spacer()
                 }
