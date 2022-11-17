@@ -8,9 +8,9 @@ enum ActiveEnergySourceOption: CaseIterable {
     var menuDescription: String {
         switch self {
         case .healthApp:
-            return "Sync with Health App"
+            return "Health App"
         case .activityLevel:
-            return "Choose activity level"
+            return "Activity level"
         case .userEntered:
             return "Enter manually"
         }
@@ -19,9 +19,9 @@ enum ActiveEnergySourceOption: CaseIterable {
     var pickerDescription: String {
         switch self {
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .activityLevel:
-            return "Activity level"
+            return "Choose activity level"
         case .userEntered:
             return "Enter manually"
         }

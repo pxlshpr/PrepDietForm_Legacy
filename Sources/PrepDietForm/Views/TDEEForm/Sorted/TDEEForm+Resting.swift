@@ -647,7 +647,7 @@ enum MeasurementSourceOption: CaseIterable {
     var pickerDescription: String {
         switch self {
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .userEntered:
             return "Enter manually"
         }
@@ -665,7 +665,7 @@ enum MeasurementSourceOption: CaseIterable {
     var menuDescription: String {
         switch self {
         case .healthApp:
-            return "Sync with Health App"
+            return "Health App"
         case .userEntered:
             return "Enter manually"
         }
@@ -683,9 +683,9 @@ enum LeanBodyMassSourceOption: CaseIterable {
         case .formula:
             return "Calculate"
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .fatPercentage:
-            return "Fat percentage"
+            return "Convert fat percentage"
         case .userEntered:
             return "Enter manually"
         }
@@ -709,9 +709,9 @@ enum LeanBodyMassSourceOption: CaseIterable {
         case .formula:
             return "Calculate"
         case .healthApp:
-            return "Sync with Health App"
+            return "Health App"
         case .fatPercentage:
-            return "Convert fat percentage"
+            return "Fat percentage"
         case .userEntered:
             return "Enter manually"
         }
