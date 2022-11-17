@@ -176,7 +176,6 @@ struct LeanBodyMassForm: View {
                         .foregroundColor(Color(.tertiaryLabel))
                 }
                 Text(viewModel.calculatedLBMFormatted)
-                    .foregroundColor(.secondary)
                     .font(.system(.title3, design: .rounded, weight: .semibold))
                     .if(!viewModel.hasLeanBodyMass) { view in
                         view

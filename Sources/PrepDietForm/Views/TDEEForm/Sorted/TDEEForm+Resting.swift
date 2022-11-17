@@ -117,32 +117,23 @@ struct MeasurementLabel_Previews: PreviewProvider {
 
 extension TDEEForm.ViewModel {
     
-    var restingEnergyFormulaUsingSyncedHealthDataBinding: Binding<Bool> {
-        Binding<Bool>(
-            get: {
-                switch self.restingEnergyFormula {
-                case .katchMcardle:
-                    return self.lbmSource == .healthApp
-                default:
-                    /// return true if sex, weight and height are all healthApp
-                    return false
-                }
-            },
-            set: { isOn in
-                switch self.restingEnergyFormula {
-                case .katchMcardle:
-                    /// toggle lbm between health and userEntered
-                    self.changeLBMSource(to: isOn ? .healthApp : .userEntered)
-                default:
-                    //TODO: attempt to change the source of weight, height and sex to healthApp or all to userEntered
-                    break
-                }
-            }
-        )
-    }
-    
     var restingEnergyFormulaUsingSyncedHealthData: Bool {
-        restingEnergyFormulaUsingSyncedHealthDataBinding.wrappedValue
+        switch self.restingEnergyFormula {
+        case .katchMcardle:
+            switch lbmSource {
+            case .healthApp:
+                return true
+            case .fatPercentage:
+                return weightSource == .healthApp
+            case .formula:
+                return sexSource == .healthApp && heightSource == .healthApp && weightSource == .healthApp
+            default:
+                return false
+            }
+        default:
+            /// return true if sex, weight and height are all healthApp
+            return false
+        }
     }
 }
 extension TDEEForm {
@@ -552,7 +543,7 @@ extension TDEEForm {
                     Spacer()
                     HStack(spacing: 5) {
                         Text("previous")
-                            .foregroundColor(Color(.secondaryLabel))
+                            .foregroundColor(Color(.tertiaryLabel))
                         periodValueMenu
                         periodIntervalMenu
                     }
@@ -658,7 +649,7 @@ enum MeasurementSourceOption: CaseIterable {
         case .healthApp:
             return "Health App"
         case .userEntered:
-            return "Let me enter it"
+            return "Enter manually"
         }
     }
     
@@ -674,9 +665,9 @@ enum MeasurementSourceOption: CaseIterable {
     var menuDescription: String {
         switch self {
         case .healthApp:
-            return "Health App"
+            return "Sync with Health App"
         case .userEntered:
-            return "Manual Entry"
+            return "Enter manually"
         }
     }
 }
