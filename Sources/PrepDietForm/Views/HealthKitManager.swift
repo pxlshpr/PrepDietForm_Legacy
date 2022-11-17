@@ -19,34 +19,20 @@ class HealthKitManager: ObservableObject {
     let store: HKHealthStore = HKHealthStore()
     
     func requestPermission(for type: HKQuantityTypeIdentifier) async throws {
-        guard HKHealthStore.isHealthDataAvailable() else {
-            throw HealthKitManagerError.healthKitNotAvailable
-        }
-        
-        let quantityTypes: [HKQuantityTypeIdentifier] = [
-            type,
-        ]
-        
-        var readTypes: [HKObjectType] = []
-        readTypes.append(contentsOf: quantityTypes.compactMap { HKQuantityType($0) })
-
-        do {
-            try await store.requestAuthorization(toShare: Set(), read: Set(readTypes))
-        } catch {
-            throw HealthKitManagerError.permissionsError(error)
-        }
+        try await requestPermissions(quantityTypes: [type])
     }
     
     func requestPermission(for characteristicType: HKCharacteristicTypeIdentifier) async throws {
+        try await requestPermissions(characteristicTypes: [characteristicType])
+    }
+    
+    func requestPermissions(characteristicTypes: [HKCharacteristicTypeIdentifier] = [], quantityTypes: [HKQuantityTypeIdentifier] = []) async throws {
         guard HKHealthStore.isHealthDataAvailable() else {
             throw HealthKitManagerError.healthKitNotAvailable
         }
         
-        let characteristicTypes: [HKCharacteristicTypeIdentifier] = [
-            characteristicType
-        ]
-        
         var readTypes: [HKObjectType] = []
+        readTypes.append(contentsOf: quantityTypes.compactMap { HKQuantityType($0) })
         readTypes.append(contentsOf: characteristicTypes.compactMap { HKCharacteristicType($0) } )
 
         do {
@@ -56,6 +42,7 @@ class HealthKitManager: ObservableObject {
         }
     }
     
+    //MARK: Legacy
     func requestPermission() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
             return false

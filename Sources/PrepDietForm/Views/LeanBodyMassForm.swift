@@ -323,6 +323,20 @@ struct LeanBodyMassForm: View {
         }
     }
     
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if viewModel.shouldShowSyncAllForLBMForm {
+                Button {
+                    viewModel.tappedSyncAllOnLBMForm()
+                } label: {
+                    HStack {
+                        appleHealthSymbol
+                        Text("Sync All")
+                    }
+                }
+            }
+        }
+    }
     var body: some View {
         FormStyledScrollView {
             infoSection
@@ -332,6 +346,7 @@ struct LeanBodyMassForm: View {
             supplementaryContent
         }
         .navigationTitle("Lean Body Mass")
+        .toolbar { trailingContent }
         .onChange(of: viewModel.lbmSource, perform: lbmSourceChanged)
     }
 }

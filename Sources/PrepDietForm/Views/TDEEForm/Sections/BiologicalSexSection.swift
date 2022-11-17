@@ -54,7 +54,7 @@ struct BiologicalSexSection: View {
         case .healthApp:
             EmptyView()
         default:
-            Text("This is the biological sex used in the formula calculation. Choose to import it from the Health App or pick it yourself.")
+            Text("This is the biological sex used in the calculation. Choose to import it from the Health App or pick it yourself.")
         }
     }
     
@@ -173,7 +173,7 @@ struct BiologicalSexSection: View {
     }
  
     var header: some View {
-        Text("Biologica Sex")
+        Text("Biological Sex")
     }
     
     var body: some View {

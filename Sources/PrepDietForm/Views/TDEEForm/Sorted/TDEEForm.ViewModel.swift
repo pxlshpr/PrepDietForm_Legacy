@@ -451,6 +451,40 @@ extension TDEEForm.ViewModel {
         lbmSource == .healthApp
         || (lbmSource == .formula && lbmUsesHealthMeasurements)
     }
+    
+    var shouldShowSyncAllForLBMForm: Bool {
+        guard lbmSource == .formula else { return false }
+        var countNotSynced = 0
+        if sexSource != .healthApp { countNotSynced += 1 }
+        if weightSource != .healthApp { countNotSynced += 1 }
+        if heightSource != .healthApp { countNotSynced += 1 }
+        /// return true if the user has picked `.formula` as the source and we have at least two parameters not synced
+        return countNotSynced > 1
+    }
+    
+    func tappedSyncAllOnLBMForm() {
+        
+        withAnimation {
+            sexFetchStatus = .fetching
+            weightFetchStatus = .fetching
+            heightFetchStatus = .fetching
+        }
+            
+        Task {
+            do {
+                /// request permissions for all required parameters in one sheet
+                try await HealthKitManager.shared.requestPermissions(
+                    characteristicTypes: [.biologicalSex],
+                    quantityTypes: [.bodyMass, .height]
+                )
+                fetchSexFromHealth()
+                fetchHeightFromHealth()
+                fetchWeightFromHealth()
+            } catch {
+                //TODO: Handle error
+            }
+        }
+    }
 }
 
 //MARK: - Resting Energy
