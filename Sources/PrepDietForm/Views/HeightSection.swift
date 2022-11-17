@@ -124,7 +124,6 @@ struct HeightSection: View {
                 EmptyView()
             }
         }
-        .padding(.trailing)
     }
     
     var sourceSection: some View {

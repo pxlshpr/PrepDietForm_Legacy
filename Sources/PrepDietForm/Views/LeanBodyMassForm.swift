@@ -159,21 +159,41 @@ struct LeanBodyMassForm: View {
             }
         }
         
+        var calculatedLBMRow: some View {
+            HStack {
+                Spacer()
+                if viewModel.lbmSource == .fatPercentage {
+                    Text("lean body mass")
+                        .font(.subheadline)
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+                Text(viewModel.calculatedLBMFormatted)
+                    .foregroundColor(.secondary)
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .if(!viewModel.hasLeanBodyMass) { view in
+                        view
+                            .redacted(reason: .placeholder)
+                    }
+                Text(viewModel.userWeightUnit.shortDescription)
+                    .foregroundColor(.secondary)
+            }
+        }
+     
         return Group {
             switch viewModel.lbmSource {
             case .healthApp:
                 health
             case .formula:
-                EmptyView()
+                calculatedLBMRow
             case .userEntered:
                 manualEntry
             case .fatPercentage:
                 manualEntry
+                calculatedLBMRow
             default:
                 EmptyView()
             }
         }
-        .padding(.trailing)
     }
     
     var sourceSection: some View {
@@ -227,44 +247,6 @@ struct LeanBodyMassForm: View {
         }
     }
     
-    var calculatedSection: some View {
-        var headerRow: some View {
-            HStack {
-                Image(systemName: "function")
-                Text("Calculated")
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(.secondary)
-//            .fixedSize(horizontal: true, vertical: false)
-        }
-        
-        var lbmRow: some View {
-            HStack {
-                Spacer()
-//                Text("calculated")
-//                    .font(.subheadline)
-//                    .foregroundColor(Color(.tertiaryLabel))
-                Text(viewModel.calculatedLBMFormatted)
-                    .foregroundColor(.secondary)
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
-                    .if(!viewModel.hasLeanBodyMass) { view in
-                        view
-                            .redacted(reason: .placeholder)
-                    }
-                Text(viewModel.userWeightUnit.shortDescription)
-                    .foregroundColor(.secondary)
-            }
-        }
-
-        return FormStyledSection {
-            VStack {
-                headerRow
-                lbmRow
-            }
-        }
-    }
- 
     var footer: some View {
         var string: String {
             switch viewModel.lbmSource {
@@ -289,10 +271,10 @@ struct LeanBodyMassForm: View {
                 .font(.title)
                 .foregroundColor(Color(.quaternaryLabel))
             WeightSection()
-            Text("=")
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-            calculatedSection
+//            Text("=")
+//                .font(.title)
+//                .foregroundColor(Color(.quaternaryLabel))
+//            calculatedSection
         }
     }
     
@@ -304,10 +286,10 @@ struct LeanBodyMassForm: View {
             BiologicalSexSection()
             WeightSection()
             HeightSection()
-            Text("=")
-                .font(.title)
-                .foregroundColor(Color(.quaternaryLabel))
-            calculatedSection
+//            Text("=")
+//                .font(.title)
+//                .foregroundColor(Color(.quaternaryLabel))
+//            calculatedSection
         }
     }
     
