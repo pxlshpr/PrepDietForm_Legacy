@@ -439,9 +439,8 @@ extension TDEEForm.ViewModel {
             guard percent >= 0, percent <= 100 else { return nil }
             return (1.0 - (percent/100.0)) * weight
         case .formula:
-            
-            //TODO: Calculate it here
-            return nil
+            guard let weightInKg, let heightInCm, let sex else { return nil }
+            return lbmFormula.calculate(sex: sex, weightInKg: weightInKg, heightInCm: heightInCm)
         default:
             return nil
         }
