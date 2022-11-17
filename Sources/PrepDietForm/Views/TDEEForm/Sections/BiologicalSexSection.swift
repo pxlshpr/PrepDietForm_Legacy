@@ -59,68 +59,51 @@ struct BiologicalSexSection: View {
     }
     
     var bottomRow: some View {
-        @ViewBuilder
-        var health: some View {
-            if viewModel.sexFetchStatus != .notAuthorized {
-                HStack {
-                    Spacer()
-                    if viewModel.sexFetchStatus == .fetching {
-                        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
-                            .frame(width: 25, height: 25)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text(viewModel.sexFormatted)
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                            .matchedGeometryEffect(id: "sex", in: namespace)
-                            .if(!viewModel.hasSex) { view in
-                                view
-                                    .redacted(reason: .placeholder)
-                            }
-                    }
-                }
-            }
-        }
-        
-        var manualEntry: some View {
-            var picker: some View {
-                Menu {
+        var picker: some View {
+            Menu {
+                if viewModel.sexSource == .userEntered {
                     Picker(selection: viewModel.sexPickerBinding, label: EmptyView()) {
                         Text("female").tag(HKBiologicalSex.female)
                         Text("male").tag(HKBiologicalSex.male)
                     }
-                } label: {
-                    HStack(spacing: 5) {
-                        Text(viewModel.sexFormatted ?? "choose")
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                    .foregroundColor(.accentColor)
-                    .matchedGeometryEffect(id: "sex", in: namespace)
-                    .animation(.none, value: viewModel.sex)
-                    .animation(.none, value: viewModel.sexSource)
-                    .fixedSize(horizontal: true, vertical: true)
                 }
-                .simultaneousGesture(TapGesture().onEnded {
+            } label: {
+                if viewModel.sexFetchStatus != .notAuthorized {
+                    HStack(spacing: 5) {
+                        if viewModel.sexFetchStatus == .fetching {
+                            ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                                .frame(width: 25, height: 25)
+                                .foregroundColor(.secondary)
+                        } else {
+                            Text(viewModel.sexFormatted ?? "not specified")
+                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .foregroundColor(viewModel.sexSource == .userEntered ? .accentColor : .primary)
+                                .animation(.none, value: viewModel.sex)
+                                .animation(.none, value: viewModel.sexSource)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .if(!viewModel.hasSex && viewModel.sexSource != .userEntered) { view in
+                                    view
+                                        .redacted(reason: .placeholder)
+                                }
+                            if viewModel.sexSource == .userEntered {
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .imageScale(.small)
+                            }
+                        }
+                    }
+                }
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                if viewModel.sexSource == .userEntered {
                     Haptics.feedback(style: .soft)
-                })
-            }
-            return HStack {
-                Spacer()
-                picker
-            }
+                }
+            })
         }
         
-        return Group {
-            switch viewModel.sexSource {
-            case .healthApp:
-                health
-            case .userEntered:
-                manualEntry
-            default:
-                EmptyView()
-            }
+        return HStack {
+            Spacer()
+            picker
         }
-        .padding(.trailing)
     }
     
     var sourceSection: some View {
