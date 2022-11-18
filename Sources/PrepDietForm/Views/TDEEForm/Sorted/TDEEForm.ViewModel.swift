@@ -993,7 +993,7 @@ extension TDEEForm.ViewModel {
     
     var activeEnergyPeriodBinding: Binding<HealthPeriodOption> {
         Binding<HealthPeriodOption>(
-            get: { self.restingEnergyPeriod },
+            get: { self.activeEnergyPeriod },
             set: { newPeriod in
                 Haptics.feedback(style: .soft)
                 self.changeActiveEnergyPeriod(to: newPeriod)

@@ -240,7 +240,8 @@ extension HealthKitManager {
             for: .basalEnergyBurned,
             using: energyUnit.healthKitUnit,
             overPast: value,
-            interval: interval
+            interval: interval,
+            considerEmptyDaysAsZero: false /// this makes sure we're not counting days that had no recorded resting energy as that would be impossible unless you were dead
         )
     }
 
@@ -249,20 +250,21 @@ extension HealthKitManager {
             for: .activeEnergyBurned,
             using: energyUnit.healthKitUnit,
             overPast: value,
-            interval: interval
+            interval: interval,
+            considerEmptyDaysAsZero: true /// this makes sure we're dividing by the total number of days, even those where we had no recorded activity
         )
     }
 
-    func averageSum(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
+    func averageSum(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, overPast value: Int, interval: HealthAppInterval, considerEmptyDaysAsZero: Bool = true) async throws -> Double? {
         /// Get the date range
         guard let dateRange = interval.dateRangeOfPast(value) else {
             throw HealthKitManagerError.dateCreationError
         }
         
-        return try await averageSumUsingIntervals(for: typeIdentifier, using: unit, in: dateRange)
+        return try await averageSumUsingIntervals(for: typeIdentifier, using: unit, in: dateRange, considerEmptyDaysAsZero: considerEmptyDaysAsZero)
     }
 
-    func averageSumUsingIntervals(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>) async throws -> Double? {
+    func averageSumUsingIntervals(for typeIdentifier: HKQuantityTypeIdentifier, using unit: HKUnit, in dateRange: ClosedRange<Date>, considerEmptyDaysAsZero: Bool) async throws -> Double? {
         /// Always get samples up to the start of tomorrow, so that we get all of today's results too in case we need it
         let endDate = Date().startOfDay.moveDayBy(1)
         
@@ -289,7 +291,8 @@ extension HealthKitManager {
                 throw HealthKitManagerError.couldNotGetStatistics
             }
             guard let sumQuantity = statistics.sumQuantity() else {
-                throw HealthKitManagerError.couldNotGetSumQuantity
+                print("Could not get sumQuantity for \(day)")
+                continue
             }
             sumQuantities[day] = sumQuantity
         }
@@ -302,7 +305,13 @@ extension HealthKitManager {
             .values
             .map { $0.doubleValue(for: unit) }
             .reduce(0, +)
-        return sum / Double(sumQuantities.count)
+        
+        /// We're using the number of days here because there may have been days where we recorded 0
+        if considerEmptyDaysAsZero {
+            return sum / Double(dateRange.days.count)
+        } else {
+            return sum / Double(sumQuantities.count)
+        }
     }
     
     /// We had previously used this to try and speed up the query to no avail. This seemingly only marginally improved the efficiency if at all (it was slower sometimes)—with a tradeoff of accuracy as the results don't correlate precisely with what HealthKit reports.

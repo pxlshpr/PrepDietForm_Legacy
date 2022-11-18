@@ -227,7 +227,7 @@ extension TDEEForm {
         @Published var activeEnergyTextFieldString: String = ""
         @Published var activeEnergyPeriod: HealthPeriodOption = .previousDay
         @Published var activeEnergyIntervalValue: Int = 1
-        @Published var activeEnergyInterval: HealthAppInterval = .week
+        @Published var activeEnergyInterval: HealthAppInterval = .day
         @Published var activeEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
         
