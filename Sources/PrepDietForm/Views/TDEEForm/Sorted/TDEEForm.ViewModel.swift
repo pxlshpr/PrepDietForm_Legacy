@@ -501,7 +501,7 @@ extension TDEEForm.ViewModel {
             value = lbm
         }
         guard let value else { return "" }
-        return value.cleanAmount + " " + userWeightUnit.shortDescription
+        return value.rounded(toPlaces: 1).cleanAmount + " " + userWeightUnit.shortDescription
     }
 
     var hasLeanBodyMass: Bool {

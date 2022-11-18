@@ -406,6 +406,7 @@ extension TDEEForm {
                             }
                             Text(viewModel.restingEnergyFormatted)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .foregroundColor(viewModel.restingEnergySource == .userEntered ? .primary : .secondary)
                                 .fixedSize(horizontal: true, vertical: false)
                                 .matchedGeometryEffect(id: "resting", in: namespace)
                                 .if(!viewModel.hasRestingEnergy) { view in
@@ -425,6 +426,7 @@ extension TDEEForm {
                     Spacer()
                     Text(viewModel.restingEnergyFormatted)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .foregroundColor(.secondary)
                         .fixedSize(horizontal: true, vertical: false)
                         .matchedGeometryEffect(id: "resting", in: namespace)
                         .if(!viewModel.hasRestingEnergy) { view in
