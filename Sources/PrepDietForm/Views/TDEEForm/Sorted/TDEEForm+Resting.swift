@@ -420,7 +420,6 @@ extension TDEEForm {
                 }
             }
             
-            @ViewBuilder
             var formula: some View {
                 HStack {
                     Spacer()

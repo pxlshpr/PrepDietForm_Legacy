@@ -15,7 +15,7 @@ extension TDEEForm {
     var viewContents: some View {
         Group {
             promptSection
-            if !viewModel.notSetup {
+            if viewModel.shouldShowSummary {
                 arrowSection
                 summarySection
                     .padding(.top, 5)

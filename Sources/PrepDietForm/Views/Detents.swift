@@ -63,9 +63,9 @@ extension TDEEForm {
         let onPrimaryDetent = viewModel.presentationDetent == .custom(PrimaryDetent.self)
         /// We could be on either detent here (expanded or expanded2—which the differences between aren't noticeable)
         if onPrimaryDetent {
-            detentHeightSecondary = viewModel.isSetup ? .collapsed : .empty
+            detentHeightSecondary = viewModel.shouldShowSummary ? .collapsed : .empty
         } else {
-            detentHeightPrimary = viewModel.isSetup ? .collapsed : .empty
+            detentHeightPrimary = viewModel.shouldShowSummary ? .collapsed : .empty
         }
         withAnimation {
             viewModel.isEditing = false
@@ -79,10 +79,10 @@ extension TDEEForm {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if onPrimaryDetent {
-                detentHeightSecondary = viewModel.isSetup ? .collapsed : .empty
+                detentHeightSecondary = viewModel.shouldShowSummary ? .collapsed : .empty
                 viewModel.detents = [.custom(SecondaryDetent.self)]
             } else {
-                detentHeightPrimary = viewModel.isSetup ? .collapsed : .empty
+                detentHeightPrimary = viewModel.shouldShowSummary ? .collapsed : .empty
                 viewModel.detents = [.custom(PrimaryDetent.self)]
             }
         }

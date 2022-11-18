@@ -23,4 +23,14 @@ extension TDEEForm {
             break
         }
     }
+    
+    func activeEnergySourceChanged(to newSource: ActiveEnergySourceOption?) {
+        switch newSource {
+        case .userEntered:
+            activeEnergyTextFieldIsFocused = true
+        default:
+            break
+        }
+    }
+
 }

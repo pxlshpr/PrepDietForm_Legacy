@@ -17,14 +17,14 @@ struct TDEEForm: View {
 
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(isSetup: Bool = false, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
+    init(existingProfile: TDEEProfile? = nil, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
         let viewModel = ViewModel(
-            isSetup: isSetup,
+            existingProfile: existingProfile,
             userEnergyUnit: userEnergyUnit,
             userWeightUnit: userWeightUnit,
             userHeightUnit: userHeightUnit
         )
-        if isSetup {
+        if existingProfile != nil {
             detentHeightPrimary = .collapsed
             detentHeightSecondary = .collapsed
         } else {
@@ -58,6 +58,7 @@ struct TDEEForm: View {
             .toolbar { trailingContent }
             .toolbar { leadingContent }
             .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
+            .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }

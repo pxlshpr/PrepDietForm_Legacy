@@ -8,7 +8,7 @@ extension TDEEForm {
                 .matchedGeometryEffect(id: "maintenance-footer", in: namespace)
                 .multilineTextAlignment(.leading)
                 .foregroundColor(Color(.secondaryLabel))
-            if viewModel.notSetup {
+            if viewModel.shouldShowInitialSetupButton {
                 Button {
                     transitionToEditState()
                 } label: {
@@ -98,22 +98,19 @@ extension TDEEForm {
     
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if !viewModel.notSetup {
+            if viewModel.shouldShowSaveButton {
                 Button {
-                    toggleEditState()
+                    transitionToCollapsedState()
                 } label: {
-                    Text(viewModel.isEditing ? "Save" : "Edit")
-//                    Image(systemName: isEditing ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                    Text("Save")
                 }
-//                if valuesHaveChanged {
-//                    Button {
-//                        Haptics.successFeedback()
-//                        dismiss()
-//                    } label: {
-//                        Text("Save")
-//                            .bold()
-//                    }
-//                }
+            }
+            if viewModel.shouldShowEditButton {
+                Button {
+                    transitionToEditState()
+                } label: {
+                    Text("Edit")
+                }
             }
         }
     }

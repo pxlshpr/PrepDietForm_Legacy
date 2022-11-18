@@ -203,12 +203,29 @@ extension TDEEForm {
                 }
             }
             
+            var activityLevel: some View {
+                HStack {
+                    Spacer()
+                    Text(viewModel.activeEnergyFormatted)
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .matchedGeometryEffect(id: "active", in: namespace)
+                        .if(!viewModel.hasActiveEnergy) { view in
+                            view
+                                .redacted(reason: .placeholder)
+                        }
+                    Text(viewModel.userEnergyUnit.shortDescription)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
             return Group {
                 switch viewModel.activeEnergySource {
                 case .healthApp:
                     health
                 case .activityLevel:
-                    EmptyView()
+                    activityLevel
                 case .userEntered:
                     manualEntry
                 default:
@@ -216,6 +233,38 @@ extension TDEEForm {
                 }
             }
             .padding(.trailing)
+        }
+        
+        var activityLevelContent: some View {
+            var menu: some View {
+                Menu {
+                    Picker(selection: viewModel.activeEnergyActivityLevelBinding, label: EmptyView()) {
+                        ForEach(ActivityLevel.allCases, id: \.self) {
+                            Text($0.description).tag($0)
+                        }
+                    }
+                } label: {
+//                    PickerLabel(
+//                        viewModel.activeEnergyFormula.year,
+//                        prefix: viewModel.activeEnergyFormula.menuDescription,
+//                        foregroundColor: .secondary,
+//                        prefixColor: .primary
+//                    )
+                    PickerLabel(viewModel.activeEnergyActivityLevel.description)
+                    .animation(.none, value: viewModel.activeEnergyActivityLevel)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            return HStack {
+                HStack {
+//                    Text("using")
+//                        .foregroundColor(Color(.tertiaryLabel))
+                    menu
+//                    Text("formula")
+//                        .foregroundColor(Color(.tertiaryLabel))
+                }
+            }
+            .padding(.top, 8)
         }
         
         @ViewBuilder
@@ -229,8 +278,7 @@ extension TDEEForm {
                             case .healthApp:
                                 healthContent
                             case .activityLevel:
-                                EmptyView()
-//                                activityLevelContent
+                                activityLevelContent
                             case .userEntered:
                                 EmptyView()
                             }
@@ -243,6 +291,15 @@ extension TDEEForm {
             }
         }
     
+        func tappedActivityLevel() {
+            viewModel.changeActiveEnergySource(to: .activityLevel)
+        }
+
+        func tappedManualEntry() {
+            viewModel.changeActiveEnergySource(to: .userEntered)
+            activeEnergyTextFieldIsFocused = true
+        }
+
         func tappedSyncWithHealth() {
             Task(priority: .high) {
                 do {
@@ -270,8 +327,8 @@ extension TDEEForm {
 //            }
             FlowView(alignment: .center, spacing: 10, padding: 37) {
                 emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
-                emptyButton2("Activity Level", systemImage: "dial.medium.fill")
-                emptyButton2("Enter Manually", systemImage: "keyboard")
+                emptyButton2("Activity Level", systemImage: "dial.medium.fill", action: tappedActivityLevel)
+                emptyButton2("Enter Manually", systemImage: "keyboard", action: tappedManualEntry)
             }
         }
         

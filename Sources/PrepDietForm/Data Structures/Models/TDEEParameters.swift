@@ -1,7 +1,7 @@
 import Foundation
 
 /// This is a setting that gets applied on whichever date the user initially sets it on. After this, a new entry is added to their User record only once they go and change any of the parameters involved. This would then imply that whichever setting was applied takes effect until the date of the next change. We don't expect this to change often, so hopefully storing it (as a json blob on our server and data in core data) doesn't effect the size of the user's too much and outweighs having a separate entity to store records of this.
-public struct TDEEParameters: Hashable, Codable {
+public struct TDEEProfile: Hashable, Codable {
     
     /// When this setting was applied
     let date: Date

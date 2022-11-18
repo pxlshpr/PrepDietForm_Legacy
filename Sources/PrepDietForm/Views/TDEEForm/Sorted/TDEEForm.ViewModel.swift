@@ -37,12 +37,16 @@ extension HeightUnit {
 }
 
 extension TDEEForm.ViewModel {
-    var notSetup: Bool {
-        !isSetup
+    var maintenanceEnergy: Double? {
+        guard let activeEnergyValue, let restingEnergyValue else {
+            return nil
+        }
+        return activeEnergyValue + restingEnergyValue
     }
     
-    var maintenanceEnergy: Double? {
-        nil
+    var maintenanceEnergyFormatted: String {
+        guard let maintenanceEnergy else { return "" }
+        return maintenanceEnergy.formattedEnergy
     }
 }
 
@@ -659,7 +663,7 @@ extension TDEEForm.ViewModel {
     var restingEnergyValue: Double? {
         switch restingEnergySource {
         case .formula:
-            return calculatedActiveEnergy
+            return calculatedRestingEnergy
         default:
             return restingEnergy
         }
@@ -926,7 +930,33 @@ extension TDEEForm.ViewModel {
               let restingEnergy = restingEnergyValue
         else { return nil }
         
-        return activeEnergyActivityLevel.scaleFactor * restingEnergy
+        let total = activeEnergyActivityLevel.scaleFactor * restingEnergy
+        return total - restingEnergy
+    }
+
+    var activeEnergyActivityLevelBinding: Binding<ActivityLevel> {
+        Binding<ActivityLevel>(
+            get: { self.activeEnergyActivityLevel },
+            set: { newActivityLevel in
+                Haptics.feedback(style: .soft)
+                self.changeActiveEnergyActivityLevel(to: newActivityLevel)
+            }
+        )
+    }
+
+    func changeActiveEnergyActivityLevel(to newFormula: ActivityLevel) {
+        withAnimation {
+            self.activeEnergyActivityLevel = newFormula
+        }
+    }
+    
+    var activeEnergyValue: Double? {
+        switch activeEnergySource {
+        case .activityLevel:
+            return calculatedActiveEnergy
+        default:
+            return activeEnergy
+        }
     }
 
     var hasActiveEnergy: Bool {
@@ -1122,5 +1152,136 @@ extension TDEEForm.ViewModel {
             fetchRestingEnergyFromHealth()
         }
         //TODO: If its formula, fetch any measurements we have received new permissions for
+    }
+}
+
+
+extension TDEEForm {
+    class ViewModel: ObservableObject {
+        let userEnergyUnit: EnergyUnit
+        let userWeightUnit: WeightUnit
+        let userHeightUnit: HeightUnit
+
+        @Published var path: [Route] = []
+        @Published var isEditing = false
+        
+        @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
+        @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
+        
+//        @Published var path: [Route] = [.profileForm]
+//        @Published var isEditing = true
+//        @Published var presentationDetent: PresentationDetent = .large
+//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
+
+        @Published var hasAppeared = false
+
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
+        @Published var restingEnergy: Double? = nil
+        @Published var restingEnergyTextFieldString: String = ""
+        @Published var restingEnergyPeriod: HealthPeriodOption = .average
+        @Published var restingEnergyIntervalValue: Int = 1
+        @Published var restingEnergyInterval: HealthAppInterval = .week
+        @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
+
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        @Published var activeEnergyActivityLevel: ActivityLevel = .moderatelyActive
+        @Published var activeEnergy: Double? = nil
+        @Published var activeEnergyTextFieldString: String = ""
+        @Published var activeEnergyPeriod: HealthPeriodOption = .previousDay
+        @Published var activeEnergyIntervalValue: Int = 1
+        @Published var activeEnergyInterval: HealthAppInterval = .day
+        @Published var activeEnergyFetchStatus: HealthKitFetchStatus = .notFetched
+
+        
+        @Published var lbmSource: LeanBodyMassSourceOption? = nil
+        @Published var lbmFormula: LeanBodyMassFormula = .boer
+        @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var lbm: Double? = nil
+        @Published var lbmTextFieldString: String = ""
+        @Published var lbmDate: Date? = nil
+
+        @Published var weightSource: MeasurementSourceOption? = nil
+        @Published var weightFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var weight: Double? = nil
+        @Published var weightTextFieldString: String = ""
+        @Published var weightDate: Date? = nil
+
+        @Published var heightSource: MeasurementSourceOption? = nil
+        @Published var heightFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var height: Double? = nil
+        @Published var heightTextFieldString: String = ""
+        @Published var heightDate: Date? = nil
+
+        @Published var sexSource: MeasurementSourceOption? = nil
+        @Published var sexFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var sex: HKBiologicalSex? = nil
+
+        @Published var ageSource: MeasurementSourceOption? = nil
+        @Published var dobFetchStatus: HealthKitFetchStatus = .notFetched
+        @Published var dob: DateComponents? = nil
+        @Published var age: Int? = nil
+        @Published var ageTextFieldString: String = ""
+
+        let existingProfile: TDEEProfile?
+        
+        init(existingProfile: TDEEProfile?, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
+            self.userEnergyUnit = userEnergyUnit
+            self.userWeightUnit = userWeightUnit
+            self.userHeightUnit = userHeightUnit
+            
+            self.existingProfile = existingProfile
+        }
+    }
+}
+
+extension TDEEForm.ViewModel {
+    
+    var newProfile: TDEEProfile? {
+        //TODO: Construct this after we've refactored TDEEPRofile
+        guard maintenanceEnergy != nil else {
+            return nil
+        }
+        return TDEEProfile(date: Date(), source: .userEntered(1, .kJ))
+    }
+    
+    var shouldShowSaveButton: Bool {
+        guard isEditing else { return false }
+        if existingProfile != nil {
+            /// if we have an existing profile—check if the values differs
+            return false
+        } else {
+            /// otherwise, check if we have enough to save a new profile (simply check if maintenance value is not nil)
+            return newProfile != nil
+        }
+    }
+    
+    var shouldShowEditButton: Bool {
+        if existingProfile != nil {
+            return true
+        } else {
+            return !isEditing && newProfile != nil
+        }
+    }
+    
+    var shouldShowInitialSetupButton: Bool {
+        !shouldShowSummary
+//        existingProfile == nil && !isEditing
+    }
+    
+    var shouldShowSummary: Bool {
+        existingProfile != nil || newProfile != nil
+    }
+}
+
+
+struct TDEEForm_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    TDEEFormPreview()
+                }
+        }
     }
 }

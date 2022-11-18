@@ -12,7 +12,7 @@ extension TDEEForm {
                         .matchedGeometryEffect(id: "maintenance-header-icon", in: namespace)
                         .foregroundColor(Color(.tertiaryLabel))
                         .imageScale(.medium)
-                    Text("3,204")
+                    Text(viewModel.maintenanceEnergyFormatted)
                         .foregroundColor(.primary)
                         .matchedGeometryEffect(id: "maintenance", in: namespace)
                         .font(.system(.title3, design: .default, weight: .bold))
@@ -45,7 +45,7 @@ extension TDEEForm {
                             .imageScale(.small)
 //                            .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
                     }
-                    Text("2,024")
+                    Text(viewModel.restingEnergyFormatted)
                         .matchedGeometryEffect(id: "resting", in: namespace)
                         .fixedSize(horizontal: true, vertical: false)
                         .font(.system(.title3, design: .default, weight: .regular))
@@ -81,7 +81,7 @@ extension TDEEForm {
                             .matchedGeometryEffect(id: "active-health-icon", in: namespace)
                             .imageScale(.small)
                     }
-                    Text("1,428")
+                    Text(viewModel.activeEnergyFormatted)
                         .matchedGeometryEffect(id: "active", in: namespace)
                         .font(.system(.title3, design: .default, weight: .regular))
                         .foregroundColor(.primary)
