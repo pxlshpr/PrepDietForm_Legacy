@@ -643,6 +643,17 @@ extension TDEEForm.ViewModel {
 
 extension TDEEForm.ViewModel {
     
+    var restingEnergyIsDynamic: Bool {
+        switch restingEnergySource {
+        case .healthApp:
+            return true
+        case .formula:
+            return restingEnergyFormulaUsingSyncedHealthData
+        default:
+            return false
+        }
+    }
+    
     var restingEnergyFormulaUsingSyncedHealthData: Bool {
         if restingEnergyFormula.usesLeanBodyMass {
             switch lbmSource {
@@ -749,12 +760,13 @@ extension TDEEForm.ViewModel {
                     self.restingEnergyTextFieldString = newValue
                     return
                 }
-                guard let double = Double(newValue) else {
+                let withoutCommas = newValue.replacingOccurrences(of: ",", with: "")
+                guard let double = Double(withoutCommas) else {
                     return
                 }
                 self.restingEnergy = double
                 withAnimation {
-                    self.restingEnergyTextFieldString = newValue
+                    self.restingEnergyTextFieldString = double.formattedEnergy
                 }
             }
         )
@@ -911,6 +923,15 @@ extension TDEEForm.ViewModel {
 //MARK: - Active Energy
 
 extension TDEEForm.ViewModel {
+
+    var activeEnergyIsDynamic: Bool {
+        switch activeEnergySource {
+        case .healthApp:
+            return true
+        default:
+            return false
+        }
+    }
     
     var activeEnergyFormatted: String {
         switch activeEnergySource {
@@ -998,12 +1019,13 @@ extension TDEEForm.ViewModel {
                     self.activeEnergyTextFieldString = newValue
                     return
                 }
-                guard let double = Double(newValue) else {
+                let withoutCommas = newValue.replacingOccurrences(of: ",", with: "")
+                guard let double = Double(withoutCommas) else {
                     return
                 }
                 self.activeEnergy = double
                 withAnimation {
-                    self.activeEnergyTextFieldString = newValue
+                    self.activeEnergyTextFieldString = double.formattedEnergy
                 }
             }
         )
@@ -1272,8 +1294,11 @@ extension TDEEForm.ViewModel {
     var shouldShowSummary: Bool {
         existingProfile != nil || newProfile != nil
     }
+    
+    var isDynamic: Bool {
+        restingEnergyIsDynamic || activeEnergyIsDynamic
+    }
 }
-
 
 struct TDEEForm_Previews: PreviewProvider {
     static var previews: some View {

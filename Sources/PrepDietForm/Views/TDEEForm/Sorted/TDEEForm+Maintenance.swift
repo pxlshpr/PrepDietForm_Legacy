@@ -8,7 +8,11 @@ extension TDEEForm {
         var content: some View {
 
             func filled(value: Double, unit: EnergyUnit) -> some View {
-                MaintenanceEnergyView(value: value, unit: unit)
+                MaintenanceEnergyView(
+                    value: value,
+                    unit: unit,
+                    namespace: namespace
+                )
             }
             
             var empty: some View {
@@ -96,11 +100,14 @@ struct MaintenanceEnergyView: View {
     let value: Double
     let unit: EnergyUnit
     
+    let namespace: Namespace.ID
+    
     var body: some View {
         VStack {
             ZStack {
                 Text(value.formattedEnergy)
                     .fixedSize(horizontal: true, vertical: false)
+                    .matchedGeometryEffect(id: "maintenance", in: namespace)
                     .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                     .background(
                         GeometryReader { proxy in
@@ -144,8 +151,8 @@ struct MaintenanceEnergyView: View {
     }
 }
 
-struct FilledPreviews: PreviewProvider {
-    static var previews: some View {
-        MaintenanceEnergyView(value: 12304, unit: .kJ)
-    }
-}
+//struct FilledPreviews: PreviewProvider {
+//    static var previews: some View {
+//        MaintenanceEnergyView(value: 12304, unit: .kJ)
+//    }
+//}

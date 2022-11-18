@@ -32,7 +32,7 @@ enum ActiveEnergySourceOption: CaseIterable {
         case .healthApp:
             return "heart.fill"
         case .activityLevel:
-            return "figure.walk.motion"
+            return "dial.medium.fill"
         case .userEntered:
             return "keyboard"
         }

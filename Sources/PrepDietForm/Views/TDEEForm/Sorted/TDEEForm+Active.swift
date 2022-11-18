@@ -174,7 +174,7 @@ extension TDEEForm {
                             Text(viewModel.activeEnergyFormatted)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
                                 .foregroundColor(viewModel.activeEnergySource == .userEntered ? .primary : .secondary)
-                                .fixedSize(horizontal: true, vertical: false)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .matchedGeometryEffect(id: "active", in: namespace)
                                 .if(!viewModel.hasActiveEnergy) { view in
                                     view
@@ -193,10 +193,9 @@ extension TDEEForm {
                     TextField("energy in", text: viewModel.activeEnergyTextFieldStringBinding)
                         .keyboardType(.decimalPad)
                         .focused($activeEnergyTextFieldIsFocused)
-                        .fixedSize(horizontal: true, vertical: false)
                         .multilineTextAlignment(.trailing)
-//                        .fixedSize(horizontal: true, vertical: false)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .fixedSize(horizontal: false, vertical: true)
                         .matchedGeometryEffect(id: "active", in: namespace)
                     Text(viewModel.userEnergyUnit.shortDescription)
                         .foregroundColor(.secondary)
@@ -209,7 +208,7 @@ extension TDEEForm {
                     Text(viewModel.activeEnergyFormatted)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .foregroundColor(.secondary)
-                        .fixedSize(horizontal: true, vertical: false)
+                        .fixedSize(horizontal: false, vertical: true)
                         .matchedGeometryEffect(id: "active", in: namespace)
                         .if(!viewModel.hasActiveEnergy) { view in
                             view

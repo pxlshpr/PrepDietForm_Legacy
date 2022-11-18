@@ -87,6 +87,7 @@ extension TDEEForm {
                         .foregroundColor(.primary)
                         .monospacedDigit()
                         .padding(.vertical, 20)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
