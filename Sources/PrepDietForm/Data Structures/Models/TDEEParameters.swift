@@ -56,7 +56,17 @@ public struct TDEEProfileParameters: Hashable, Codable {
     var ageSource: MeasurementSourceOption?
 }
 
+extension TDEEProfileParameters {
+    var updatesWithHealthApp: Bool {
+        return restingEnergySource == .healthApp
+        || activeEnergySource == .healthApp
+        || lbmSource == .healthApp
+        || weightSource == .healthApp
+    }
+}
+
 extension TDEEProfile {
+    
     var tdeeInUnit: Double {
         tdee(in: parameters.energyUnit)
     }

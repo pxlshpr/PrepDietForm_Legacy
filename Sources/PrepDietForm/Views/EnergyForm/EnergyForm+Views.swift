@@ -48,30 +48,38 @@ extension EnergyForm {
         EmptyView()
     }
     
-    @ViewBuilder
     var equivalentSection: some View {
-        if goal.haveEquivalentValues {
-            FormStyledSection {
-                HStack {
-                    if let lower = goal.equivalentLowerBound {
-                        if goal.equivalentUpperBound == nil {
-                            equivalentAccessoryText("at least")
-                        }
-                        HStack(spacing: 3) {
-                            equivalentValueText(lower.formattedEnergy)
+        @ViewBuilder
+        var header: some View {
+            if isDynamic {
+                Text("Currently")
+            }
+        }
+        
+        return Group {
+            if goal.haveEquivalentValues {
+                FormStyledSection(header: header) {
+                    HStack {
+                        if let lower = goal.equivalentLowerBound {
                             if goal.equivalentUpperBound == nil {
+                                equivalentAccessoryText("at least")
+                            }
+                            HStack(spacing: 3) {
+                                equivalentValueText(lower.formattedEnergy)
+                                if goal.equivalentUpperBound == nil {
+                                    equivalentUnitText("kcal")
+                                }
+                            }
+                        }
+                        if let upper = goal.equivalentUpperBound {
+                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
+                            HStack(spacing: 3) {
+                                equivalentValueText(upper.formattedEnergy)
                                 equivalentUnitText("kcal")
                             }
                         }
+                        Spacer()
                     }
-                    if let upper = goal.equivalentUpperBound {
-                        equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
-                        HStack(spacing: 3) {
-                            equivalentValueText(upper.formattedEnergy)
-                            equivalentUnitText("kcal")
-                        }
-                    }
-                    Spacer()
                 }
             }
         }
@@ -109,6 +117,7 @@ extension EnergyForm {
         }
         .navigationTitle("Energy")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar { trailingContent }
         .onChange(of: pickedMealEnergyGoalType, perform: mealEnergyGoalChanged)
         .onChange(of: pickedDietEnergyGoalType, perform: dietEnergyGoalChanged)
         .onChange(of: pickedDelta, perform: deltaChanged)
@@ -116,9 +125,43 @@ extension EnergyForm {
         .sheet(isPresented: $showingTDEEForm) { tdeeForm }
     }
     
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if isDynamic {
+                Text("Dynamic")
+                    .font(.footnote)
+                    .textCase(.uppercase)
+                    .foregroundColor(Color(.tertiaryLabel))
+                Image(systemName: "bolt.horizontal.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(
+                        .linearGradient(
+                            colors: [
+                                Color(hex: AppleHealthTopColorHex),
+                                Color(hex: AppleHealthBottomColorHex)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        }
+    }
+    
+    var isDynamic: Bool {
+        viewModel.currentTDEEProfile?.parameters.updatesWithHealthApp == true
+    }
+    
+    @ViewBuilder
+    var unitsFooter: some View {
+        if isDynamic {
+            Text("Your maintenance energy will automatically adjust to changes from the Health App, making this a dynamic goal.")
+        }
+    }
+    
     var unitSection: some View {
         var horizontalScrollView: some View {
-            FormStyledSection(horizontalPadding: 0) {
+            FormStyledSection(footer: unitsFooter, horizontalPadding: 0) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
                         typePicker
@@ -160,13 +203,24 @@ extension EnergyForm {
                 showingTDEEForm = true
             } label: {
                 if let profile = viewModel.currentTDEEProfile {
-                    PickerLabel(
-                        profile.formattedTDEEWithUnit,
-//                        prefix: "maintenance",
-                        systemImage: "flame.fill",
-                        imageColor: Color(.secondaryLabel),
-                        imageScale: .small
-                    )
+                    if profile.parameters.updatesWithHealthApp {
+                        PickerLabel(
+                            profile.formattedTDEEWithUnit,
+                            systemImage: "flame.fill",
+                            imageColor: Color(hex: "F3DED7"),
+                            backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                            backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                            foregroundColor: .white,
+                            imageScale: .small
+                        )
+                    } else {
+                        PickerLabel(
+                            profile.formattedTDEEWithUnit,
+                            systemImage: "flame.fill",
+                            imageColor: Color(.secondaryLabel),
+                            imageScale: .small
+                        )
+                    }
                 } else {
                     PickerLabel(
                         "set",
