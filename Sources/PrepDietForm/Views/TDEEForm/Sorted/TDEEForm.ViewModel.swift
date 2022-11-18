@@ -1261,7 +1261,105 @@ extension TDEEForm.ViewModel {
             return nil
         }
         
-        //TODO: create a helper for these
+        var restingEnergyFormula: RestingEnergyFormula? {
+            guard restingEnergySource == .formula else { return nil }
+            return self.restingEnergyFormula
+        }
+
+        var restingEnergyPeriod: HealthPeriodOption? {
+            guard restingEnergySource == .healthApp else { return nil }
+            return self.restingEnergyPeriod
+        }
+
+        var restingEnergyIntervalValue: Int? {
+            guard restingEnergySource == .healthApp else { return nil }
+            return self.restingEnergyIntervalValue
+        }
+
+        var restingEnergyInterval: HealthAppInterval? {
+            guard restingEnergySource == .healthApp else { return nil }
+            return self.restingEnergyInterval
+        }
+        
+        var activeEnergyPeriod: HealthPeriodOption? { activeEnergySource == .healthApp ? self.activeEnergyPeriod : nil }
+        var activeEnergyActivityLevel: ActivityLevel? { activeEnergySource == .activityLevel ? self.activeEnergyActivityLevel : nil }
+
+        var activeEnergyIntervalValue: Int? {
+            guard activeEnergySource == .healthApp else { return nil }
+            return self.activeEnergyIntervalValue
+        }
+
+        var activeEnergyInterval: HealthAppInterval? {
+            guard activeEnergySource == .healthApp else { return nil }
+            return self.activeEnergyInterval
+        }
+        
+        var usingLeanBodyMass: Bool {
+            guard let restingEnergyFormula else { return false }
+            return restingEnergyFormula.usesLeanBodyMass
+        }
+        
+        var lbmValue: Double? {
+            guard usingLeanBodyMass else { return nil }
+            return self.lbmValue
+        }
+        
+        var lbmSource: LeanBodyMassSourceOption? {
+            guard usingLeanBodyMass else { return nil }
+            return self.lbmSource
+        }
+
+        var lbmFormula: LeanBodyMassFormula? {
+            guard let lbmSource, lbmSource == .formula else { return nil }
+            return self.lbmFormula
+        }
+        
+        var lbmDate: Date? {
+            guard let lbmSource, lbmSource == .healthApp else { return nil }
+            return self.lbmDate
+        }
+        
+        var usingWeight: Bool {
+            guard let restingEnergyFormula else { return false }
+            if restingEnergyFormula.usesLeanBodyMass {
+                guard let lbmSource else { return false }
+                return lbmSource.usesWeight
+            } else {
+                /// all other formula's use weight
+                return true
+            }
+        }
+
+        var usingHeight: Bool {
+            guard let restingEnergyFormula else { return false }
+            return !restingEnergyFormula.usesLeanBodyMass && restingEnergyFormula.requiresHeight
+        }
+        
+        var usingSex: Bool {
+            guard let restingEnergyFormula else { return false }
+            return !restingEnergyFormula.usesLeanBodyMass
+        }
+
+        var usingAge: Bool {
+            guard let restingEnergyFormula else { return false }
+            return !restingEnergyFormula.usesLeanBodyMass
+        }
+
+        var fatPercentage: Double? { usingWeight ? self.fatPercentage : nil }
+        var weight: Double? { usingWeight ? self.weight : nil }
+        var weightSource: MeasurementSourceOption? { usingWeight ? self.weightSource : nil }
+        var weightDate: Date? { weightSource == .healthApp ? self.weightDate : nil }
+
+        var height: Double? { usingHeight ? self.height : nil }
+        var heightSource: MeasurementSourceOption? { usingHeight ? self.heightSource : nil }
+        var heightDate: Date? { heightSource == .healthApp ? self.heightDate : nil }
+
+        var sexIsFemale: Bool? { usingSex ? self.sexIsFemale : nil }
+        var sexSource: MeasurementSourceOption? { usingSex ? self.sexSource : nil }
+
+        var age: Int? { usingAge ? self.age : nil }
+        var dob: DateComponents? { usingAge ? self.dob : nil }
+        var ageSource: MeasurementSourceOption? { usingAge ? self.ageSource : nil }
         
         let parameters = TDEEProfileParameters(
             energyUnit: userEnergyUnit,

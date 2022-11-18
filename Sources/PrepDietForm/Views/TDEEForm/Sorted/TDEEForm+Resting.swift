@@ -676,6 +676,15 @@ enum LeanBodyMassSourceOption: Int16, Codable, CaseIterable {
             return "Enter manually"
         }
     }
+    
+    var usesWeight: Bool {
+        switch self {
+        case .formula, .fatPercentage:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum LeanBodyMassFormula: Int16, Codable, CaseIterable {
