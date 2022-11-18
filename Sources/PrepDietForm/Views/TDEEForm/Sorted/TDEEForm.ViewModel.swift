@@ -1416,14 +1416,9 @@ extension TDEEForm {
         @Published var path: [Route] = []
         @Published var isEditing = false
 
-        @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
-        @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
+        @Published var presentationDetent: PresentationDetent
+        @Published var detents: Set<PresentationDetent>
         
-//        @Published var path: [Route] = [.profileForm]
-//        @Published var isEditing = true
-//        @Published var presentationDetent: PresentationDetent = .large
-//        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
-
         @Published var hasAppeared = false
 
         @Published var restingEnergySource: RestingEnergySourceOption? = nil
@@ -1474,6 +1469,10 @@ extension TDEEForm {
         @Published var age: Int? = nil
         @Published var ageTextFieldString: String = ""
 
+        /// These were used when trying to force the detents to switch
+//        @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
+//        @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
+
         let existingProfile: TDEEProfile?
         
         init(existingProfile: TDEEProfile?, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
@@ -1482,6 +1481,14 @@ extension TDEEForm {
             self.userHeightUnit = userHeightUnit
             
             self.existingProfile = existingProfile
+            
+            if existingProfile == nil {
+                detents = [.height(270), .large]
+                presentationDetent = .height(270)
+            } else {
+                detents = [.medium, .large]
+                presentationDetent = .medium
+            }
         }
     }
 }

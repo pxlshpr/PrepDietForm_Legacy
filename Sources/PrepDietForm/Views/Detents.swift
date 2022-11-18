@@ -47,15 +47,28 @@ struct SecondaryDetent: CustomPresentationDetent {
 }
 
 extension TDEEForm {
-    func toggleEditState() {
-        if viewModel.isEditing {
-            transitionToCollapsedState()
-        } else {
-            transitionToEditState()
+    func transitionToEditState() {
+        Haptics.successFeedback()
+        withAnimation {
+            viewModel.isEditing = true
+            viewModel.presentationDetent = .large
         }
     }
-    
-    func transitionToCollapsedState() {
+}
+
+//MARK: - Experimental Legacy Detent Transitions
+
+extension TDEEForm {
+    func toggleEditState_experimental_legacy() {
+        if viewModel.isEditing {
+            transitionToCollapsedState_experimental_legacy()
+        } else {
+            transitionToEditState_experimental_legacy()
+        }
+    }
+
+
+    func transitionToCollapsedState_experimental_legacy() {
         Haptics.successFeedback()
         
         viewModel.detents = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
@@ -88,7 +101,7 @@ extension TDEEForm {
         }
     }
     
-    func transitionToEditState() {
+    func transitionToEditState_experimental_legacy() {
         Haptics.feedback(style: .rigid)
 
         viewModel.detents = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
