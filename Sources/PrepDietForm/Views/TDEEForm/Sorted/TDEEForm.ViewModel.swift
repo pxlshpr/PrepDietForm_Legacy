@@ -715,14 +715,14 @@ extension TDEEForm.ViewModel {
         }
     }
 
-    var hasDynamicRestingEnergy: Bool {
+    var restingEnergyPrefix: String? {
         switch restingEnergySource {
         case .healthApp:
-            return true
+            return restingEnergyPeriod.energyPrefix
         case .formula:
-            return restingEnergyFormulaUsingSyncedHealthData
+            return restingEnergyFormulaUsingSyncedHealthData ? "currently" : nil
         default:
-            return false
+            return nil
         }
     }
     
@@ -940,12 +940,12 @@ extension TDEEForm.ViewModel {
         }
     }
 
-    var hasDynamicActiveEnergy: Bool {
+    var activeEnergyPrefix: String? {
         switch activeEnergySource {
         case .healthApp:
-            return true
+            return activeEnergyPeriod.energyPrefix
         default:
-            return false
+            return nil
         }
     }
     

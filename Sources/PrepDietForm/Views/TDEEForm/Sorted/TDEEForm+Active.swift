@@ -166,8 +166,8 @@ extension TDEEForm {
                                 .frame(width: 25, height: 25)
                                 .foregroundColor(.secondary)
                         } else {
-                            if viewModel.hasDynamicActiveEnergy {
-                                Text("currently")
+                            if let prefix = viewModel.activeEnergyPrefix {
+                                Text(prefix)
                                     .font(.subheadline)
                                     .foregroundColor(Color(.tertiaryLabel))
                             }
@@ -234,7 +234,7 @@ extension TDEEForm {
                             case .userEntered:
                                 EmptyView()
                             }
-//                            energyRow
+                            energyRow
                         }
                     } else {
                         emptyContent

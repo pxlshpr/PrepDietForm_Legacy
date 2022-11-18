@@ -399,8 +399,8 @@ extension TDEEForm {
                                 .frame(width: 25, height: 25)
                                 .foregroundColor(.secondary)
                         } else {
-                            if viewModel.hasDynamicRestingEnergy {
-                                Text("currently")
+                            if let prefix = viewModel.restingEnergyPrefix {
+                                Text(prefix)
                                     .font(.subheadline)
                                     .foregroundColor(Color(.tertiaryLabel))
                             }

@@ -20,4 +20,13 @@ enum HealthPeriodOption: CaseIterable {
             return "daily average of"
         }
     }
+    
+    var energyPrefix: String {
+        switch self {
+        case .previousDay:
+            return "yesterday"
+        case .average:
+            return "currently"
+        }
+    }
 }
