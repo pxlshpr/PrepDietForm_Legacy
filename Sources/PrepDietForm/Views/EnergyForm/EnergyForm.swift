@@ -26,24 +26,3 @@ struct EnergyForm: View {
         _pickedDelta = State(initialValue: delta)
     }
 }
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel = GoalSetForm.ViewModel(isMealProfile: false, existingGoalSet: nil)
-    @StateObject var goalViewModel = GoalViewModel(type: .energy(.fixed(.kcal)))
-    
-    var body: some View {
-        NavigationView {
-            EnergyForm(goal: goalViewModel)
-                .environmentObject(viewModel)
-        }
-    }
-}
-
-struct EnergyForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        EnergyFormPreview()
-    }
-}
-

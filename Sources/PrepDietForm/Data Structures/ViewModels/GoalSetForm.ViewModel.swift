@@ -2,9 +2,10 @@ import SwiftUI
 import PrepDataTypes
 
 extension Array where Element == Goal {
-    func goalViewModels(isForMeal: Bool) -> [GoalViewModel] {
+    func goalViewModels(goalSet: GoalSetForm.ViewModel, isForMeal: Bool) -> [GoalViewModel] {
         map {
             GoalViewModel(
+                goalSet: goalSet,
                 isForMeal: isForMeal,
                 id: $0.id,
                 type: $0.type,
@@ -15,7 +16,7 @@ extension Array where Element == Goal {
     }
 }
 extension GoalSetForm {
-    class ViewModel: ObservableObject {
+    public class ViewModel: ObservableObject {
         @Published var emoji: String
         @Published var name: String
         @Published var isMealProfile = false
@@ -30,7 +31,7 @@ extension GoalSetForm {
             self.existingGoalSet = existing
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""
-            self.goals = existing?.goals.goalViewModels(isForMeal: isMealProfile) ?? []
+            self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
         }
     }
 }
@@ -47,12 +48,14 @@ extension GoalSetForm.ViewModel {
     func didAddNutrients(pickedEnergy: Bool, pickedMacros: [Macro], pickedMicros: [NutrientType]) {
         if pickedEnergy, !goals.containsEnergy {
             goals.append(GoalViewModel(
+                goalSet: self,
                 isForMeal: isMealProfile, type: .energy(.fixed(.kcal))
             ))
         }
         for macro in pickedMacros {
             if !goals.containsMacro(macro) {
                 goals.append(GoalViewModel(
+                    goalSet: self,
                     isForMeal: isMealProfile,
                     type: .macro(.fixed, macro)
                 ))
@@ -61,6 +64,7 @@ extension GoalSetForm.ViewModel {
         for nutrientType in pickedMicros {
             if !goals.containsMicro(nutrientType) {
                 goals.append(GoalViewModel(
+                    goalSet: self,
                     isForMeal: isMealProfile,
                     type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
                 ))

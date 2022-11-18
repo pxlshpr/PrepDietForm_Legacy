@@ -3,6 +3,8 @@ import PrepDataTypes
 
 public class GoalViewModel: ObservableObject {
     
+    var goalSet: GoalSetForm.ViewModel
+    
     let isForMeal: Bool
     
     let id: UUID
@@ -11,12 +13,14 @@ public class GoalViewModel: ObservableObject {
     @Published var upperBound: Double?
     
     public init(
+        goalSet: GoalSetForm.ViewModel,
         isForMeal: Bool = false,
         id: UUID = UUID(),
         type: GoalType,
         lowerBound: Double? = nil,
         upperBound: Double? = nil
     ) {
+        self.goalSet = goalSet
         self.isForMeal = isForMeal
         self.id = id
         self.type = type
@@ -45,6 +49,9 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
+    var haveEquivalentValues: Bool {
+        equivalentLowerBound != nil || equivalentUpperBound != nil
+    }
     var energyGoalDelta: EnergyGoalType.Delta? {
         get {
             switch type {

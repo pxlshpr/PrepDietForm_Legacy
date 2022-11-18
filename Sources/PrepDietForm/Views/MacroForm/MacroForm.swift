@@ -265,18 +265,25 @@ extension MacroForm {
 
 struct MacroFormPreview: View {
     
-    @StateObject var goalSetViewModel = GoalSetForm.ViewModel(
-        isMealProfile: true,
-        existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
-            Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
-        ])
-    )
-    @StateObject var goalViewModel = GoalViewModel(type: .macro(.fixed, .carb))
+    @StateObject var goalSet: GoalSetForm.ViewModel
+    @StateObject var goal: GoalViewModel
+    
+    init() {
+        let goalSet = GoalSetForm.ViewModel(
+            isMealProfile: true,
+            existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
+                Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
+            ])
+        )
+        let goal = GoalViewModel(goalSet: goalSet, type: .macro(.fixed, .carb))
+        _goalSet = StateObject(wrappedValue: goalSet)
+        _goal = StateObject(wrappedValue: goal)
+    }
     
     var body: some View {
         NavigationView {
-            MacroForm(goal: goalViewModel)
-                .environmentObject(goalSetViewModel)
+            MacroForm(goal: goal)
+                .environmentObject(goalSet)
         }
     }
 }

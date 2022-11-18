@@ -58,9 +58,13 @@ public struct TDEEProfileParameters: Hashable, Codable {
 
 extension TDEEProfile {
     var tdeeInUnit: Double {
-        parameters.energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule
+        tdee(in: parameters.energyUnit)
     }
     var formattedTDEEWithUnit: String {
         "\(tdeeInUnit.formattedEnergy) \(parameters.energyUnit.shortDescription)"
+    }
+    
+    func tdee(in energyUnit: EnergyUnit) -> Double {
+        energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule
     }
 }
