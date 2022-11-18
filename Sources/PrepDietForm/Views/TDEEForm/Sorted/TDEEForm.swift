@@ -24,11 +24,11 @@ struct TDEEForm: View {
             userHeightUnit: userHeightUnit
         )
         if isSetup {
-            globalPrimaryDetent = .collapsed
-            globalSecondaryDetent = .collapsed
+            detentHeightPrimary = .collapsed
+            detentHeightSecondary = .collapsed
         } else {
-            globalPrimaryDetent = .empty
-            globalSecondaryDetent = .empty
+            detentHeightPrimary = .empty
+            detentHeightSecondary = .empty
         }
         _viewModel = StateObject(wrappedValue: viewModel)
     }
@@ -44,7 +44,7 @@ struct TDEEForm: View {
             }
         }
         .onReceive(didEnterForeground, perform: didEnterForeground)
-        .presentationDetents([.custom(TDEEFormPrimaryDetent.self), .custom(TDEEFormSecondaryDetent.self)], selection: $viewModel.presentationDetent)
+        .presentationDetents(viewModel.detents, selection: $viewModel.presentationDetent)
         .presentationDragIndicator(.hidden)
     }
 

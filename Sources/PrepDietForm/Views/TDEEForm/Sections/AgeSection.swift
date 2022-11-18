@@ -200,7 +200,10 @@ extension TDEEForm {
 
         @Published var path: [Route] = []
         @Published var isEditing = false
-        @Published var presentationDetent: PresentationDetent = .custom(TDEEFormPrimaryDetent.self)
+        
+        @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
+        @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
+        
         @Published var restingEnergySource: RestingEnergySourceOption? = nil
 //        @Published var path: [Route] = [.profileForm]
 //        @Published var isEditing = true
