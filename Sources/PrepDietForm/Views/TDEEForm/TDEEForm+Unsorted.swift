@@ -206,7 +206,9 @@ extension TDEEForm {
 public struct TDEEFormPreview: View {
     public init() { }
     public var body: some View {
-        TDEEForm()
+        TDEEForm { profile in
+            
+        }
     }
 }
 

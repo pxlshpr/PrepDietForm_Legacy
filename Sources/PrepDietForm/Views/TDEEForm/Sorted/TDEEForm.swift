@@ -15,9 +15,17 @@ struct TDEEForm: View {
     @FocusState var restingEnergyTextFieldIsFocused: Bool
     @FocusState var activeEnergyTextFieldIsFocused: Bool
     
+    let didTapSave: (TDEEProfile) -> ()
+    
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(existingProfile: TDEEProfile? = nil, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
+    init(
+        existingProfile: TDEEProfile? = nil,
+        userEnergyUnit: EnergyUnit = .kcal,
+        userWeightUnit: WeightUnit = .kg,
+        userHeightUnit: HeightUnit = .cm,
+        didTapSave: @escaping (TDEEProfile) -> ()
+    ) {
         let viewModel = ViewModel(
             existingProfile: existingProfile,
             userEnergyUnit: userEnergyUnit,
@@ -32,6 +40,8 @@ struct TDEEForm: View {
             detentHeightSecondary = .empty
         }
         _viewModel = StateObject(wrappedValue: viewModel)
+        
+        self.didTapSave = didTapSave
     }
     
     @ViewBuilder
@@ -47,7 +57,6 @@ struct TDEEForm: View {
         .onReceive(didEnterForeground, perform: didEnterForeground)
         .presentationDetents(viewModel.detents, selection: $viewModel.presentationDetent)
         .presentationDragIndicator(.hidden)
-        .edgesIgnoringSafeArea(.bottom)
     }
     
     var navigationView: some View {

@@ -1,7 +1,7 @@
 import Foundation
 
-enum RestingEnergySourceOption: CaseIterable {
-    case healthApp
+enum RestingEnergySourceOption: Int16, Codable, CaseIterable {
+    case healthApp = 1
     case formula
     case userEntered
     

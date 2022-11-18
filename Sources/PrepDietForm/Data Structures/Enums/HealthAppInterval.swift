@@ -1,7 +1,7 @@
 import Foundation
 
-enum HealthAppInterval: CaseIterable {
-    case day
+enum HealthAppInterval: Int16, Codable, CaseIterable {
+    case day = 1
     case week
     case month
     

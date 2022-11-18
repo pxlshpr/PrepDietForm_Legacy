@@ -45,7 +45,9 @@ extension MacroForm {
     }
     
     var tdeeForm: some View {
-        TDEEForm()
+        TDEEForm { profile in
+            
+        }
     }
 
     var unitSection: some View {

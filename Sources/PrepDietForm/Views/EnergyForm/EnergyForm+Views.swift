@@ -37,6 +37,8 @@ extension EnergyForm {
     }
     
     var tdeeForm: some View {
-        TDEEForm()
+        TDEEForm { profile in
+            print("We here boi")
+        }
     }
 }

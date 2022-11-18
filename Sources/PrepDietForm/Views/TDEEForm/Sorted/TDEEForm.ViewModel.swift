@@ -44,6 +44,15 @@ extension TDEEForm.ViewModel {
         return activeEnergyValue + restingEnergyValue
     }
     
+    var maintenanceEnergyInKcal: Double? {
+        guard let maintenanceEnergy else { return nil }
+        if userEnergyUnit == .kcal {
+            return maintenanceEnergy
+        } else {
+            return maintenanceEnergy / KcalsPerKilojule
+        }
+    }
+    
     var maintenanceEnergyFormatted: String {
         guard let maintenanceEnergy else { return "" }
         return maintenanceEnergy.formattedEnergy
@@ -117,6 +126,17 @@ extension TDEEForm.ViewModel {
     
     var hasDynamicSex: Bool {
         sexSource == .healthApp
+    }
+    
+    var sexIsFemale: Bool? {
+        switch sex {
+        case .female:
+            return true
+        case .male:
+            return false
+        default:
+            return nil
+        }
     }
 }
 
@@ -407,6 +427,23 @@ extension TDEEForm.ViewModel {
         default:
             return lbm
         }
+    }
+    
+    var fatPercentage: Double? {
+        switch lbmSource {
+        case .fatPercentage:
+            return lbm
+        default:
+            return calculatedFatPercentage
+        }
+    }
+    
+    var calculatedFatPercentage: Double? {
+        /// Assuming the value in `lbm` isn't already the fat percentage...
+        guard lbmSource != .fatPercentage else { return nil }
+        guard let weight, let lbm else { return nil }
+        let fatMass = weight - lbm
+        return fatMass / weight
     }
     
     var lbmInKg: Double? {
@@ -1161,9 +1198,9 @@ extension TDEEForm.ViewModel {
     }
 }
 
-//MARK: - Unsorted
-
+//MARK: - UI Helpers
 extension TDEEForm.ViewModel {
+    
     var maintenanceEnergyFooterText: Text {
         let energy = userEnergyUnit == .kcal ? "calories" : "kiljoules"
         return Text("This is an estimate of how many \(energy) you would have to consume to *maintain* your current weight.")
@@ -1173,10 +1210,104 @@ extension TDEEForm.ViewModel {
         if restingEnergySource == .healthApp {
             fetchRestingEnergyFromHealth()
         }
-        //TODO: If its formula, fetch any measurements we have received new permissions for
+        //TODO: We need to fetch other HealthApp synced data here too
+    }
+
+    var shouldShowSaveButton: Bool {
+        guard isEditing else { return false }
+        if existingProfile != nil {
+            /// if we have an existing profile—check if the values differs
+            return false
+        } else {
+            /// otherwise, check if we have enough to save a new profile (simply check if maintenance value is not nil)
+            return newProfile != nil
+        }
+    }
+    
+    var shouldShowEditButton: Bool {
+        if existingProfile != nil {
+            return true
+        } else {
+            return !isEditing && newProfile != nil
+        }
+    }
+    
+    var shouldShowInitialSetupButton: Bool {
+        !shouldShowSummary
+//        existingProfile == nil && !isEditing
+    }
+    
+    var shouldShowSummary: Bool {
+        existingProfile != nil || newProfile != nil
+    }
+    
+    var isDynamic: Bool {
+        restingEnergyIsDynamic || activeEnergyIsDynamic
+    }
+}
+extension TDEEForm.ViewModel {
+ 
+    
+    //MARK: - Profile
+    
+    var newProfile: TDEEProfile? {
+        guard
+            let tdeeInKcal = maintenanceEnergyInKcal,
+            let restingEnergyValue,
+            let activeEnergyValue,
+            let restingEnergySource,
+            let activeEnergySource
+        else {
+            return nil
+        }
+        
+        //TODO: create a helper for these
+        
+        let parameters = TDEEProfileParameters(
+            energyUnit: userEnergyUnit,
+            weightUnit: userWeightUnit,
+            heightUnit: userHeightUnit,
+            restingEnergy: restingEnergyValue,
+            restingEnergySource: restingEnergySource,
+            restingEnergyFormula: restingEnergyFormula,
+            restingEnergyPeriod: restingEnergyPeriod,
+            restingEnergyIntervalValue: restingEnergyIntervalValue,
+            restingEnergyInterval: restingEnergyInterval,
+            activeEnergy: activeEnergyValue,
+            activeEnergySource: activeEnergySource,
+            activeEnergyActivityLevel: activeEnergyActivityLevel,
+            activeEnergyPeriod: activeEnergyPeriod,
+            activeEnergyIntervalValue: activeEnergyIntervalValue,
+            activeEnergyInterval: activeEnergyInterval,
+            fatPercentage: fatPercentage,
+            lbm: lbmValue, /// We don't use `lbm` here because it may be the actual percentage
+            lbmSource: lbmSource,
+            lbmFormula: lbmFormula,
+            lbmDate: lbmDate,
+            weight: weight,
+            weightSource: weightSource,
+            weightDate: weightDate,
+            height: height,
+            heightSource: heightSource,
+            heightDate: heightDate,
+            sexIsFemale: sexIsFemale,
+            sexSource: sexSource,
+            age: age,
+            dob: dob,
+            ageSource: ageSource
+        )
+        
+        return TDEEProfile(
+            id: existingProfile?.id ?? UUID(),
+            tdeeInKcal: tdeeInKcal,
+            parameters: parameters,
+            syncStatus: .notSynced,
+            updatedAt: Date().timeIntervalSince1970
+        )
     }
 }
 
+//MARK: - Definition
 
 extension TDEEForm {
     class ViewModel: ObservableObject {
@@ -1186,7 +1317,7 @@ extension TDEEForm {
 
         @Published var path: [Route] = []
         @Published var isEditing = false
-        
+
         @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
         @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
         
@@ -1254,49 +1385,6 @@ extension TDEEForm {
             
             self.existingProfile = existingProfile
         }
-    }
-}
-
-extension TDEEForm.ViewModel {
-    
-    var newProfile: TDEEProfile? {
-        //TODO: Construct this after we've refactored TDEEPRofile
-        guard maintenanceEnergy != nil else {
-            return nil
-        }
-        return TDEEProfile(date: Date(), source: .userEntered(1, .kJ))
-    }
-    
-    var shouldShowSaveButton: Bool {
-        guard isEditing else { return false }
-        if existingProfile != nil {
-            /// if we have an existing profile—check if the values differs
-            return false
-        } else {
-            /// otherwise, check if we have enough to save a new profile (simply check if maintenance value is not nil)
-            return newProfile != nil
-        }
-    }
-    
-    var shouldShowEditButton: Bool {
-        if existingProfile != nil {
-            return true
-        } else {
-            return !isEditing && newProfile != nil
-        }
-    }
-    
-    var shouldShowInitialSetupButton: Bool {
-        !shouldShowSummary
-//        existingProfile == nil && !isEditing
-    }
-    
-    var shouldShowSummary: Bool {
-        existingProfile != nil || newProfile != nil
-    }
-    
-    var isDynamic: Bool {
-        restingEnergyIsDynamic || activeEnergyIsDynamic
     }
 }
 

@@ -2,7 +2,7 @@ import Foundation
 
 public enum ActivityLevel: Int16, Codable, Hashable, CaseIterable {
 
-    case notSet
+    case notSet = 1
     case sedentary
     case lightlyActive
     case moderatelyActive

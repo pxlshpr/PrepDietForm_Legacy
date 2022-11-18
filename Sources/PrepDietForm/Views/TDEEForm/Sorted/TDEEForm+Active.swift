@@ -173,6 +173,7 @@ extension TDEEForm {
                             }
                             Text(viewModel.activeEnergyFormatted)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .multilineTextAlignment(.trailing)
                                 .foregroundColor(viewModel.activeEnergySource == .userEntered ? .primary : .secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .matchedGeometryEffect(id: "active", in: namespace)
@@ -195,7 +196,7 @@ extension TDEEForm {
                         .focused($activeEnergyTextFieldIsFocused)
                         .multilineTextAlignment(.trailing)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .fixedSize(horizontal: false, vertical: true)
+//                        .fixedSize(horizontal: false, vertical: true)
                         .matchedGeometryEffect(id: "active", in: namespace)
                     Text(viewModel.userEnergyUnit.shortDescription)
                         .foregroundColor(.secondary)
@@ -208,6 +209,7 @@ extension TDEEForm {
                     Text(viewModel.activeEnergyFormatted)
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.trailing)
                         .fixedSize(horizontal: false, vertical: true)
                         .matchedGeometryEffect(id: "active", in: namespace)
                         .if(!viewModel.hasActiveEnergy) { view in

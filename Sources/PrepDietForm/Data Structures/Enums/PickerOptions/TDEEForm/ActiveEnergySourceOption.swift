@@ -1,7 +1,7 @@
 import Foundation
 
-enum ActiveEnergySourceOption: CaseIterable {
-    case healthApp
+enum ActiveEnergySourceOption: Int16, Codable, CaseIterable {
+    case healthApp = 1
     case activityLevel
     case userEntered
     

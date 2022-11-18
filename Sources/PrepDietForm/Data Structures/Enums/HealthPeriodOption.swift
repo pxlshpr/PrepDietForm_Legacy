@@ -1,7 +1,7 @@
 import Foundation
 
-enum HealthPeriodOption: CaseIterable {
-    case previousDay
+enum HealthPeriodOption: Int16, Codable, CaseIterable {
+    case previousDay = 1
     case average
     
     var pickerDescription: String {

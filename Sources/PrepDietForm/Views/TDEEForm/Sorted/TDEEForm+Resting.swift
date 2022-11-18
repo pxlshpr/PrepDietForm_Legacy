@@ -600,8 +600,8 @@ extension TDEEForm {
     }
 }
 
-enum MeasurementSourceOption: CaseIterable {
-    case healthApp
+enum MeasurementSourceOption: Int16, Codable, CaseIterable {
+    case healthApp = 1
     case userEntered
     
     var pickerDescription: String {
@@ -632,8 +632,8 @@ enum MeasurementSourceOption: CaseIterable {
     }
 }
 
-enum LeanBodyMassSourceOption: CaseIterable {
-    case healthApp
+enum LeanBodyMassSourceOption: Int16, Codable, CaseIterable {
+    case healthApp = 1
     case formula
     case fatPercentage
     case userEntered
@@ -678,8 +678,8 @@ enum LeanBodyMassSourceOption: CaseIterable {
     }
 }
 
-enum LeanBodyMassFormula: CaseIterable {
-    case boer
+enum LeanBodyMassFormula: Int16, Codable, CaseIterable {
+    case boer = 1
     case james
     case hume
     

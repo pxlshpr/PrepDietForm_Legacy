@@ -98,9 +98,10 @@ extension TDEEForm {
     
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if viewModel.shouldShowSaveButton {
+            if viewModel.shouldShowSaveButton, let newProfile = viewModel.newProfile {
                 Button {
-                    transitionToCollapsedState()
+                    didTapSave(newProfile)
+                    dismiss()
                 } label: {
                     Text("Save")
                 }
