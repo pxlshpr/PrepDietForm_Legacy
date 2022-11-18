@@ -656,10 +656,19 @@ extension TDEEForm.ViewModel {
         }
     }
     
+    var restingEnergyValue: Double? {
+        switch restingEnergySource {
+        case .formula:
+            return calculatedActiveEnergy
+        default:
+            return restingEnergy
+        }
+    }
+    
     var restingEnergyFormatted: String {
         switch restingEnergySource {
         case .formula:
-            return calculatedRestingEnergy?.formattedEnergy ?? "zero"
+            return calculatedRestingEnergy?.formattedEnergy ?? "zero" /// this string is required for the redaction to be visible
         default:
             return restingEnergy?.formattedEnergy ?? ""
         }
@@ -849,11 +858,6 @@ extension TDEEForm.ViewModel {
         }
     }
 
-    var maintenanceEnergyFooterText: Text {
-        let energy = userEnergyUnit == .kcal ? "calories" : "kiljoules"
-        return Text("This is an estimate of how many \(energy) you would have to consume to *maintain* your current weight.")
-    }
-    
     var restingEnergyFooterString: String? {
         let prefix = "This is an estimate of the energy your body uses each day while minimally active."
         if restingEnergySource == .healthApp {
@@ -861,51 +865,7 @@ extension TDEEForm.ViewModel {
         }
         return prefix
     }
-    
-    func updateHealthAppDataIfNeeded() {
-        if restingEnergySource == .healthApp {
-            fetchRestingEnergyFromHealth()
-        }
-        //TODO: If its formula, fetch any measurements we have received new permissions for
-    }
 
-    func fetchActiveEnergyFromHealth() {
-        withAnimation {
-            activeEnergyFetchStatus = .fetching
-        }
-        
-        Task {
-            do {
-                guard let average = try await HealthKitManager.shared.averageSumOfRestingEnergy(
-                    using: userEnergyUnit,
-                    overPast: restingEnergyIntervalValue,
-                    interval: restingEnergyInterval
-                ) else {
-                    restingEnergyFetchStatus = .notAuthorized
-                    return
-                }
-                await MainActor.run {
-                    withAnimation {
-                        print("🔥 setting average: \(average)")
-                        restingEnergy = average
-                        restingEnergyTextFieldString = "\(Int(average.rounded()))"
-                        restingEnergyFetchStatus = .fetched
-                    }
-                }
-            } catch HealthKitManagerError.couldNotGetSumQuantity {
-                /// Indicates that permissions are not present
-                await MainActor.run {
-                    withAnimation {
-                        restingEnergyFetchStatus = .notAuthorized
-                    }
-                }
-            } catch {
-                
-            }
-            /// [ ] Make sure we persist this to the backend once the user saves it
-        }
-    }
-    
     func fetchRestingEnergyFromHealth() {
         withAnimation {
             restingEnergyFetchStatus = .fetching
@@ -941,5 +901,226 @@ extension TDEEForm.ViewModel {
             }
             /// [ ] Make sure we persist this to the backend once the user saves it
         }
+    }
+}
+
+//MARK: - Active Energy
+
+extension TDEEForm.ViewModel {
+    
+    var activeEnergyFormatted: String {
+        switch activeEnergySource {
+        case .activityLevel:
+            return calculatedActiveEnergy?.formattedEnergy ?? "zero"
+        default:
+            return activeEnergy?.formattedEnergy ?? ""
+        }
+    }
+
+    var activeEnergyIntervalValues: [Int] {
+        Array(activeEnergyInterval.minValue...activeEnergyInterval.maxValue)
+    }
+    
+    var calculatedActiveEnergy: Double? {
+        guard activeEnergySource == .activityLevel,
+              let restingEnergy = restingEnergyValue
+        else { return nil }
+        
+        return activeEnergyActivityLevel.scaleFactor * restingEnergy
+    }
+
+    var hasActiveEnergy: Bool {
+        switch activeEnergySource {
+        case .activityLevel:
+            return calculatedActiveEnergy != nil
+        case .healthApp, .userEntered:
+            return activeEnergy != nil
+        default:
+            return false
+        }
+    }
+
+    var hasDynamicActiveEnergy: Bool {
+        switch activeEnergySource {
+        case .healthApp:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var activeEnergySourceBinding: Binding<ActiveEnergySourceOption> {
+        Binding<ActiveEnergySourceOption>(
+            get: { self.activeEnergySource ?? .userEntered },
+            set: { newSource in
+                Haptics.feedback(style: .soft)
+                self.changeActiveEnergySource(to: newSource)
+            }
+        )
+    }
+    
+    var activeEnergyTextFieldStringBinding: Binding<String> {
+        Binding<String>(
+            get: { self.activeEnergyTextFieldString },
+            set: { newValue in
+                guard !newValue.isEmpty else {
+                    self.activeEnergy = nil
+                    self.activeEnergyTextFieldString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.activeEnergy = double
+                withAnimation {
+                    self.activeEnergyTextFieldString = newValue
+                }
+            }
+        )
+    }
+    
+    func changeActiveEnergySource(to newSource: ActiveEnergySourceOption) {
+        withAnimation {
+            activeEnergySource = newSource
+        }
+        switch activeEnergySource {
+        case .healthApp:
+            fetchActiveEnergyFromHealth()
+        default:
+            break
+        }
+    }
+    
+    var activeEnergyPeriodBinding: Binding<HealthPeriodOption> {
+        Binding<HealthPeriodOption>(
+            get: { self.restingEnergyPeriod },
+            set: { newPeriod in
+                Haptics.feedback(style: .soft)
+                self.changeActiveEnergyPeriod(to: newPeriod)
+            }
+        )
+    }
+
+    func changeActiveEnergyPeriod(to newPeriod: HealthPeriodOption) {
+        withAnimation {
+            self.activeEnergyPeriod = newPeriod
+            if newPeriod == .previousDay {
+                activeEnergyIntervalValue = 1
+                activeEnergyInterval = .day
+            } else {
+                correctActiveEnergyIntervalValueIfNeeded()
+            }
+        }
+        fetchActiveEnergyFromHealth()
+    }
+    
+    var activeEnergyIntervalValueBinding: Binding<Int> {
+        Binding<Int>(
+            get: { self.activeEnergyIntervalValue },
+            set: { newValue in
+                Haptics.feedback(style: .soft)
+                self.changeActiveEnergyIntervalValue(to: newValue)
+            }
+        )
+    }
+    
+    func changeActiveEnergyIntervalValue(to newValue: Int) {
+        guard newValue >= activeEnergyInterval.minValue,
+              newValue <= activeEnergyInterval.maxValue else {
+            return
+        }
+        withAnimation {
+            activeEnergyIntervalValue = newValue
+        }
+        fetchActiveEnergyFromHealth()
+    }
+    
+    var activeEnergyIntervalBinding: Binding<HealthAppInterval> {
+        Binding<HealthAppInterval>(
+            get: { self.activeEnergyInterval },
+            set: { newInterval in
+                Haptics.feedback(style: .soft)
+                self.changeActiveEnergyInterval(to: newInterval)
+            }
+        )
+    }
+    
+    func changeActiveEnergyInterval(to newInterval: HealthAppInterval) {
+        withAnimation {
+            activeEnergyInterval = newInterval
+            correctActiveEnergyIntervalValueIfNeeded()
+        }
+        
+        fetchActiveEnergyFromHealth()
+    }
+    
+    func correctActiveEnergyIntervalValueIfNeeded() {
+        if activeEnergyIntervalValue < activeEnergyInterval.minValue {
+            activeEnergyIntervalValue = activeEnergyInterval.minValue
+        }
+        if activeEnergyIntervalValue > activeEnergyInterval.maxValue {
+            activeEnergyIntervalValue = activeEnergyInterval.maxValue
+        }
+    }
+    
+    func fetchActiveEnergyFromHealth() {
+        withAnimation {
+            activeEnergyFetchStatus = .fetching
+        }
+        
+        Task {
+            do {
+                guard let average = try await HealthKitManager.shared.averageSumOfActiveEnergy(
+                    using: userEnergyUnit,
+                    overPast: activeEnergyIntervalValue,
+                    interval: activeEnergyInterval
+                ) else {
+                    activeEnergyFetchStatus = .notAuthorized
+                    return
+                }
+                await MainActor.run {
+                    withAnimation {
+                        print("🔥 setting average: \(average)")
+                        activeEnergy = average
+                        activeEnergyTextFieldString = "\(Int(average.rounded()))"
+                        activeEnergyFetchStatus = .fetched
+                    }
+                }
+            } catch HealthKitManagerError.couldNotGetSumQuantity {
+                /// Indicates that permissions are not present
+                await MainActor.run {
+                    withAnimation {
+                        activeEnergyFetchStatus = .notAuthorized
+                    }
+                }
+            } catch {
+                
+            }
+            /// [ ] Make sure we persist this to the backend once the user saves it
+        }
+    }
+ 
+    var activeEnergyFooterString: String? {
+        let prefix = "This is an estimate of energy burnt over and above your Resting Energy use."
+        if activeEnergySource == .healthApp {
+            return prefix + " This will sync with your Health data and update daily."
+        }
+        return prefix
+    }
+}
+
+//MARK: - Unsorted
+
+extension TDEEForm.ViewModel {
+    var maintenanceEnergyFooterText: Text {
+        let energy = userEnergyUnit == .kcal ? "calories" : "kiljoules"
+        return Text("This is an estimate of how many \(energy) you would have to consume to *maintain* your current weight.")
+    }
+    
+    func updateHealthAppDataIfNeeded() {
+        if restingEnergySource == .healthApp {
+            fetchRestingEnergyFromHealth()
+        }
+        //TODO: If its formula, fetch any measurements we have received new permissions for
     }
 }

@@ -213,6 +213,7 @@ extension TDEEForm {
         @Published var hasAppeared = false
 
         @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
         @Published var restingEnergy: Double? = nil
         @Published var restingEnergyTextFieldString: String = ""
         @Published var restingEnergyPeriod: HealthPeriodOption = .average
@@ -221,6 +222,7 @@ extension TDEEForm {
         @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
         @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        @Published var activeEnergyActivityLevel: ActivityLevel = .moderatelyActive
         @Published var activeEnergy: Double? = nil
         @Published var activeEnergyTextFieldString: String = ""
         @Published var activeEnergyPeriod: HealthPeriodOption = .previousDay
@@ -228,7 +230,6 @@ extension TDEEForm {
         @Published var activeEnergyInterval: HealthAppInterval = .week
         @Published var activeEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
-        @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
         
         @Published var lbmSource: LeanBodyMassSourceOption? = nil
         @Published var lbmFormula: LeanBodyMassFormula = .boer

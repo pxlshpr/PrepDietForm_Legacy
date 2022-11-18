@@ -244,7 +244,7 @@ extension HealthKitManager {
         )
     }
 
-    func averageSumOfActiveEnergy(sing energyUnit: EnergyUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
+    func averageSumOfActiveEnergy(using energyUnit: EnergyUnit, overPast value: Int, interval: HealthAppInterval) async throws -> Double? {
         try await averageSum(
             for: .activeEnergyBurned,
             using: energyUnit.healthKitUnit,

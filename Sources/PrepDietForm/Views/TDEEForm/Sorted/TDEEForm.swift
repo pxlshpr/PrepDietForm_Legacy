@@ -13,7 +13,8 @@ struct TDEEForm: View {
     @StateObject var viewModel: ViewModel
     
     @FocusState var restingEnergyTextFieldIsFocused: Bool
-    
+    @FocusState var activeEnergyTextFieldIsFocused: Bool
+
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
     init(isSetup: Bool = false, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {

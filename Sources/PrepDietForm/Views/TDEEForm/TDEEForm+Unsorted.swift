@@ -77,14 +77,6 @@ extension TDEEForm {
         }
     }
     
-    var activeHeader: some View {
-        HStack {
-            Image(systemName: EnergyComponent.active.systemImage)
-                .matchedGeometryEffect(id: "active-header-icon", in: namespace)
-            Text("Active Energy")
-        }
-    }
-    
     //TODO: Make these changes
     /// [ ] Have a section for total with matched geometries moving the labels for the components to their sections (and the headers)
     /// [ ] Include a control that lets us switch between both views

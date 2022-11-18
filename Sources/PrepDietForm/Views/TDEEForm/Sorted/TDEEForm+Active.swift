@@ -2,60 +2,251 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
+import ActivityIndicatorView
 
 extension TDEEForm {
     
     var activeEnergySection: some View {
         
-        @ViewBuilder
-        var content: some View {
-            if viewModel.activeEnergySource == nil {
-                emptyContent
-            } else {
-                filledContent
+        var sourceSection: some View {
+            var sourceMenu: some View {
+                Menu {
+                    Picker(selection: viewModel.activeEnergySourceBinding, label: EmptyView()) {
+                        ForEach(ActiveEnergySourceOption.allCases, id: \.self) {
+                            Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        HStack {
+                            if viewModel.activeEnergySource == .healthApp {
+                                appleHealthSymbol
+                            } else {
+                                if let systemImage = viewModel.activeEnergySource?.systemImage {
+                                    Image(systemName: systemImage)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Text(viewModel.activeEnergySource?.pickerDescription ?? "")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .imageScale(.small)
+                    }
+                    .foregroundColor(.secondary)
+                    .animation(.none, value: viewModel.activeEnergySource)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+                .contentShape(Rectangle())
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .light)
+                })
             }
+            
+            return HStack {
+                sourceMenu
+                Spacer()
+            }
+            .padding(.horizontal, 17)
         }
         
-        var filledContent: some View {
-            VStack(spacing: 5) {
+        var healthPeriodContent: some View {
+            var periodTypeMenu: some View {
+               Menu {
+                   Picker(selection: viewModel.activeEnergyPeriodBinding, label: EmptyView()) {
+                        ForEach(HealthPeriodOption.allCases, id: \.self) {
+                            Text($0.pickerDescription).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        viewModel.activeEnergyPeriod.menuDescription,
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
+                    )
+                    .animation(.none, value: viewModel.activeEnergyPeriod)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            
+            var periodValueMenu: some View {
+                Menu {
+                    Picker(selection: viewModel.activeEnergyIntervalValueBinding, label: EmptyView()) {
+                        ForEach(viewModel.activeEnergyIntervalValues, id: \.self) { quantity in
+                            Text("\(quantity)").tag(quantity)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        "\(viewModel.activeEnergyIntervalValue)",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
+                    )
+                    .animation(.none, value: viewModel.activeEnergyIntervalValue)
+                    .animation(.none, value: viewModel.activeEnergyInterval)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            
+            var periodIntervalMenu: some View {
+                Menu {
+                    Picker(selection: viewModel.activeEnergyIntervalBinding, label: EmptyView()) {
+                        ForEach(HealthAppInterval.allCases, id: \.self) { interval in
+                            Text("\(interval.description)\(viewModel.activeEnergyIntervalValue > 1 ? "s" : "")").tag(interval)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        "\(viewModel.activeEnergyInterval.description)\(viewModel.activeEnergyIntervalValue > 1 ? "s" : "")",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white
+                    )
+                    .animation(.none, value: viewModel.activeEnergyInterval)
+                    .animation(.none, value: viewModel.activeEnergyIntervalValue)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+            
+            var intervalRow: some View {
                 HStack {
+                    Spacer()
                     HStack(spacing: 5) {
-                        appleHealthSymbol
-                            .matchedGeometryEffect(id: "active-health-icon", in: namespace)
-                        Text("Health App")
-                            .foregroundColor(.secondary)
-                        Image(systemName: "chevron.up.chevron.down")
+                        Text("previous")
                             .foregroundColor(Color(.tertiaryLabel))
-                            .imageScale(.small)
+                        periodValueMenu
+                        periodIntervalMenu
                     }
                     Spacer()
                 }
+            }
+            
+            return VStack(spacing: 5) {
                 HStack {
                     Spacer()
                     HStack {
-                        Text("Use")
-                            .foregroundColor(.secondary)
-                        PickerLabel("previous day's value")
+                        Text("using")
+                            .foregroundColor(Color(.tertiaryLabel))
+                        periodTypeMenu
                     }
                     Spacer()
                 }
-                .padding(.top)
-                .padding(.bottom)
-                HStack {
-                    Spacer()
-                    Text("1,428")
-                        .matchedGeometryEffect(id: "active", in: namespace)
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                    Text("kcal")
-                        .foregroundColor(.secondary)
+                if viewModel.activeEnergyPeriod == .average {
+                    intervalRow
                 }
             }
         }
         
+        
+        var healthContent: some View {
+            Group {
+                if viewModel.activeEnergyFetchStatus == .notAuthorized {
+                    permissionRequiredContent
+                } else {
+                    healthPeriodContent
+                }
+            }
+            .padding()
+            .padding(.horizontal)
+        }
+        
+        var energyRow: some View {
+            @ViewBuilder
+            var health: some View {
+                if viewModel.activeEnergyFetchStatus != .notAuthorized {
+                    HStack {
+                        Spacer()
+                        if viewModel.activeEnergyFetchStatus == .fetching {
+                            ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                                .frame(width: 25, height: 25)
+                                .foregroundColor(.secondary)
+                        } else {
+                            if viewModel.hasDynamicActiveEnergy {
+                                Text("currently")
+                                    .font(.subheadline)
+                                    .foregroundColor(Color(.tertiaryLabel))
+                            }
+                            Text(viewModel.activeEnergyFormatted)
+                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .foregroundColor(viewModel.activeEnergySource == .userEntered ? .primary : .secondary)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .matchedGeometryEffect(id: "active", in: namespace)
+                                .if(!viewModel.hasActiveEnergy) { view in
+                                    view
+                                        .redacted(reason: .placeholder)
+                                }
+                            Text(viewModel.userEnergyUnit.shortDescription)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+            
+            var manualEntry: some View {
+                HStack {
+                    Spacer()
+                    TextField("energy in", text: viewModel.activeEnergyTextFieldStringBinding)
+                        .keyboardType(.decimalPad)
+                        .focused($activeEnergyTextFieldIsFocused)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .multilineTextAlignment(.trailing)
+//                        .fixedSize(horizontal: true, vertical: false)
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .matchedGeometryEffect(id: "active", in: namespace)
+                    Text(viewModel.userEnergyUnit.shortDescription)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            return Group {
+                switch viewModel.activeEnergySource {
+                case .healthApp:
+                    health
+                case .activityLevel:
+                    EmptyView()
+                case .userEntered:
+                    manualEntry
+                default:
+                    EmptyView()
+                }
+            }
+            .padding(.trailing)
+        }
+        
+        @ViewBuilder
+        var content: some View {
+            VStack {
+                Group {
+                    if let source = viewModel.activeEnergySource {
+                        Group {
+                            sourceSection
+                            switch source {
+                            case .healthApp:
+                                healthContent
+                            case .activityLevel:
+                                EmptyView()
+//                                activityLevelContent
+                            case .userEntered:
+                                EmptyView()
+                            }
+//                            energyRow
+                        }
+                    } else {
+                        emptyContent
+                    }
+                }
+            }
+        }
+    
         func tappedSyncWithHealth() {
             Task(priority: .high) {
                 do {
-                    try await HealthKitManager.shared.requestPermission(for: .activityMoveMode)
+                    try await HealthKitManager.shared.requestPermission(for: .activeEnergyBurned)
                     withAnimation {
                         viewModel.activeEnergySource = .healthApp
                     }
@@ -84,16 +275,39 @@ extension TDEEForm {
             }
         }
         
+        var activeHeader: some View {
+            HStack {
+                Image(systemName: EnergyComponent.active.systemImage)
+                    .matchedGeometryEffect(id: "active-header-icon", in: namespace)
+                Text("Active Energy")
+            }
+        }
+        
+        
+        @ViewBuilder
+        var footer: some View {
+            if let string = viewModel.activeEnergyFooterString {
+                Text(string)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(Color(.secondaryLabel))
+                    .font(.footnote)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 10)
+            }
+        }
+        
         return VStack(spacing: 7) {
             activeHeader
+                .textCase(.uppercase)
+                .fixedSize(horizontal: false, vertical: true)
                 .foregroundColor(Color(.secondaryLabel))
                 .font(.footnote)
-                .textCase(.uppercase)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
             content
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, 17)
+                .padding(.horizontal, 0)
                 .padding(.vertical, 15)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
@@ -101,6 +315,10 @@ extension TDEEForm {
                         .matchedGeometryEffect(id: "active-bg", in: namespace)
                 )
                 .padding(.bottom, 10)
+                .if(viewModel.activeEnergyFooterString == nil) { view in
+                    view.padding(.bottom, 10)
+                }
+            footer
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)

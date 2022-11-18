@@ -561,39 +561,6 @@ extension TDEEForm {
             }
         }
         
-        var permissionRequiredContent: some View  {
-            VStack {
-                VStack(alignment: .center, spacing: 5) {
-                    Text("Health app integration requires permissions to be granted in:")
-                        .fixedSize(horizontal: false, vertical: true)
-                        .foregroundColor(.secondary)
-                    Text("Settings → Privacy & Security → Health → Prep")
-                        .font(.footnote)
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-                .multilineTextAlignment(.center)
-                Button {
-                    UIApplication.shared.open(URL(string: "App-prefs:Privacy&path=HEALTH")!)
-//                            UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)&path=HEALTH")!)
-                } label: {
-                    HStack {
-                        Image(systemName: "gear")
-                        Text("Go to Settings")
-                            .fixedSize(horizontal: true, vertical: false)
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .foregroundColor(Color.accentColor)
-                    )
-                }
-                .buttonStyle(.borderless)
-                .padding(.top, 5)
-            }
-        }
-        
         @ViewBuilder
         var footer: some View {
             if let string = viewModel.restingEnergyFooterString {
@@ -811,4 +778,36 @@ enum HealthKitFetchStatus {
     case fetching
     case fetched
     case notAuthorized
+}
+
+var permissionRequiredContent: some View  {
+    VStack {
+        VStack(alignment: .center, spacing: 5) {
+            Text("Health app integration requires permissions to be granted in:")
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(.secondary)
+            Text("Settings → Privacy & Security → Health → Prep")
+                .font(.footnote)
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+        .multilineTextAlignment(.center)
+        Button {
+            UIApplication.shared.open(URL(string: "App-prefs:Privacy&path=HEALTH")!)
+        } label: {
+            HStack {
+                Image(systemName: "gear")
+                Text("Go to Settings")
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .foregroundColor(Color.accentColor)
+            )
+        }
+        .buttonStyle(.borderless)
+        .padding(.top, 5)
+    }
 }
