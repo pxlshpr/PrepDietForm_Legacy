@@ -5,6 +5,7 @@ import PrepDataTypes
 
 struct EnergyForm: View {
     
+    @EnvironmentObject var viewModel: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     @State var pickedMealEnergyGoalType: MealEnergyTypeOption
     @State var pickedDietEnergyGoalType: DietEnergyTypeOption
@@ -28,11 +29,13 @@ struct EnergyForm: View {
 
 struct EnergyFormPreview: View {
     
+    @StateObject var viewModel = GoalSetForm.ViewModel(isMealProfile: false, existingGoalSet: nil)
     @StateObject var goalViewModel = GoalViewModel(type: .energy(.fixed(.kcal)))
     
     var body: some View {
         NavigationView {
             EnergyForm(goal: goalViewModel)
+                .environmentObject(viewModel)
         }
     }
 }

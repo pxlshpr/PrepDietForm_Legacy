@@ -20,11 +20,13 @@ extension GoalSetForm {
         @Published var name: String
         @Published var isMealProfile = false
         @Published var goals: [GoalViewModel] = []
-        
+        @Published var currentTDEEProfile: TDEEProfile?
+
         let existingGoalSet: GoalSet?
         
-        init(isMealProfile: Bool, existingGoalSet existing: GoalSet?) {
+        init(isMealProfile: Bool, existingGoalSet existing: GoalSet?, currentTDEEProfile: TDEEProfile? = nil) {
             self.isMealProfile = isMealProfile
+            self.currentTDEEProfile = currentTDEEProfile
             self.existingGoalSet = existing
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""

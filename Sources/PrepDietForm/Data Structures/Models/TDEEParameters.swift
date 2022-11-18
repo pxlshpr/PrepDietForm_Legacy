@@ -55,3 +55,12 @@ public struct TDEEProfileParameters: Hashable, Codable {
     var dob: DateComponents?
     var ageSource: MeasurementSourceOption?
 }
+
+extension TDEEProfile {
+    var tdeeInUnit: Double {
+        parameters.energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule
+    }
+    var formattedTDEEWithUnit: String {
+        "\(tdeeInUnit.formattedEnergy) \(parameters.energyUnit.shortDescription)"
+    }
+}

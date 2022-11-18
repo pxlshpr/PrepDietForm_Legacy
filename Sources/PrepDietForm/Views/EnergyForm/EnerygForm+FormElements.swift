@@ -60,7 +60,7 @@ extension EnergyForm {
     @ViewBuilder
     var equivalentSection: some View {
         if goal.energyGoalDelta != nil {
-            FormStyledSection(header: Text("which Works out to be"), footer: footer) {
+            FormStyledSection(header: Text("which works out to be"), footer: footer) {
                 Group {
                     Text("1570")
                     +

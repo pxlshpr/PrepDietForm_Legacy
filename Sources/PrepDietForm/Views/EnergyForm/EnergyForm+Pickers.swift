@@ -12,22 +12,6 @@ extension EnergyForm {
         }
     }
     
-    @ViewBuilder
-    var tdeeButton: some View {
-        if shouldShowEnergyDeltaElements {
-            Button {
-                showingTDEEForm = true
-            } label: {
-                PickerLabel(
-                    "maintenance",
-                    systemImage: "gearshape.circle.fill",
-                    imageColor: Color(.secondaryLabel),
-                    imageScale: .large
-                )
-            }
-        }
-    }
-    
     var mealTypePicker: some View {
         Menu {
             Picker(selection: $pickedMealEnergyGoalType, label: EmptyView()) {
@@ -46,8 +30,17 @@ extension EnergyForm {
     }
     
     var dietTypePicker: some View {
-        Menu {
-            Picker(selection: $pickedDietEnergyGoalType, label: EmptyView()) {
+        let binding = Binding<DietEnergyTypeOption>(
+            get: { pickedDietEnergyGoalType },
+            set: { newType in
+                withAnimation {
+                    Haptics.feedback(style: .soft)
+                    pickedDietEnergyGoalType = newType
+                }
+            }
+        )
+        return Menu {
+            Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietEnergyTypeOption.allCases, id: \.self) {
                     Text($0.description(userEnergyUnit: .kcal)).tag($0)
                 }

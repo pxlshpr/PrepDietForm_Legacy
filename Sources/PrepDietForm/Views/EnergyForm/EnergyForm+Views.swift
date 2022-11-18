@@ -21,24 +21,56 @@ extension EnergyForm {
     }
     
     var unitSection: some View {
-        FormStyledSection(header: Text("Unit"), horizontalPadding: 0, verticalPadding: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+        FormStyledSection {
+            FlowView(alignment: .leading, spacing: 10, padding: 37) {
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                HStack {
                     typePicker
                     deltaPicker
                     tdeeButton
-                }
-                .padding(.horizontal, 10)
+//                }
+//                .padding(.horizontal, 10)
             }
-            .id(refreshBool) /// Needed to mitigate the buttons being slightly out of place once we set them in `onAppear`
+//            .id(refreshBool) /// Needed to mitigate the buttons being slightly out of place once we set them in `onAppear`
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+//            .frame(height: 50)
         }
     }
     
     var tdeeForm: some View {
         TDEEForm { profile in
-            print("We here boi")
+            viewModel.currentTDEEProfile = profile
         }
     }
+    
+    @ViewBuilder
+    var tdeeButton: some View {
+        if shouldShowEnergyDeltaElements {
+            Button {
+                showingTDEEForm = true
+            } label: {
+                if let profile = viewModel.currentTDEEProfile {
+                    PickerLabel(
+                        profile.formattedTDEEWithUnit,
+//                        prefix: "maintenance",
+//                        systemImage: "flame.fill",
+                        imageColor: Color(.secondaryLabel),
+                        imageScale: .large
+                    )
+                } else {
+                    PickerLabel(
+                        "maintenance",
+//                        prefix: "set",
+//                        systemImage: "flame.fill",
+                        imageColor: Color.white.opacity(0.75),
+                        backgroundColor: .accentColor,
+                        foregroundColor: .white,
+                        prefixColor: Color.white.opacity(0.75),
+                        imageScale: .large
+                    )
+                }
+            }
+        }
+    }
+    
 }

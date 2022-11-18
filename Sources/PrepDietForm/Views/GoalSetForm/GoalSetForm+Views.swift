@@ -30,6 +30,7 @@ extension GoalSetForm {
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
             EnergyForm(goal: goal)
+                .environmentObject(viewModel)
         } else if goal.type.isMacro {
             MacroForm(goal: goal)
                 .environmentObject(viewModel)
