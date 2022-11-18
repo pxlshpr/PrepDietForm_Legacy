@@ -52,21 +52,21 @@ extension EnergyForm {
                 if let profile = viewModel.currentTDEEProfile {
                     PickerLabel(
                         profile.formattedTDEEWithUnit,
-//                        prefix: "maintenance",
-//                        systemImage: "flame.fill",
+                        prefix: "maintenance",
+                        systemImage: "flame.fill",
                         imageColor: Color(.secondaryLabel),
-                        imageScale: .large
+                        imageScale: .small
                     )
                 } else {
                     PickerLabel(
                         "maintenance",
-//                        prefix: "set",
-//                        systemImage: "flame.fill",
+                        prefix: "set",
+                        systemImage: "flame.fill",
                         imageColor: Color.white.opacity(0.75),
                         backgroundColor: .accentColor,
                         foregroundColor: .white,
                         prefixColor: Color.white.opacity(0.75),
-                        imageScale: .large
+                        imageScale: .small
                     )
                 }
             }
