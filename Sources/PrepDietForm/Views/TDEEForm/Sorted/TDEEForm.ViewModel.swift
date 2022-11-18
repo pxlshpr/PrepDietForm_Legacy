@@ -38,7 +38,7 @@ extension HeightUnit {
 
 extension TDEEForm.ViewModel {
     var notSetup: Bool {
-        false
+        !isSetup
     }
     
     var maintenanceEnergy: Double? {
@@ -528,11 +528,6 @@ extension TDEEForm.ViewModel {
             return nil
         }
     }
-    
-    var hasDynamicLeanBodyMass: Bool {
-        lbmSource == .healthApp
-        || (lbmSource == .formula && lbmUsesHealthMeasurements)
-    }
 }
 
 //MARK: - LBM Form
@@ -645,8 +640,7 @@ extension TDEEForm.ViewModel {
 extension TDEEForm.ViewModel {
     
     var restingEnergyFormulaUsingSyncedHealthData: Bool {
-        switch self.restingEnergyFormula {
-        case .katchMcardle:
+        if restingEnergyFormula.usesLeanBodyMass {
             switch lbmSource {
             case .healthApp:
                 return true
@@ -657,7 +651,7 @@ extension TDEEForm.ViewModel {
             default:
                 return false
             }
-        default:
+        } else {
             return profileIsSynced
         }
     }
@@ -713,8 +707,14 @@ extension TDEEForm.ViewModel {
     }
 
     var hasDynamicRestingEnergy: Bool {
-        restingEnergySource == .healthApp
-        || (restingEnergySource == .formula && restingEnergyUsesHealthMeasurements)
+        switch restingEnergySource {
+        case .healthApp:
+            return true
+        case .formula:
+            return restingEnergyFormulaUsingSyncedHealthData
+        default:
+            return false
+        }
     }
     
     var restingEnergySourceBinding: Binding<RestingEnergySourceOption> {
@@ -869,6 +869,43 @@ extension TDEEForm.ViewModel {
         //TODO: If its formula, fetch any measurements we have received new permissions for
     }
 
+    func fetchActiveEnergyFromHealth() {
+        withAnimation {
+            activeEnergyFetchStatus = .fetching
+        }
+        
+        Task {
+            do {
+                guard let average = try await HealthKitManager.shared.averageSumOfRestingEnergy(
+                    using: userEnergyUnit,
+                    overPast: restingEnergyIntervalValue,
+                    interval: restingEnergyInterval
+                ) else {
+                    restingEnergyFetchStatus = .notAuthorized
+                    return
+                }
+                await MainActor.run {
+                    withAnimation {
+                        print("🔥 setting average: \(average)")
+                        restingEnergy = average
+                        restingEnergyTextFieldString = "\(Int(average.rounded()))"
+                        restingEnergyFetchStatus = .fetched
+                    }
+                }
+            } catch HealthKitManagerError.couldNotGetSumQuantity {
+                /// Indicates that permissions are not present
+                await MainActor.run {
+                    withAnimation {
+                        restingEnergyFetchStatus = .notAuthorized
+                    }
+                }
+            } catch {
+                
+            }
+            /// [ ] Make sure we persist this to the backend once the user saves it
+        }
+    }
+    
     func fetchRestingEnergyFromHealth() {
         withAnimation {
             restingEnergyFetchStatus = .fetching

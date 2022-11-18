@@ -16,7 +16,7 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    init(isSetup: Bool = true, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
+    init(isSetup: Bool = false, userEnergyUnit: EnergyUnit = .kcal, userWeightUnit: WeightUnit = .kg, userHeightUnit: HeightUnit = .cm) {
         let viewModel = ViewModel(
             isSetup: isSetup,
             userEnergyUnit: userEnergyUnit,
@@ -56,7 +56,6 @@ struct TDEEForm: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { trailingContent }
             .toolbar { leadingContent }
-            .onChange(of: viewModel.restingEnergyUsesHealthMeasurements, perform: syncHealthKitMeasurementsChanged)
             .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .interactiveDismissDisabled(viewModel.isEditing)

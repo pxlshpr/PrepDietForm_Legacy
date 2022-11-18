@@ -74,8 +74,7 @@ struct BiologicalSexSection: View {
                         } else {
                             Text(viewModel.sexFormatted ?? "not specified")
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
-//                                .foregroundColor(viewModel.sexSource == .userEntered ? .accentColor : .primary)
-//                                .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
+                                .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
                                 .foregroundColor(.primary)
                                 .animation(.none, value: viewModel.sex)
                                 .animation(.none, value: viewModel.sexSource)

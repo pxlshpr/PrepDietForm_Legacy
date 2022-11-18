@@ -53,9 +53,17 @@ extension TDEEForm {
         }
         
         func tappedSyncWithHealth() {
-//            Task(priority: .high) {
-//                await HealthKitManager.shared.requestPermission(for: .activeEnergyBurned)
-//            }
+            Task(priority: .high) {
+                do {
+                    try await HealthKitManager.shared.requestPermission(for: .activityMoveMode)
+                    withAnimation {
+                        viewModel.activeEnergySource = .healthApp
+                    }
+                    viewModel.fetchActiveEnergyFromHealth()
+                } catch {
+                    print("Handle errors")
+                }
+            }
         }
         
         var emptyContent: some View {

@@ -132,6 +132,7 @@ struct LeanBodyMassForm: View {
                         }
                         Text(viewModel.lbmFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .foregroundColor(viewModel.lbmSource == .userEntered ? .primary : .secondary)
                             .matchedGeometryEffect(id: "lbm", in: namespace)
                             .if(!viewModel.hasLeanBodyMass) { view in
                                 view
@@ -177,6 +178,7 @@ struct LeanBodyMassForm: View {
                 }
                 Text(viewModel.calculatedLBMFormatted)
                     .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .foregroundColor(.secondary)
                     .if(!viewModel.hasLeanBodyMass) { view in
                         view
                             .redacted(reason: .placeholder)

@@ -81,6 +81,7 @@ struct HeightSection: View {
                         }
                         Text(viewModel.heightFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
                             .matchedGeometryEffect(id: "height", in: namespace)
                             .if(!viewModel.hasHeight) { view in
                                 view

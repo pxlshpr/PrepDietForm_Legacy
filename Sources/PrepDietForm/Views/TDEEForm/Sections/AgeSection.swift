@@ -65,6 +65,7 @@ struct AgeSection: View {
                     } else {
                         Text(viewModel.ageFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .foregroundColor(viewModel.sexSource == .userEntered ? .primary : .secondary)
                             .matchedGeometryEffect(id: "age", in: namespace)
                             .if(!viewModel.hasAge) { view in
                                 view
@@ -204,32 +205,34 @@ extension TDEEForm {
         @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
         @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
         
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
 //        @Published var path: [Route] = [.profileForm]
 //        @Published var isEditing = true
 //        @Published var presentationDetent: PresentationDetent = .large
 //        @Published var restingEnergySource: RestingEnergySourceOption? = .formula
 
-
         @Published var hasAppeared = false
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
 
+        @Published var restingEnergySource: RestingEnergySourceOption? = nil
         @Published var restingEnergy: Double? = nil
         @Published var restingEnergyTextFieldString: String = ""
-
         @Published var restingEnergyPeriod: HealthPeriodOption = .average
         @Published var restingEnergyIntervalValue: Int = 1
         @Published var restingEnergyInterval: HealthAppInterval = .week
-        
         @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var restingEnergyUsesHealthMeasurements: Bool = false
+
+        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        @Published var activeEnergy: Double? = nil
+        @Published var activeEnergyTextFieldString: String = ""
+        @Published var activeEnergyPeriod: HealthPeriodOption = .previousDay
+        @Published var activeEnergyIntervalValue: Int = 1
+        @Published var activeEnergyInterval: HealthAppInterval = .week
+        @Published var activeEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
         @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
         
         @Published var lbmSource: LeanBodyMassSourceOption? = nil
         @Published var lbmFormula: LeanBodyMassFormula = .boer
         @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
-        @Published var lbmUsesHealthMeasurements: Bool = false
         @Published var lbm: Double? = nil
         @Published var lbmTextFieldString: String = ""
         @Published var lbmDate: Date? = nil
@@ -256,6 +259,7 @@ extension TDEEForm {
         @Published var age: Int? = nil
         @Published var ageTextFieldString: String = ""
 
+        //TODO: Replace with existing model
         let isSetup: Bool
         init(isSetup: Bool, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
             self.userEnergyUnit = userEnergyUnit

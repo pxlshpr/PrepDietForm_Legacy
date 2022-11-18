@@ -340,15 +340,12 @@ extension TDEEForm {
             Task(priority: .high) {
                 do {
                     try await HealthKitManager.shared.requestPermission(for: .basalEnergyBurned)
-                    
                     withAnimation {
                         viewModel.restingEnergySource = .healthApp
                     }
-                    
                     viewModel.fetchRestingEnergyFromHealth()
-
                 } catch {
-                    
+                    print("Handle errors")
                 }
             }
         }

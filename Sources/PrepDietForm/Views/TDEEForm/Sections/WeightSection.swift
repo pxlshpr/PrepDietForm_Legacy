@@ -83,6 +83,7 @@ struct WeightSection: View {
                         }
                         Text(viewModel.weightFormatted)
                             .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .foregroundColor(viewModel.weightSource == .userEntered ? .primary : .secondary)
                             .matchedGeometryEffect(id: "weight", in: namespace)
                             .if(!viewModel.hasWeight) { view in
                                 view
