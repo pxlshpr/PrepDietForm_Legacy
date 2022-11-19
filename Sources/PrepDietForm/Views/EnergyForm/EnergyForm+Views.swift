@@ -174,7 +174,7 @@ extension EnergyForm {
         .onChange(of: pickedDelta, perform: deltaChanged)
         .onAppear(perform: appeared)
         .sheet(isPresented: $showingTDEEForm) { tdeeForm }
-        .onDisappear(perform: goal.validate)
+        .onDisappear(perform: goal.validateEnergy)
     }
     
     var trailingContent: some ToolbarContent {
@@ -331,7 +331,6 @@ extension GoalViewModel {
                     return tdee + lowerBound
                 }
                 
-                //TODO: Handle this
             case .percentFromMaintenance(let delta):
                 guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
                 switch delta {
@@ -354,11 +353,75 @@ extension GoalViewModel {
             case .fixed:
                 return nil
             }
-//        case .macro(let macroGoalType, let macro):
-//            return nil
+        
+        case .macro(let macroGoalType, let macro):
+            guard let trueLowerBound else { return nil }
+            return macroValue(
+                from: trueLowerBound,
+                for: macroGoalType,
+                macro: macro,
+                energy: goalSet.energyGoal?.equivalentLowerBound
+            )
+            
 //        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
 //            return nil
         default:
+            return nil
+        }
+    }
+    
+    var trueLowerBound: Double? {
+        guard let lowerBound else { return nil }
+        guard let upperBound else { return lowerBound }
+        if upperBound == lowerBound {
+            return nil
+        }
+        if upperBound < lowerBound {
+            return upperBound
+        }
+        return lowerBound
+    }
+    
+    var trueUpperBound: Double? {
+        guard let upperBound else { return nil }
+        guard let lowerBound else { return upperBound }
+        if upperBound == lowerBound {
+            return upperBound
+        }
+        if lowerBound > upperBound {
+            return lowerBound
+        }
+        return upperBound
+    }
+    
+    func macroValue(from value: Double, for macroGoalType: MacroGoalType, macro: Macro, energy: Double?) -> Double? {
+        switch macroGoalType {
+        case .fixed:
+            return nil
+        case .gramsPerBodyMass(let bodyMass, let weightUnit):
+            switch bodyMass {
+            case .weight:
+                guard let weight = goalSet.bodyProfile?.weight(in: weightUnit)
+                else { return nil }
+                return value * weight
+                
+            case .leanMass:
+                guard let lbm = goalSet.bodyProfile?.lbm(in: weightUnit)
+                else { return nil}
+                return value * lbm
+                
+            }
+            
+        case .percentageOfEnergy:
+            guard
+                let energy,
+                let energyUnit = goalSet.bodyProfile?.parameters.energyUnit
+            else { return nil }
+            
+            let energyInKcal = energyUnit == .kcal ? energy : energy * KcalsPerKilojule
+            return macro.grams(equallingPercent: value, of: energyInKcal)
+            
+        case .gramsPerMinutesOfActivity(let minutes):
             return nil
         }
     }
@@ -410,6 +473,16 @@ extension GoalViewModel {
             case .fixed:
                 return nil
             }
+            
+        case .macro(let macroGoalType, let macro):
+            guard let trueUpperBound else { return nil }
+            return macroValue(
+                from: trueUpperBound,
+                for: macroGoalType,
+                macro: macro,
+                energy: goalSet.energyGoal?.equivalentUpperBound
+            )
+
 //        case .macro(let macroGoalType, let macro):
 //            return nil
 //        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
@@ -460,5 +533,25 @@ struct EnergyForm_Previews: PreviewProvider {
     
     static var previews: some View {
         EnergyFormPreview()
+    }
+}
+
+extension Macro {
+    
+    func grams(equallingPercent percent: Double, of energy: Double) -> Double {
+        guard percent >= 0, percent <= 100, energy > 0 else { return 0 }
+        let energyPortion = energy * (percent / 100)
+        return energyPortion / kcalsPerGram
+    }
+    
+    var kcalsPerGram: Double {
+        switch self {
+        case .carb:
+            return KcalsPerGramOfCarb
+        case .fat:
+            return KcalsPerGramOfFat
+        case .protein:
+            return KcalsPerGramOfProtein
+        }
     }
 }

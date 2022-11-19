@@ -37,14 +37,19 @@ extension MacroForm {
                 lowerBoundSection
                 upperBoundSection
             }
+//            .background(.green)
             unitSection
+//                .background(.green)
             bodyMassSection
+//                .background(.green)
             equivalentSection
+//                .background(.green)
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
+        .onDisappear(perform: goal.validateMacro)
     }
     
     var weightForm: some View {
@@ -65,25 +70,51 @@ extension MacroForm {
         .environmentObject(goalSet.macroTDEEFormViewModel)
     }
     
+    @ViewBuilder
     var bodyMassSection: some View {
-        FormStyledSection(header: Text("Body Mass")) {
-            HStack {
-                bodyMassButton
-                Spacer()
+        if pickedDietMacroGoalType == .gramsPerBodyMass {
+            FormStyledSection(header: Text("of"), footer: EmptyView()) {
+                HStack {
+                    bodyMassButton
+                    Spacer()
+                }
             }
         }
     }
     
     var haveBodyMass: Bool {
-        true
+        switch pickedBodyMassType {
+        case .weight:
+            return goalSet.bodyProfile?.hasWeight == true
+        case .leanMass:
+            return goalSet.bodyProfile?.hasLBM == true
+        }
     }
     
     var bodyMassIsSyncedWithHealth: Bool {
-        true
+        guard let params = goalSet.bodyProfile?.parameters else { return false }
+        switch pickedBodyMassType {
+        case .weight:
+            return params.weightUpdatesWithHealth == true
+        case .leanMass:
+            return params.lbmUpdatesWithHealth == true
+        }
     }
     
+    var isDynamic: Bool {
+        bodyMassIsSyncedWithHealth
+    }
+
     var bodyMassFormattedWithUnit: String {
-        "95 kg"
+        guard let params = goalSet.bodyProfile?.parameters else { return "" }
+        switch pickedBodyMassType {
+        case .weight:
+            guard let weight = params.weight else { return "" }
+            return weight.rounded(toPlaces: 1).cleanAmount + " \(params.weightUnit.shortDescription)"
+        case .leanMass:
+            guard let lbm = params.lbm else { return "" }
+            return lbm.rounded(toPlaces: 1).cleanAmount + " \(params.weightUnit.shortDescription)"
+        }
     }
     
     @ViewBuilder
@@ -158,11 +189,11 @@ extension MacroForm {
     
     var lowerBoundSection: some View {
         let binding = Binding<Double?>(
-            get: {
-                return goal.lowerBound
-            },
-            set: {
-                goal.lowerBound = $0
+            get: { goal.lowerBound },
+            set: { newValue in
+                withAnimation {
+                    goal.lowerBound = newValue
+                }
             }
         )
         return FormStyledSection(header: Text("At least")) {
@@ -172,25 +203,41 @@ extension MacroForm {
         }
     }
     
-    @ViewBuilder
     var equivalentSection: some View {
-        if goal.energyGoalDelta != nil {
-            FormStyledSection(header: Text("which Works out to be"), footer: footer) {
-                Group {
-                    Text("1570")
-                    +
-                    Text(" to ")
-                        .foregroundColor(Color(.tertiaryLabel))
-                        .font(.caption2)
-                    +
-                    Text("2205")
-                    +
-                    Text(" kcal")
-                        .foregroundColor(Color(.tertiaryLabel))
-                        .font(.caption)
+        @ViewBuilder
+        var header: some View {
+            if isDynamic {
+                Text("Currently Equals")
+            } else {
+                Text("Equals")
+            }
+        }
+        
+        return Group {
+            if goal.haveEquivalentValues {
+                FormStyledSection(header: header) {
+                    HStack {
+                        if let lower = goal.equivalentLowerBound {
+                            if goal.equivalentUpperBound == nil {
+                                equivalentAccessoryText("at least")
+                            }
+                            HStack(spacing: 3) {
+                                equivalentValueText(lower.formattedMacro)
+                                if goal.equivalentUpperBound == nil {
+                                    equivalentUnitText("g")
+                                }
+                            }
+                        }
+                        if let upper = goal.equivalentUpperBound {
+                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
+                            HStack(spacing: 3) {
+                                equivalentValueText(upper.formattedMacro)
+                                equivalentUnitText("g")
+                            }
+                        }
+                        Spacer()
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.secondary)
             }
         }
     }
@@ -198,7 +245,11 @@ extension MacroForm {
     var upperBoundSection: some View {
         let binding = Binding<Double?>(
             get: { goal.upperBound },
-            set: { goal.upperBound = $0 }
+            set: { newValue in
+                withAnimation {
+                    goal.upperBound = newValue
+                }
+            }
         )
         return FormStyledSection(header: Text("At most")) {
             HStack {
@@ -217,8 +268,17 @@ extension MacroForm {
     }
     
     var mealTypePicker: some View {
-        Menu {
-            Picker(selection: $pickedMealMacroGoalType, label: EmptyView()) {
+        let binding = Binding<MealMacroTypeOption>(
+            get: { pickedMealMacroGoalType },
+            set: { newType in
+                withAnimation {
+                    self.pickedMealMacroGoalType = newType
+                }
+                self.goal.macroGoalType = macroGoalType
+            }
+        )
+        return Menu {
+            Picker(selection: binding, label: EmptyView()) {
                 ForEach(MealMacroTypeOption.allCases, id: \.self) {
                     Text($0.menuDescription).tag($0)
                 }
@@ -226,11 +286,24 @@ extension MacroForm {
         } label: {
             PickerLabel(pickedMealMacroGoalType.pickerDescription)
         }
+        .animation(.none, value: pickedMealMacroGoalType)
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
     }
     
     var dietTypePicker: some View {
-        Menu {
-            Picker(selection: $pickedDietMacroGoalType, label: EmptyView()) {
+        let binding = Binding<DietMacroTypeOption>(
+            get: { pickedDietMacroGoalType },
+            set: { newType in
+                withAnimation {
+                    self.pickedDietMacroGoalType = newType
+                }
+                self.goal.macroGoalType = macroGoalType
+            }
+        )
+        return Menu {
+            Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietMacroTypeOption.allCases, id: \.self) {
                     Text($0.menuDescription).tag($0)
                 }
@@ -238,112 +311,75 @@ extension MacroForm {
         } label: {
             PickerLabel(pickedDietMacroGoalType.pickerDescription)
         }
+        .animation(.none, value: pickedDietMacroGoalType)
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
     }
     
-    @ViewBuilder
     var bodyMassTypePicker: some View {
-        if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
-            Menu {
-                Picker(selection: $pickedBodyMassType, label: EmptyView()) {
-                    ForEach(MacroGoalType.BodyMass.allCases, id: \.self) {
-                        Text($0.menuDescription).tag($0)
-                    }
+        let binding = Binding<MacroGoalType.BodyMass>(
+            get: { pickedBodyMassType },
+            set: { newBodyMassType in
+                withAnimation {
+                    self.pickedBodyMassType = newBodyMassType
                 }
-            } label: {
-                PickerLabel(
-                    pickedBodyMassType.pickerDescription,
-                    prefix: pickedBodyMassType.pickerPrefix
-                )
-                .animation(.none, value: pickedBodyMassType)
+                self.goal.macroGoalType = macroGoalType
             }
-            .contentShape(Rectangle())
-            .simultaneousGesture(TapGesture().onEnded {
-                Haptics.feedback(style: .soft)
-            })
-        }
-    }
-    
-    @ViewBuilder
-    var bodyMassUnitPicker: some View {
-        if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
-            Menu {
-                Picker(selection: $pickedBodyMassUnit, label: EmptyView()) {
-                    ForEach([WeightUnit.kg, WeightUnit.lb], id: \.self) {
-                        Text($0.menuDescription).tag($0)
-                    }
-                }
-            } label: {
-                PickerLabel(
-                    pickedBodyMassUnit.pickerDescription,
-                    prefix: pickedBodyMassUnit.pickerPrefix
-                )
-            }
-            .contentShape(Rectangle())
-            .simultaneousGesture(TapGesture().onEnded {
-                Haptics.feedback(style: .soft)
-            })
-        }
-    }
-    
-    @ViewBuilder
-    var weightUnitMenu: some View {
-        if goal.macroGoalType?.usesWeight == true {
-            Menu {
-                Button {
-                    goal.macroBodyMassWeightUnit = .kg
-                } label: {
-                    Text("kilogram (kg)")
-                }
-                Button {
-                    goal.macroBodyMassWeightUnit = .lb
-                } label: {
-                    Text("pound (lb)")
-                }
-            } label: {
-                HStack {
-                    Group {
-                        if let weight = goal.macroBodyMassWeightUnit {
-                            switch weight {
-                            case .kg:
-                                Text("in kg")
-                            case .lb:
-                                Text("in lb")
-                            default:
-                                Text("choose weight")
-                                    .foregroundColor(Color(.quaternaryLabel))
-                            }
-                        } else {
-                            Text("choose weight")
-                                .foregroundColor(Color(.quaternaryLabel))
+        )
+        return Group {
+            if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
+                Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(MacroGoalType.BodyMass.allCases, id: \.self) {
+                            Text($0.menuDescription).tag($0)
                         }
                     }
-                    .fixedSize()
-                    Image(systemName: "chevron.up.chevron.down")
-                        .imageScale(.small)
+                } label: {
+                    PickerLabel(
+                        pickedBodyMassType.pickerDescription,
+                        prefix: pickedBodyMassType.pickerPrefix
+                    )
                 }
-                .frame(maxHeight: .infinity)
-                .frame(maxWidth: .infinity)
+                .animation(.none, value: pickedBodyMassType)
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .soft)
+                })
             }
-            .contentShape(Rectangle())
-            .simultaneousGesture(TapGesture().onEnded {
-                Haptics.feedback(style: .soft)
-            })
         }
     }
     
-//    @ViewBuilder
-//    var footer: some View {
-//        if goal.energyGoalDelta != nil {
-//            HStack {
-//                Button {
-//                    showingMaintenanceCalculator = true
-//                } label: {
-//                    Text("Your maintenance calories are 2,250 kcal.")
-//                        .multilineTextAlignment(.leading)
-//                }
-//            }
-//        }
-//    }
+    var bodyMassUnitPicker: some View {
+        let binding = Binding<WeightUnit>(
+            get: { pickedBodyMassUnit },
+            set: { newWeightUnit in
+                withAnimation {
+                    self.pickedBodyMassUnit = newWeightUnit
+                }
+                self.goal.macroGoalType = macroGoalType
+            }
+        )
+        return Group {
+            if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
+                Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach([WeightUnit.kg, WeightUnit.lb], id: \.self) {
+                            Text($0.menuDescription).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        pickedBodyMassUnit.pickerDescription,
+                        prefix: pickedBodyMassUnit.pickerPrefix
+                    )
+                }
+                .animation(.none, value: pickedBodyMassUnit)
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .soft)
+                })
+            }
+        }
+    }
 }
 
 struct MacroFormPreview: View {
@@ -357,7 +393,8 @@ struct MacroFormPreview: View {
             isMealProfile: false,
             existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
                 Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
-            ])
+            ]),
+            bodyProfile: .mock(weight: 98)
         )
         let goal = GoalViewModel(
             goalSet: goalSet,
@@ -372,6 +409,25 @@ struct MacroFormPreview: View {
             MacroForm(goal: goal)
                 .environmentObject(goalSet)
         }
+    }
+}
+
+extension BodyProfile {
+    static func mock(weight: Double? = nil, lbm: Double? = nil) -> BodyProfile {
+        BodyProfile(
+            id: UUID(),
+            parameters: Parameters(
+                energyUnit: .kcal,
+                weightUnit: .kg,
+                heightUnit: .cm,
+                lbm: lbm,
+                lbmSource: .userEntered,
+                weight: weight,
+                weightSource: .userEntered
+            ),
+            syncStatus: .notSynced,
+            updatedAt: Date().timeIntervalSince1970
+        )
     }
 }
 

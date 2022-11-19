@@ -22,7 +22,7 @@ extension BodyProfile {
         let heightUnit: HeightUnit
 
         var restingEnergy: Double?
-        let restingEnergySource: RestingEnergySourceOption?
+        var restingEnergySource: RestingEnergySourceOption?
         var restingEnergyFormula: RestingEnergyFormula?
         var restingEnergyPeriod: HealthPeriodOption?
         var restingEnergyIntervalValue: Int?
@@ -85,9 +85,35 @@ extension BodyProfile {
     func tdee(in energyUnit: EnergyUnit) -> Double? {
         parameters.tdee(in: energyUnit)
     }
+    
+    func weight(in other: WeightUnit) -> Double? {
+        parameters.weight(in: other)
+    }
+    
+    func lbm(in other: WeightUnit) -> Double? {
+        parameters.lbm(in: other)
+    }
+
+}
+
+extension WeightUnit {
+    func convert(_ value: Double, to other: WeightUnit) -> Double {
+        let inGrams = value * self.g
+        return inGrams / other.g
+    }
 }
 
 extension BodyProfile.Parameters {
+    func weight(in other: WeightUnit) -> Double? {
+        guard let weight else { return nil }
+        return weightUnit.convert(weight, to: other)
+    }
+    
+    func lbm(in other: WeightUnit) -> Double? {
+        guard let lbm else { return nil }
+        return weightUnit.convert(lbm, to: other)
+    }
+
     func tdee(in energyUnit: EnergyUnit) -> Double? {
         guard let tdeeInKcal else { return nil }
         return energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule

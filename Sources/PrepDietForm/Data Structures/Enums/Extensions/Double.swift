@@ -8,6 +8,7 @@
 import Foundation
 
 extension Double {
+    /// uses commas, rounds it off
     var formattedEnergy: String {
         let rounded = self.rounded()
         
@@ -19,5 +20,10 @@ extension Double {
             return "\(Int(rounded))"
         }
         return formatted
+    }
+    
+    /// no commas, but rounds it off
+    var formattedMacro: String {
+        "\(Int(self.rounded()))"
     }
 }

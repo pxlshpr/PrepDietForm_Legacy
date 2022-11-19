@@ -117,4 +117,20 @@ extension BodyProfile.Parameters {
     var hasWeight: Bool {
         weight != nil && weightSource != nil
     }
+    
+    var weightUpdatesWithHealth: Bool {
+        weightSource == .healthApp
+    }
+    
+    var lbmUpdatesWithHealth: Bool {
+        guard let lbmSource else { return false }
+        switch lbmSource {
+        case .healthApp:
+            return true
+        case .fatPercentage, .formula:
+            return weightUpdatesWithHealth
+        default:
+            return false
+        }
+    }
 }

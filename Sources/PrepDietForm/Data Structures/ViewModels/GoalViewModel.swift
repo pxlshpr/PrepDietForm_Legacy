@@ -259,7 +259,8 @@ extension GoalViewModel {
         }
     }
 
-    func validate() {
+    func validateEnergy() {
+        guard let energyGoalType else { return }
         switch energyGoalType {
         case .fixed:
             break
@@ -277,9 +278,43 @@ extension GoalViewModel {
             case .deficit:
                 validateNoPercentageBoundResultingInLessThan500()
             }
-        default:
-            return
         }
+        validateLowerBoundLowerThanUpper()
+        validateBoundsNotEqual()
+    }
+    
+    func validateMacro() {
+        guard let macroGoalType else { return }
+        switch macroGoalType {
+        case .fixed:
+            break
+        case .gramsPerBodyMass:
+            break
+        case .gramsPerMinutesOfActivity:
+            break
+        case .percentageOfEnergy:
+            break
+        }
+//        switch macroGoalType {
+//        case .fixed:
+//            break
+//        case .fromMaintenance(let energyUnit, let delta):
+//            switch delta {
+//            case .surplus:
+//                break
+//            case .deficit:
+//                validateNoBoundResultingInLessThan500(unit: energyUnit)
+//            }
+//        case .percentFromMaintenance(let delta):
+//            switch delta {
+//            case .surplus:
+//                break
+//            case .deficit:
+//                validateNoPercentageBoundResultingInLessThan500()
+//            }
+//        default:
+//            return
+//        }
         validateLowerBoundLowerThanUpper()
         validateBoundsNotEqual()
     }
