@@ -6,7 +6,6 @@ public struct BodyProfile: Hashable, Codable {
     
     public let id: UUID
     
-    public var tdeeInKcal: Double
     public var parameters: Parameters
     
     public var syncStatus: SyncStatus
@@ -15,21 +14,22 @@ public struct BodyProfile: Hashable, Codable {
 }
 
 extension BodyProfile {
+    
     public struct Parameters: Hashable, Codable {
-        /// The units being used at the time of creating this profile
+        
         let energyUnit: EnergyUnit
         let weightUnit: WeightUnit
         let heightUnit: HeightUnit
 
-        var restingEnergy: Double
-        let restingEnergySource: RestingEnergySourceOption
+        var restingEnergy: Double?
+        let restingEnergySource: RestingEnergySourceOption?
         var restingEnergyFormula: RestingEnergyFormula?
         var restingEnergyPeriod: HealthPeriodOption?
         var restingEnergyIntervalValue: Int?
         var restingEnergyInterval: HealthAppInterval?
 
-        var activeEnergy: Double
-        var activeEnergySource: ActiveEnergySourceOption
+        var activeEnergy: Double?
+        var activeEnergySource: ActiveEnergySourceOption?
         var activeEnergyActivityLevel: ActivityLevel?
         var activeEnergyPeriod: HealthPeriodOption?
         var activeEnergyIntervalValue: Int?
@@ -70,14 +70,36 @@ extension BodyProfile.Parameters {
 
 extension BodyProfile {
     
-    var tdeeInUnit: Double {
-        tdee(in: parameters.energyUnit)
+    var tdeeInUnit: Double? {
+        parameters.tdee
     }
-    var formattedTDEEWithUnit: String {
-        "\(tdeeInUnit.formattedEnergy) \(parameters.energyUnit.shortDescription)"
+    var formattedTDEEWithUnit: String? {
+        guard let tdeeInUnit else { return nil }
+        return "\(tdeeInUnit.formattedEnergy) \(parameters.energyUnit.shortDescription)"
     }
     
-    func tdee(in energyUnit: EnergyUnit) -> Double {
-        energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule
+    func tdee(in energyUnit: EnergyUnit) -> Double? {
+        parameters.tdee(in: energyUnit)
+    }
+}
+
+extension BodyProfile.Parameters {
+    func tdee(in energyUnit: EnergyUnit) -> Double? {
+        guard let tdeeInKcal else { return nil }
+        return energyUnit == .kcal ? tdeeInKcal : tdeeInKcal * KcalsPerKilojule
+    }
+
+    var tdee: Double? {
+        guard let restingEnergy, let activeEnergy else { return nil }
+        return restingEnergy + activeEnergy
+    }
+    
+    var tdeeInKcal: Double? {
+        guard let tdee else { return nil }
+        if energyUnit == .kcal {
+            return tdee
+        } else {
+            return tdee / KcalsPerKilojule
+        }
     }
 }

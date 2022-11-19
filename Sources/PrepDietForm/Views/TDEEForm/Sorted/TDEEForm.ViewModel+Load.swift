@@ -7,7 +7,7 @@ extension TDEEForm.ViewModel {
         self.restingEnergySource = params.restingEnergySource
         self.restingEnergyFormula = params.restingEnergyFormula ?? .katchMcardle
         self.restingEnergy = params.restingEnergy
-        self.restingEnergyTextFieldString = params.restingEnergy.cleanAmount
+        self.restingEnergyTextFieldString = params.restingEnergy?.cleanAmount ?? ""
         self.restingEnergyPeriod = params.restingEnergyPeriod ?? .average
         self.restingEnergyIntervalValue = params.restingEnergyIntervalValue ?? 1
         self.restingEnergyInterval = params.restingEnergyInterval ?? .week
@@ -15,7 +15,7 @@ extension TDEEForm.ViewModel {
         self.activeEnergySource = params.activeEnergySource
         self.activeEnergyActivityLevel = params.activeEnergyActivityLevel ?? .moderatelyActive
         self.activeEnergy = params.activeEnergy
-        self.activeEnergyTextFieldString = params.activeEnergy.cleanAmount
+        self.activeEnergyTextFieldString = params.activeEnergy?.cleanAmount ?? ""
         self.activeEnergyPeriod = params.activeEnergyPeriod ?? .previousDay
         self.activeEnergyIntervalValue = params.activeEnergyIntervalValue ?? 1
         self.activeEnergyInterval = params.activeEnergyInterval ?? .day

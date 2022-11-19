@@ -1224,7 +1224,7 @@ extension TDEEForm.ViewModel {
     var shouldShowSaveButton: Bool {
         guard isEditing, let newProfile else { return false }
         if let existingProfile {
-            /// We're only checking the parameters as the `updatedAt` flag, `syncStatus` and actual `tdeeInKcal` might differ.
+            /// We're only checking the parameters as the `updatedAt` flag, `syncStatus` might differ.
             return existingProfile.parameters != newProfile.parameters
         }
         return true
@@ -1259,7 +1259,6 @@ extension TDEEForm.ViewModel {
     
     var newProfile: BodyProfile? {
         guard
-            let tdeeInKcal = maintenanceEnergyInKcal,
             let restingEnergyValue,
             let activeEnergyValue,
             let restingEnergySource,
@@ -1404,7 +1403,6 @@ extension TDEEForm.ViewModel {
         
         return BodyProfile(
             id: existingProfile?.id ?? UUID(),
-            tdeeInKcal: tdeeInKcal,
             parameters: parameters,
             syncStatus: .notSynced,
             updatedAt: Date().timeIntervalSince1970

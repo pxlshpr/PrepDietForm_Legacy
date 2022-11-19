@@ -254,10 +254,10 @@ extension EnergyForm {
             Button {
                 showingTDEEForm = true
             } label: {
-                if let profile = viewModel.bodyProfile {
+                if let profile = viewModel.bodyProfile, let formattedTDEE = profile.formattedTDEEWithUnit {
                     if profile.parameters.updatesWithHealthApp {
                         PickerLabel(
-                            profile.formattedTDEEWithUnit,
+                            formattedTDEE,
                             systemImage: "flame.fill",
                             imageColor: Color(hex: "F3DED7"),
                             backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
@@ -267,7 +267,7 @@ extension EnergyForm {
                         )
                     } else {
                         PickerLabel(
-                            profile.formattedTDEEWithUnit,
+                            formattedTDEE,
                             systemImage: "flame.fill",
                             imageColor: Color(.tertiaryLabel),
                             imageScale: .small
@@ -432,7 +432,6 @@ struct EnergyFormPreview: View {
             existingGoalSet: nil,
             bodyProfile: BodyProfile(
                 id: UUID(),
-                tdeeInKcal: 3100,
                 parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
                 syncStatus: .notSynced,
                 updatedAt: Date().timeIntervalSince1970

@@ -212,8 +212,9 @@ extension GoalViewModel {
     }
 
     func validateNoBoundResultingInLessThan500(unit: EnergyUnit) {
-        guard let profile = goalSet.bodyProfile else { return }
-        let tdee = profile.tdee(in: unit).rounded()
+        guard let profile = goalSet.bodyProfile,
+              let tdee = profile.tdee(in: unit)?.rounded()
+        else { return }
         
         if let lowerBound, tdee - lowerBound < 500 {
             withAnimation {
@@ -229,8 +230,9 @@ extension GoalViewModel {
     }
     
     func validateNoPercentageBoundResultingInLessThan500() {
-        guard let profile = goalSet.bodyProfile else { return }
-        let tdee = profile.tdeeInUnit.rounded()
+        guard let profile = goalSet.bodyProfile,
+              let tdee = profile.tdeeInUnit?.rounded()
+        else { return }
         
         if let lowerBound, tdee - ((lowerBound/100) * tdee) < 500 {
             withAnimation {
