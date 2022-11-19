@@ -33,7 +33,10 @@ extension GoalSetForm {
         @Published var name: String
         @Published var isMealProfile = false
         @Published var goals: [GoalViewModel] = []
-        @Published var currentTDEEProfile: TDEEProfile?
+        
+        @Published var bodyProfile: BodyProfile?
+        
+        @Published var macroTDEEFormViewModel: TDEEForm.ViewModel
         
         @Published var path: [Route] = []
         
@@ -41,13 +44,15 @@ extension GoalSetForm {
 
         let existingGoalSet: GoalSet?
         
-        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, currentTDEEProfile: TDEEProfile? = nil) {
+        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil) {
             self.userUnits = userUnits
             self.isMealProfile = isMealProfile
-            self.currentTDEEProfile = currentTDEEProfile
+            self.bodyProfile = bodyProfile
             self.existingGoalSet = existing
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""
+            self.macroTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: nil, userUnits: userUnits)
+            
             self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
         }
     }

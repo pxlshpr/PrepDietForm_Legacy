@@ -111,6 +111,7 @@ struct LeanBodyMassForm: View {
         FormStyledSection {
             Text("Lean body mass is the weight of your body minus your body fat (adipose tissue).")
                 .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     

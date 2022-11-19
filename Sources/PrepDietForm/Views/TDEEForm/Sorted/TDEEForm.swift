@@ -15,14 +15,14 @@ struct TDEEForm: View {
     @FocusState var restingEnergyTextFieldIsFocused: Bool
     @FocusState var activeEnergyTextFieldIsFocused: Bool
     
-    let didTapSave: (TDEEProfile) -> ()
+    let didTapSave: (BodyProfile) -> ()
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
     init(
-        existingProfile: TDEEProfile? = nil,
+        existingProfile: BodyProfile? = nil,
         userUnits: UserUnits,
-        didTapSave: @escaping (TDEEProfile) -> ()
+        didTapSave: @escaping (BodyProfile) -> ()
     ) {
         let viewModel = ViewModel(
             existingProfile: existingProfile,

@@ -13,6 +13,9 @@ struct MacroForm: View {
     @State var pickedBodyMassType: MacroGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
+    @State var showingLeanMassForm: Bool = false
+    @State var showingWeightForm: Bool = false
+    
     init(goal: GoalViewModel) {
         self.goal = goal
         let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal) ?? .fixed
@@ -26,6 +29,34 @@ struct MacroForm: View {
     }
 }
 
+
+public struct MacroWeightForm: View {
+    
+    @EnvironmentObject var viewModel: TDEEForm.ViewModel
+    
+    public var body: some View {
+        NavigationView {
+            FormStyledScrollView {
+                WeightSection()
+                    .navigationTitle("Weight")
+            }
+        }
+    }
+}
+
+public struct MacroLeanBodyMassForm: View {
+
+    @EnvironmentObject var viewModel: TDEEForm.ViewModel
+    
+    public var body: some View {
+        NavigationView {
+            LeanBodyMassForm()
+                .environmentObject(viewModel)
+        }
+    }
+
+}
+
 extension MacroForm {
     
     var body: some View {
@@ -34,16 +65,24 @@ extension MacroForm {
                 lowerBoundSection
                 upperBoundSection
             }
-//                .background(.green)
             unitSection
-//                .background(.green)
             bodyMassSection
-//                .background(.green)
             equivalentSection
-//                .background(.green)
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showingWeightForm) { weightForm }
+        .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
+    }
+    
+    var weightForm: some View {
+        MacroWeightForm()
+            .environmentObject(goalSet.macroTDEEFormViewModel)
+    }
+    
+    var leanMassForm: some View {
+        MacroLeanBodyMassForm()
+            .environmentObject(goalSet.macroTDEEFormViewModel)
     }
     
     var bodyMassSection: some View {
@@ -70,8 +109,12 @@ extension MacroForm {
     @ViewBuilder
     var bodyMassButton: some View {
         Button {
-            goalSet.path.append(pickedBodyMassType == .weight ? .weightForm : .lbmForm)
-//            showingTDEEForm = true
+            switch pickedBodyMassType {
+            case .weight:
+                showingWeightForm = true
+            case .leanMass:
+                showingLeanMassForm = true
+            }
         } label: {
             if haveBodyMass {
                 if bodyMassIsSyncedWithHealth {

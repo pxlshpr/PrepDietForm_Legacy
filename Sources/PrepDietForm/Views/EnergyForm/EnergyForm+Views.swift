@@ -201,7 +201,7 @@ extension EnergyForm {
     }
     
     var isDynamic: Bool {
-        viewModel.currentTDEEProfile?.parameters.updatesWithHealthApp == true
+        viewModel.bodyProfile?.parameters.updatesWithHealthApp == true
     }
     
     @ViewBuilder
@@ -243,8 +243,8 @@ extension EnergyForm {
     }
     
     var tdeeForm: some View {
-        TDEEForm(existingProfile: viewModel.currentTDEEProfile, userUnits: .standard) { profile in
-            viewModel.currentTDEEProfile = profile
+        TDEEForm(existingProfile: viewModel.bodyProfile, userUnits: .standard) { profile in
+            viewModel.bodyProfile = profile
         }
     }
     
@@ -254,7 +254,7 @@ extension EnergyForm {
             Button {
                 showingTDEEForm = true
             } label: {
-                if let profile = viewModel.currentTDEEProfile {
+                if let profile = viewModel.bodyProfile {
                     if profile.parameters.updatesWithHealthApp {
                         PickerLabel(
                             profile.formattedTDEEWithUnit,
@@ -313,7 +313,7 @@ extension GoalViewModel {
             switch energyGoalType {
                 
             case .fromMaintenance(let energyUnit, let delta):
-                guard let tdee = goalSet.currentTDEEProfile?.tdee(in: energyUnit) else { return nil }
+                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
                 switch delta {
                 case .deficit:
                     if let upperBound, let lowerBound {
@@ -333,7 +333,7 @@ extension GoalViewModel {
                 
                 //TODO: Handle this
             case .percentFromMaintenance(let delta):
-                guard let tdee = goalSet.currentTDEEProfile?.tdeeInUnit else { return nil }
+                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
                 switch delta {
                 case .deficit:
                     if let upperBound, let lowerBound {
@@ -369,7 +369,7 @@ extension GoalViewModel {
             switch energyGoalType {
                 
             case .fromMaintenance(let energyUnit, let delta):
-                guard let tdee = goalSet.currentTDEEProfile?.tdee(in: energyUnit) else { return nil }
+                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
                 switch delta {
                 case .deficit:
                     if let upperBound, let lowerBound {
@@ -389,7 +389,7 @@ extension GoalViewModel {
                 
                 //TODO: Handle this
             case .percentFromMaintenance(let delta):
-                guard let tdee = goalSet.currentTDEEProfile?.tdeeInUnit else { return nil }
+                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
                 switch delta {
                 case .deficit:
                     if let upperBound, let lowerBound {
@@ -430,7 +430,7 @@ struct EnergyFormPreview: View {
             userUnits:.standard,
             isMealProfile: true,
             existingGoalSet: nil,
-            currentTDEEProfile: TDEEProfile(
+            bodyProfile: BodyProfile(
                 id: UUID(),
                 tdeeInKcal: 3100,
                 parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),

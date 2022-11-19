@@ -1,7 +1,7 @@
 import Foundation
 
 extension TDEEForm.ViewModel {
-    func load(_ profile: TDEEProfile) {
+    func load(_ profile: BodyProfile) {
         
         let params = profile.parameters
         self.restingEnergySource = params.restingEnergySource

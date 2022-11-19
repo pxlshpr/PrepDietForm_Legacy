@@ -6,8 +6,6 @@ public struct GoalSetForm: View {
     
     enum Route: Hashable {
         case goal(GoalViewModel)
-        case weightForm
-        case lbmForm
     }
     
     @Environment(\.dismiss) var dismiss
@@ -36,16 +34,21 @@ public struct GoalSetForm: View {
             .toolbar { leadingContent }
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
-            .navigationDestination(for: Route.self) { route in
-                switch route {
-                case .goal(let goalViewModel):
-                    goalForm(for: goalViewModel)
-                case .weightForm:
-                    Text("Weight")
-                case .lbmForm:
-                    Text("LBM")
-                }
-            }
+            .navigationDestination(for: Route.self, destination: navigationDestination)
+        }
+    }
+    
+    @ViewBuilder
+    func navigationDestination(for route: Route) -> some View {
+        switch route {
+        case .goal(let goalViewModel):
+            goalForm(for: goalViewModel)
+//                case .weightForm:
+//                    WeightForm()
+//                        .environmentObject(viewModel.macroTDEEFormViewModel)
+//                case .lbmForm:
+//                    LeanBodyMassForm()
+//                        .environmentObject(viewModel.macroTDEEFormViewModel)
         }
     }
     

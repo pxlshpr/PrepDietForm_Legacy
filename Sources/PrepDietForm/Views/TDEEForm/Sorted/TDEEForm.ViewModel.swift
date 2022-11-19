@@ -1257,7 +1257,7 @@ extension TDEEForm.ViewModel {
     
     //MARK: - Profile
     
-    var newProfile: TDEEProfile? {
+    var newProfile: BodyProfile? {
         guard
             let tdeeInKcal = maintenanceEnergyInKcal,
             let restingEnergyValue,
@@ -1368,7 +1368,7 @@ extension TDEEForm.ViewModel {
         var dob: DateComponents? { usingAge ? self.dob : nil }
         var ageSource: MeasurementSourceOption? { usingAge ? self.ageSource : nil }
         
-        let parameters = TDEEProfileParameters(
+        let parameters = BodyProfile.Parameters(
             energyUnit: userEnergyUnit,
             weightUnit: userWeightUnit,
             heightUnit: userHeightUnit,
@@ -1402,7 +1402,7 @@ extension TDEEForm.ViewModel {
             ageSource: ageSource
         )
         
-        return TDEEProfile(
+        return BodyProfile(
             id: existingProfile?.id ?? UUID(),
             tdeeInKcal: tdeeInKcal,
             parameters: parameters,
@@ -1480,10 +1480,10 @@ extension TDEEForm {
 //        @Published var presentationDetent: PresentationDetent = .custom(PrimaryDetent.self)
 //        @Published var detents: Set<PresentationDetent> = [.custom(PrimaryDetent.self), .custom(SecondaryDetent.self)]
 
-        let existingProfile: TDEEProfile?
+        let existingProfile: BodyProfile?
         
         init(
-            existingProfile: TDEEProfile?,
+            existingProfile: BodyProfile?,
             userUnits: UserUnits
         ) {
             self.userEnergyUnit = userUnits.energy
