@@ -188,6 +188,27 @@ public class GoalViewModel: ObservableObject {
     }
 }
 
+extension GoalViewModel {
+    func validateUpperBound(_ double: Double) -> Double {
+//        if let lower = lowerBound {
+//            guard double > lower else {
+//                return lower
+//            }
+//        }
+        return double
+    }
+    
+    func validateLowerBound(_ double: Double) -> Double {
+//        if let upper = upperBound {
+//            guard double < upper else {
+//                return upper
+//            }
+//        }
+        return double
+    }
+
+}
+
 extension GoalViewModel: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(type.identifyingHashValue)

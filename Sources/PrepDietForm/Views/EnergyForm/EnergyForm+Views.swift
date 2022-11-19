@@ -1,20 +1,32 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 extension EnergyForm {
+    
+    var headerOpacity: CGFloat {
+        goal.lowerBound != nil && goal.upperBound != nil ? 0 : 1
+    }
     
     var lowerBoundSection: some View {
         let binding = Binding<Double?>(
             get: {
                 return goal.lowerBound
             },
-            set: {
-                goal.lowerBound = $0
+            set: { newValue in
+                withAnimation {
+                    goal.lowerBound = newValue
+                }
             }
         )
-        return FormStyledSection(header: Text("At least")) {
+        
+        var header: some View {
+            Text("At least")
+                .opacity(headerOpacity)
+        }
+        return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(double: binding, placeholder: "Optional", validator: goal.validateLowerBound)
             }
         }
     }
@@ -22,13 +34,53 @@ extension EnergyForm {
     var upperBoundSection: some View {
         let binding = Binding<Double?>(
             get: { goal.upperBound },
-            set: { goal.upperBound = $0 }
+            set: { newValue in
+                withAnimation {
+                    goal.upperBound = newValue
+                }
+            }
         )
-        return FormStyledSection(header: Text("At most")) {
+
+        var header: some View {
+            Text("At most")
+                .opacity(headerOpacity)
+        }
+        return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(double: binding, placeholder: "Optional", validator: goal.validateUpperBound)
             }
         }
+    }
+    
+    var middleSection: some View {
+        VStack(spacing: 7) {
+            Text("")
+            if goal.lowerBound != nil, goal.upperBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.upperBound = goal.lowerBound
+                    goal.lowerBound = nil
+                } label: {
+                    Image(systemName: "arrowshape.right.fill")
+                        .foregroundColor(.secondary)
+                }
+            } else if goal.upperBound != nil, goal.lowerBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.lowerBound = goal.upperBound
+                    goal.upperBound = nil
+                } label: {
+                    Image(systemName: "arrowshape.left.fill")
+                        .foregroundColor(.secondary)
+                }
+            } else if goal.upperBound != nil, goal.lowerBound != nil {
+                Text("to")
+                    .font(.system(size: 17))
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+        }
+        .padding(.top, 10)
+        .frame(width: 16, height: 20)
     }
     
     var unitView: some View {
@@ -110,6 +162,7 @@ extension EnergyForm {
         FormStyledScrollView {
             HStack(spacing: 0) {
                 lowerBoundSection
+                middleSection
                 upperBoundSection
             }
             unitSection
@@ -344,7 +397,7 @@ struct EnergyFormPreview: View {
             goalSet: goalSet,
             type: .energy(.fromMaintenance(.kcal, .deficit)),
             lowerBound: 500
-            , upperBound: 750
+//            , upperBound: 750
         )
         _viewModel = StateObject(wrappedValue: goalSet)
         _goalViewModel = StateObject(wrappedValue: goal)
