@@ -271,8 +271,6 @@ extension GoalViewModel {
             case .deficit:
                 validateNoPercentageBoundResultingInLessThan500()
             }
-        case .percentOfDietGoal:
-            validateNoPercentageBoundGreaterThan100()
         default:
             return
         }

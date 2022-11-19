@@ -21,8 +21,6 @@ extension EnergyForm {
             switch pickedMealEnergyGoalType {
             case .fixed:
                 return .fixed(energyUnit)
-            case .percentageOfDailyTotal:
-                return .percentOfDietGoal
             }
         } else {
             switch pickedDietEnergyGoalType {

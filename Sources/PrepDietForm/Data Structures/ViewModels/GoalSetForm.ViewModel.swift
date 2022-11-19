@@ -80,7 +80,7 @@ extension GoalSetForm.ViewModel {
                 goals.append(GoalViewModel(
                     goalSet: self,
                     isForMeal: isMealProfile,
-                    type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
+                    type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g, nutrientType.ignoresMealSplitsByDefault)
                 ))
             }
         }
@@ -142,3 +142,14 @@ func randomEmoji(forMealProfile: Bool) -> String {
 }
 
 
+
+extension NutrientType {
+    var ignoresMealSplitsByDefault: Bool {
+        switch self.group {
+        case .minerals, .vitamins:
+            return true
+        default:
+            return false
+        }
+    }
+}

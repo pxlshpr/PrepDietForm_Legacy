@@ -166,6 +166,7 @@ extension EnergyForm {
                 upperBoundSection
             }
             unitSection
+                .padding(.bottom, 10)
             equivalentSection
         }
         .navigationTitle("Energy")
@@ -300,14 +301,12 @@ extension GoalViewModel {
         switch type {
         case .energy(let type):
             switch type {
-            case .percentOfDietGoal:
-                return nil
             default:
                 return goalSet.userUnits.energy.shortDescription
             }
         case .macro:
             return NutrientUnit.g.shortDescription
-        case .micro(_, _, let nutrientUnit):
+        case .micro(_, _, let nutrientUnit, _):
             return nutrientUnit.shortDescription
         }
     }
@@ -354,10 +353,6 @@ extension GoalViewModel {
                     guard let lowerBound else { return nil }
                     return tdee + ((lowerBound/100) * tdee)
                 }
-                
-            case .percentOfDietGoal:
-                //TODO: Handle this
-                return nil
                 
             case .fixed:
                 return nil
@@ -415,9 +410,6 @@ extension GoalViewModel {
                     return tdee + ((upperBound/100) * tdee)
                 }
 
-            case .percentOfDietGoal:
-                //TODO: Handle this
-                return nil
             case .fixed:
                 return nil
             }
@@ -437,9 +429,9 @@ struct EnergyFormPreview: View {
     @StateObject var goalViewModel: GoalViewModel
     
     init() {
-        let goalSet = GoalSetForm.ViewModel(
+        let goalSetViewModel = GoalSetForm.ViewModel(
             userUnits:.standard,
-            isMealProfile: false,
+            isMealProfile: true,
             existingGoalSet: nil,
             currentTDEEProfile: TDEEProfile(
                 id: UUID(),
@@ -449,14 +441,15 @@ struct EnergyFormPreview: View {
                 updatedAt: Date().timeIntervalSince1970
             )
         )
-        let goal = GoalViewModel(
-            goalSet: goalSet,
+        let goalViewModel = GoalViewModel(
+            goalSet: goalSetViewModel,
+            isForMeal: true,
             type: .energy(.fromMaintenance(.kcal, .deficit)),
-            lowerBound: 500
+            lowerBound: 500  
 //            , upperBound: 750
         )
-        _viewModel = StateObject(wrappedValue: goalSet)
-        _goalViewModel = StateObject(wrappedValue: goal)
+        _viewModel = StateObject(wrappedValue: goalSetViewModel)
+        _goalViewModel = StateObject(wrappedValue: goalViewModel)
     }
     
     var body: some View {

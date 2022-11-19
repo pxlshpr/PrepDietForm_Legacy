@@ -142,7 +142,7 @@ struct GoalSetFormPreview: View {
         goals: [
             Goal(type: .energy(.fromMaintenance(.kcal, .surplus)), lowerBound: 500, upperBound: 750),
             Goal(type: .macro(.fixed, .protein), lowerBound: 200, upperBound: 250),
-            Goal(type: .micro(.fixed, .magnesium, .mg), lowerBound: 400),
+            Goal(type: .micro(.fixed, .magnesium, .mg, false), lowerBound: 400),
             Goal(type: .macro(.fixed, .carb), upperBound: 220),
             Goal(type: .macro(.fixed, .fat), upperBound: 90),
         ]

@@ -47,7 +47,7 @@ struct GoalCell: View {
     
     @ViewBuilder
     var typeText: some View {
-        if !showingEquivalentValues,
+        if (!showingEquivalentValues || !goal.type.showsEquivalentValues),
            let string = goal.type.accessoryDescription,
            let icon = goal.type.accessorySystemImage
         {

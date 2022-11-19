@@ -2,9 +2,14 @@ import SwiftUI
 import PrepDataTypes
 
 public enum GoalType: Hashable, Codable {
+    
     case energy(EnergyGoalType)
+    
     case macro(MacroGoalType, Macro)
-    case micro(MicroGoalType, NutrientType, NutrientUnit)
+    
+    /// The bool at the end indicates whether the micronutrient is ignored for meal-wise splits.
+    /// This is useful for things like vitamins and minerals which we may not want to create automatic meal-split goals for unless the user explicitly specifies so.
+    case micro(MicroGoalType, NutrientType, NutrientUnit, Bool)
     
     /// A hash value that is independent of the associated values
     var identifyingHashValue: String {
@@ -13,10 +18,11 @@ public enum GoalType: Hashable, Codable {
             return "energy"
         case .macro(_, let macro):
             return "macro_\(macro.rawValue)"
-        case .micro(_, let nutrientType, _):
+        case .micro(_, let nutrientType, _, _):
             return "macro_\(nutrientType.rawValue)"
         }
     }
+    
     var isMacro: Bool {
         macro != nil
     }
@@ -40,8 +46,10 @@ public enum GoalType: Hashable, Codable {
     
     var nutrientType: NutrientType? {
         switch self {
-        case .micro(_, let nutrientType, _):    return nutrientType
-        default:                                return nil
+        case .micro(_, let nutrientType, _, _):
+            return nutrientType
+        default:
+            return nil
         }
     }
     
@@ -62,7 +70,7 @@ public enum GoalType: Hashable, Codable {
             return "Energy"
         case .macro(_, let macro):
             return macro.description
-        case .micro(_, let nutrientType, _):
+        case .micro(_, let nutrientType, _, _):
             return nutrientType.description
         }
     }
@@ -84,11 +92,30 @@ public enum GoalType: Hashable, Codable {
             return type.description
         case .macro:
             return "g"
-        case .micro(_, _, let nutrientUnit):
+        case .micro(_, _, let nutrientUnit, _):
             return nutrientUnit.shortDescription
         }
     }
     
+    var showsEquivalentValues: Bool {
+        switch self {
+        case .energy(let energyGoalType):
+            switch energyGoalType {
+            case .fromMaintenance, .percentFromMaintenance:
+                return true
+            default:
+                return false
+            }
+        case .macro(let macroGoalType, let macro):
+            //TODO: Revisit this
+            return false
+        case .micro(let microGoalType, let nutrientType, let nutrientUnit, _):
+            //TODO: Revisit this
+            return false
+        }
+    }
+    
+
     var accessoryDescription: String? {
         switch self {
         case .energy(let type):
