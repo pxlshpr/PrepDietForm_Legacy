@@ -1241,7 +1241,7 @@ extension TDEEForm.ViewModel {
     }
     
     var shouldShowSummary: Bool {
-        existingProfile != nil || bodyProfile.hasTDEE
+        bodyProfile.hasTDEE
     }
     
     var isDynamic: Bool {
@@ -1393,8 +1393,8 @@ extension TDEEForm {
             self.userHeightUnit = userUnits.height
             
             self.existingProfile = existingProfile
-            
-            if let existingProfile {
+                        
+            if let existingProfile, existingProfile.hasTDEE {
                 if existingProfile.parameters.updatesWithHealthApp {
                     detents = [.medium, .large]
                     presentationDetent = .medium
@@ -1402,10 +1402,13 @@ extension TDEEForm {
                     detents = [.height(400), .large]
                     presentationDetent = .height(400)
                 }
-                self.load(existingProfile)
             } else {
                 detents = [.height(270), .large]
                 presentationDetent = .height(270)
+            }
+            
+            if let existingProfile {
+                self.load(existingProfile)
             }
         }
     }
