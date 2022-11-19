@@ -56,18 +56,19 @@ public class GoalViewModel: ObservableObject {
             case .fixed:
                 return false
             default:
-                return true
+                break
             }
         case .macro(let macroGoalType, _):
             switch macroGoalType {
             case .fixed:
                 return false
             default:
-                return true
+                break
             }
         case .micro:
             return false
         }
+        return equivalentLowerBound != nil || equivalentUpperBound != nil
     }
     
     var energyGoalDelta: EnergyGoalType.Delta? {

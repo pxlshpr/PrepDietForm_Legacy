@@ -358,14 +358,109 @@ extension GoalViewModel {
             }
         
         case .macro(let macroGoalType, let macro):
-            guard let trueLowerBound else { return nil }
-            return macroValue(
-                from: trueLowerBound,
-                for: macroGoalType,
-                macro: macro,
-                energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
-            )
+            if let trueLowerBound {
+                return macroValue(
+                    from: trueLowerBound,
+                    for: macroGoalType,
+                    macro: macro,
+                    energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
+                )
+            } else if
+                let trueUpperBound,
+                goalSet.energyGoal?.haveBothBounds == true,
+                let lowerEnergy = goalSet.energyGoal?.equivalentLowerBound
+            {
+                return macroValue(
+                    from: trueUpperBound,
+                    for: macroGoalType,
+                    macro: macro,
+                    energy: lowerEnergy
+                )
+            } else {
+                return nil
+            }
             
+//        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
+//            return nil
+        default:
+            return nil
+        }
+    }
+    
+    
+    var equivalentUpperBound: Double? {
+        switch type {
+        case .energy(let energyGoalType):
+            switch energyGoalType {
+                
+            case .fromMaintenance(let energyUnit, let delta):
+                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
+                switch delta {
+                case .deficit:
+                    if let upperBound, let lowerBound {
+                        if upperBound < lowerBound {
+                            return tdee - upperBound
+                        } else {
+                            return tdee - lowerBound
+                        }
+                    } else {
+                        guard let upperBound else { return nil }
+                        return tdee - upperBound
+                    }
+                case .surplus:
+                    guard let upperBound else { return nil }
+                    return tdee + upperBound
+                }
+                
+                //TODO: Handle this
+            case .percentFromMaintenance(let delta):
+                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
+                switch delta {
+                case .deficit:
+                    if let upperBound, let lowerBound {
+                        if upperBound < lowerBound {
+                            return tdee - ((upperBound/100) * tdee)
+                        } else {
+                            return tdee - ((lowerBound/100) * tdee)
+                        }
+                    } else {
+                        guard let upperBound else { return nil }
+                        return tdee - ((upperBound/100) * tdee)
+                    }
+                case .surplus:
+                    guard let upperBound else { return nil }
+                    return tdee + ((upperBound/100) * tdee)
+                }
+
+            case .fixed:
+                return upperBound
+            }
+            
+        case .macro(let macroGoalType, let macro):
+            if let trueUpperBound {
+                return macroValue(
+                    from: trueUpperBound,
+                    for: macroGoalType,
+                    macro: macro,
+                    energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
+                )
+            } else if
+                let trueLowerBound,
+                goalSet.energyGoal?.haveBothBounds == true,
+                let upperEnergy = goalSet.energyGoal?.equivalentUpperBound
+            {
+                return macroValue(
+                    from: trueLowerBound,
+                    for: macroGoalType,
+                    macro: macro,
+                    energy: upperEnergy
+                )
+            } else {
+                return nil
+            }
+
+//        case .macro(let macroGoalType, let macro):
+//            return nil
 //        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
 //            return nil
         default:
@@ -423,72 +518,6 @@ extension GoalViewModel {
             return macro.grams(equallingPercent: value, of: energyInKcal)
             
         case .gramsPerMinutesOfActivity(let minutes):
-            return nil
-        }
-    }
-    
-    var equivalentUpperBound: Double? {
-        switch type {
-        case .energy(let energyGoalType):
-            switch energyGoalType {
-                
-            case .fromMaintenance(let energyUnit, let delta):
-                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound < lowerBound {
-                            return tdee - upperBound
-                        } else {
-                            return tdee - lowerBound
-                        }
-                    } else {
-                        guard let upperBound else { return nil }
-                        return tdee - upperBound
-                    }
-                case .surplus:
-                    guard let upperBound else { return nil }
-                    return tdee + upperBound
-                }
-                
-                //TODO: Handle this
-            case .percentFromMaintenance(let delta):
-                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound < lowerBound {
-                            return tdee - ((upperBound/100) * tdee)
-                        } else {
-                            return tdee - ((lowerBound/100) * tdee)
-                        }
-                    } else {
-                        guard let upperBound else { return nil }
-                        return tdee - ((upperBound/100) * tdee)
-                    }
-                case .surplus:
-                    guard let upperBound else { return nil }
-                    return tdee + ((upperBound/100) * tdee)
-                }
-
-            case .fixed:
-                return upperBound
-            }
-            
-        case .macro(let macroGoalType, let macro):
-            guard let trueUpperBound else { return nil }
-            return macroValue(
-                from: trueUpperBound,
-                for: macroGoalType,
-                macro: macro,
-                energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
-            )
-
-//        case .macro(let macroGoalType, let macro):
-//            return nil
-//        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
-//            return nil
-        default:
             return nil
         }
     }

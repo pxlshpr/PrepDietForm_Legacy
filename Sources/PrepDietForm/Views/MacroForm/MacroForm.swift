@@ -274,7 +274,7 @@ extension MacroForm {
                             }
                         }
                         if let upper = goal.equivalentUpperBound {
-                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
+                            equivalentAccessoryText(goal.equivalentLowerBound == nil ? "up to" : "to")
                             HStack(spacing: 3) {
                                 equivalentValueText(upper.formattedMacro)
                                 equivalentUnitText("g")
