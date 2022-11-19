@@ -6,6 +6,7 @@ import SwiftHaptics
 struct GoalCell: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var goal: GoalViewModel
+    @Binding var showingEquivalentValues: Bool
     
     var body: some View {
         ZStack {
@@ -38,15 +39,16 @@ struct GoalCell: View {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             Spacer()
-            differenceView
+            typeText
             disclosureArrow
         }
         .foregroundColor(labelColor)
     }
     
     @ViewBuilder
-    var differenceView: some View {
-        if let string = goal.type.relativeString,
+    var typeText: some View {
+        if !showingEquivalentValues,
+           let string = goal.type.relativeString,
            let icon = goal.type.differenceSystemImage
         {
             HStack {
@@ -66,7 +68,7 @@ struct GoalCell: View {
     }
     
     func amountText(_ double: Double) -> Text {
-        Text("\(double.cleanAmount)")
+        Text("\(double.formattedEnergy)")
             .foregroundColor(amountColor)
             .font(.system(size: isEmpty ? 20 : 28, weight: .medium, design: .rounded))
     }
@@ -105,19 +107,19 @@ struct GoalCell: View {
     
     var bottomRow: some View {
         HStack {
-            if let lowerBound = goal.lowerBound {
-                if goal.upperBound == nil {
+            if let lowerBound {
+                if upperBound == nil {
                     accessoryText("at least")
                 }
-                amountAndUnitTexts(lowerBound, goal.upperBound == nil ? goal.type.unitString : nil)
-            } else if goal.upperBound == nil {
+                amountAndUnitTexts(lowerBound, upperBound == nil ? unitString : nil)
+            } else if upperBound == nil {
                 Text("Set Goal")
                     .foregroundColor(amountColor)
                     .font(.system(size: isEmpty ? 20 : 28, weight: .medium, design: .rounded))
             }
-            if let upperBound = goal.upperBound {
-                accessoryText(goal.lowerBound == nil ? "up to" : "to")
-                amountAndUnitTexts(upperBound, goal.type.unitString)
+            if let upperBound {
+                accessoryText(lowerBound == nil ? "up to" : "to")
+                amountAndUnitTexts(upperBound, unitString)
             }
             Spacer()
         }
@@ -128,5 +130,29 @@ struct GoalCell: View {
             .font(.system(size: 14))
             .foregroundColor(Color(.tertiaryLabel))
             .fontWeight(.semibold)
+    }
+    
+    var upperBound: Double? {
+        if showingEquivalentValues, let upperBound = goal.equivalentUpperBound {
+            return upperBound
+        } else {
+            return goal.upperBound
+        }
+    }
+    
+    var lowerBound: Double? {
+        if showingEquivalentValues, let lowerBound = goal.equivalentLowerBound {
+            return lowerBound
+        } else {
+            return goal.lowerBound
+        }
+    }
+    
+    var unitString: String {
+        if showingEquivalentValues, let unitString = goal.equivalentUnitString {
+            return unitString
+        } else {
+            return goal.type.unitString
+        }
     }
 }

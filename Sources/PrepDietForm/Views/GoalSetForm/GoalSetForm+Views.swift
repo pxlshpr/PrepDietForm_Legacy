@@ -52,12 +52,11 @@ extension GoalSetForm {
     //TODO: Get view model to only show this if we have goals that aren't fixed
     var calculatedButton: some View {
         Button {
-            //TODO: Toggle a bool that shows calculated values, and removes
-            // the type descriptors at top right of cell
-//            showingNutrientsPicker = true
-            showingCalculated.toggle()
+            withAnimation {
+                showingEquivalentValues.toggle()
+            }
         } label: {
-            Image(systemName: "equal.circle\(showingCalculated ? ".fill" : "")")
+            Image(systemName: "equal.circle\(showingEquivalentValues ? ".fill" : "")")
         }
     }
     

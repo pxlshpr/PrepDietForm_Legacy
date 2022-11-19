@@ -15,6 +15,17 @@ extension Array where Element == Goal {
         }
     }
 }
+
+struct UserUnits {
+    let energy: EnergyUnit
+    let weight: WeightUnit
+    let height: HeightUnit
+    
+    static var standard: UserUnits {
+        UserUnits(energy: .kcal, weight: .kg, height: .cm)
+    }
+}
+
 extension GoalSetForm {
     public class ViewModel: ObservableObject {
         @Published var emoji: String
@@ -22,10 +33,13 @@ extension GoalSetForm {
         @Published var isMealProfile = false
         @Published var goals: [GoalViewModel] = []
         @Published var currentTDEEProfile: TDEEProfile?
+        
+        let userUnits: UserUnits
 
         let existingGoalSet: GoalSet?
         
-        init(isMealProfile: Bool, existingGoalSet existing: GoalSet?, currentTDEEProfile: TDEEProfile? = nil) {
+        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, currentTDEEProfile: TDEEProfile? = nil) {
+            self.userUnits = userUnits
             self.isMealProfile = isMealProfile
             self.currentTDEEProfile = currentTDEEProfile
             self.existingGoalSet = existing

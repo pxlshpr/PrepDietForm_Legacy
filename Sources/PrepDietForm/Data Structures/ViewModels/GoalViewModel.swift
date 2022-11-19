@@ -189,13 +189,17 @@ public class GoalViewModel: ObservableObject {
 }
 
 extension GoalViewModel {
-    func validateLowerBoundLowerThanUpper() {
+    func validateBoundsNotEqual() {
         guard let lowerBound, let upperBound else { return }
         if lowerBound == upperBound {
             withAnimation {
                 self.lowerBound = nil
             }
-        } else if lowerBound > upperBound {
+        }
+    }
+    func validateLowerBoundLowerThanUpper() {
+        guard let lowerBound, let upperBound else { return }
+        if lowerBound > upperBound {
             withAnimation {
                 self.lowerBound = upperBound
                 self.upperBound = lowerBound
@@ -203,20 +207,41 @@ extension GoalViewModel {
         }
     }
 
-    func validateNoBoundResultingInLessThanZero(unit: EnergyUnit) {
+    func validateNoBoundResultingInLessThan500(unit: EnergyUnit) {
         guard let profile = goalSet.currentTDEEProfile else { return }
         let tdee = profile.tdee(in: unit).rounded()
         
-        if let lowerBound, tdee - lowerBound < 0 {
-            self.lowerBound = tdee
+        if let lowerBound, tdee - lowerBound < 500 {
+            withAnimation {
+                self.lowerBound = tdee - 500
+            }
         }
 
-        if let upperBound, tdee - upperBound < 0 {
-            self.upperBound = tdee
+        if let upperBound, tdee - upperBound < 500 {
+            withAnimation {
+                self.upperBound = tdee - 500
+            }
         }
     }
+    
+    func validateNoPercentageBoundResultingInLessThan500() {
+        guard let profile = goalSet.currentTDEEProfile else { return }
+        let tdee = profile.tdeeInUnit.rounded()
+        
+        if let lowerBound, tdee - ((lowerBound/100) * tdee) < 500 {
+            withAnimation {
+                self.lowerBound = (tdee-500)/tdee * 100
+            }
+        }
+
+        if let upperBound, tdee - ((upperBound/100) * tdee) < 500 {
+            withAnimation {
+                self.upperBound = (tdee-500)/tdee * 100
+            }
+        }
+    }
+
     func validate() {
-        validateLowerBoundLowerThanUpper()
         switch energyGoalType {
         case .fixed:
             break
@@ -225,12 +250,21 @@ extension GoalViewModel {
             case .surplus:
                 break
             case .deficit:
-                validateNoBoundResultingInLessThanZero(unit: energyUnit)
+                validateNoBoundResultingInLessThan500(unit: energyUnit)
+            }
+        case .percentFromMaintenance(let delta):
+            switch delta {
+            case .surplus:
+                break
+            case .deficit:
+                validateNoPercentageBoundResultingInLessThan500()
             }
         default:
             return
         }
-    }    
+        validateLowerBoundLowerThanUpper()
+        validateBoundsNotEqual()
+    }
 }
 
 extension GoalViewModel: Hashable {

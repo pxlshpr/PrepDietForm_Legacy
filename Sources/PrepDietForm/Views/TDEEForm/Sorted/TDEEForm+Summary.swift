@@ -41,9 +41,11 @@ extension TDEEForm {
                             .matchedGeometryEffect(id: "resting-header-icon", in: namespace)
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
-                        appleHealthSymbol
-                            .imageScale(.small)
-//                            .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+                        if viewModel.restingEnergyIsDynamic {
+                            appleHealthSymbol
+                                .imageScale(.small)
+                                .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
+                        }
                     }
                     Text(viewModel.restingEnergyFormatted)
                         .matchedGeometryEffect(id: "resting", in: namespace)
@@ -77,9 +79,11 @@ extension TDEEForm {
                             .matchedGeometryEffect(id: "active-header-icon", in: namespace)
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
-                        appleHealthSymbol
-                            .matchedGeometryEffect(id: "active-health-icon", in: namespace)
-                            .imageScale(.small)
+                        if viewModel.activeEnergyIsDynamic {
+                            appleHealthSymbol
+                                .matchedGeometryEffect(id: "active-health-icon", in: namespace)
+                                .imageScale(.small)
+                        }
                     }
                     Text(viewModel.activeEnergyFormatted)
                         .matchedGeometryEffect(id: "active", in: namespace)

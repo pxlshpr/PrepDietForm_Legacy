@@ -45,7 +45,7 @@ extension MacroForm {
     }
     
     var tdeeForm: some View {
-        TDEEForm { profile in
+        TDEEForm(userUnits: .standard) { profile in
             
         }
     }
@@ -270,6 +270,7 @@ struct MacroFormPreview: View {
     
     init() {
         let goalSet = GoalSetForm.ViewModel(
+            userUnits: .standard,
             isMealProfile: true,
             existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
                 Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)

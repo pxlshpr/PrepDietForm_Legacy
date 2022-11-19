@@ -9,10 +9,11 @@ public struct GoalSetForm: View {
     @StateObject var viewModel: ViewModel
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
-    @State var showingCalculated = false
+    @State var showingEquivalentValues = false
     
     public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil) {
         let viewModel = ViewModel(
+            userUnits: .standard,
             isMealProfile: isMealProfile,
             existingGoalSet: existingGoalSet
         )
@@ -66,7 +67,7 @@ public struct GoalSetForm: View {
         NavigationLink {
             goalForm(for: goal)
         } label: {
-            GoalCell(goal: goal)
+            GoalCell(goal: goal, showingEquivalentValues: $showingEquivalentValues)
         }
     }
     

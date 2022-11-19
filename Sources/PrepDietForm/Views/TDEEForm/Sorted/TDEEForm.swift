@@ -21,16 +21,12 @@ struct TDEEForm: View {
     
     init(
         existingProfile: TDEEProfile? = nil,
-        userEnergyUnit: EnergyUnit = .kcal,
-        userWeightUnit: WeightUnit = .kg,
-        userHeightUnit: HeightUnit = .cm,
+        userUnits: UserUnits,
         didTapSave: @escaping (TDEEProfile) -> ()
     ) {
         let viewModel = ViewModel(
             existingProfile: existingProfile,
-            userEnergyUnit: userEnergyUnit,
-            userWeightUnit: userWeightUnit,
-            userHeightUnit: userHeightUnit
+            userUnits: userUnits
         )
         if existingProfile != nil {
             detentHeightPrimary = .collapsed

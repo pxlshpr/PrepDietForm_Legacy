@@ -245,7 +245,7 @@ extension EnergyForm {
     }
     
     var tdeeForm: some View {
-        TDEEForm { profile in
+        TDEEForm(existingProfile: viewModel.currentTDEEProfile, userUnits: .standard) { profile in
             viewModel.currentTDEEProfile = profile
         }
     }
@@ -292,7 +292,20 @@ extension EnergyForm {
     }
 }
 
+import PrepDataTypes
+
 extension GoalViewModel {
+    
+    var equivalentUnitString: String? {
+        switch type {
+        case .energy:
+            return goalSet.userUnits.energy.shortDescription
+        case .macro:
+            return NutrientUnit.g.shortDescription
+        case .micro(_, _, let nutrientUnit):
+            return nutrientUnit.shortDescription
+        }
+    }
     var equivalentLowerBound: Double? {
         switch type {
         case .energy(let energyGoalType):
@@ -319,10 +332,28 @@ extension GoalViewModel {
                 
                 //TODO: Handle this
             case .percentFromMaintenance(let delta):
-                return nil
+                guard let tdee = goalSet.currentTDEEProfile?.tdeeInUnit else { return nil }
+                switch delta {
+                case .deficit:
+                    if let upperBound, let lowerBound {
+                        if upperBound > lowerBound {
+                            return tdee - ((upperBound/100) * tdee)
+                        } else {
+                            return tdee - ((lowerBound/100) * tdee)
+                        }
+                    } else {
+                        guard let lowerBound else { return nil }
+                        return tdee - ((lowerBound/100) * tdee)
+                    }
+                case .surplus:
+                    guard let lowerBound else { return nil }
+                    return tdee + ((lowerBound/100) * tdee)
+                }
+                
             case .percentOfDietGoal:
                 //TODO: Handle this
                 return nil
+                
             case .fixed:
                 return nil
             }
@@ -361,7 +392,24 @@ extension GoalViewModel {
                 
                 //TODO: Handle this
             case .percentFromMaintenance(let delta):
-                return nil
+                guard let tdee = goalSet.currentTDEEProfile?.tdeeInUnit else { return nil }
+                switch delta {
+                case .deficit:
+                    if let upperBound, let lowerBound {
+                        if upperBound < lowerBound {
+                            return tdee - ((upperBound/100) * tdee)
+                        } else {
+                            return tdee - ((lowerBound/100) * tdee)
+                        }
+                    } else {
+                        guard let upperBound else { return nil }
+                        return tdee - ((upperBound/100) * tdee)
+                    }
+                case .surplus:
+                    guard let upperBound else { return nil }
+                    return tdee + ((upperBound/100) * tdee)
+                }
+
             case .percentOfDietGoal:
                 //TODO: Handle this
                 return nil
@@ -385,7 +433,9 @@ struct EnergyFormPreview: View {
     
     init() {
         let goalSet = GoalSetForm.ViewModel(
-            isMealProfile: false, existingGoalSet: nil,
+            userUnits:.standard,
+            isMealProfile: false,
+            existingGoalSet: nil,
             currentTDEEProfile: TDEEProfile(
                 id: UUID(),
                 tdeeInKcal: 3100,

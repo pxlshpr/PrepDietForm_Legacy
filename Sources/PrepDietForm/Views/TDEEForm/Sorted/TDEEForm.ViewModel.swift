@@ -931,7 +931,11 @@ extension TDEEForm.ViewModel {
                     overPast: restingEnergyIntervalValue,
                     interval: restingEnergyInterval
                 ) else {
-                    restingEnergyFetchStatus = .notAuthorized
+                    await MainActor.run {
+                        withAnimation {
+                            restingEnergyFetchStatus = .notAuthorized
+                        }
+                    }
                     return
                 }
                 await MainActor.run {
@@ -1164,7 +1168,11 @@ extension TDEEForm.ViewModel {
                     overPast: activeEnergyIntervalValue,
                     interval: activeEnergyInterval
                 ) else {
-                    activeEnergyFetchStatus = .notAuthorized
+                    await MainActor.run {
+                        withAnimation {
+                            activeEnergyFetchStatus = .notAuthorized
+                        }
+                    }
                     return
                 }
                 await MainActor.run {
@@ -1217,6 +1225,7 @@ extension TDEEForm.ViewModel {
         guard isEditing else { return false }
         if existingProfile != nil {
             /// if we have an existing profile—check if the values differs
+            //TODO: Check if newProfile != existingProfile by comparing their values
             return false
         } else {
             /// otherwise, check if we have enough to save a new profile (simply check if maintenance value is not nil)
@@ -1225,10 +1234,11 @@ extension TDEEForm.ViewModel {
     }
     
     var shouldShowEditButton: Bool {
-        if existingProfile != nil {
-            return true
+        guard !isEditing else { return false }
+        if existingProfile == nil {
+            return newProfile != nil
         } else {
-            return !isEditing && newProfile != nil
+            return true
         }
     }
     
@@ -1475,19 +1485,28 @@ extension TDEEForm {
 
         let existingProfile: TDEEProfile?
         
-        init(existingProfile: TDEEProfile?, userEnergyUnit: EnergyUnit, userWeightUnit: WeightUnit, userHeightUnit: HeightUnit) {
-            self.userEnergyUnit = userEnergyUnit
-            self.userWeightUnit = userWeightUnit
-            self.userHeightUnit = userHeightUnit
+        init(
+            existingProfile: TDEEProfile?,
+            userUnits: UserUnits
+        ) {
+            self.userEnergyUnit = userUnits.energy
+            self.userWeightUnit = userUnits.weight
+            self.userHeightUnit = userUnits.height
             
             self.existingProfile = existingProfile
             
-            if existingProfile == nil {
+            if let existingProfile {
+                if existingProfile.parameters.updatesWithHealthApp {
+                    detents = [.medium, .large]
+                    presentationDetent = .medium
+                } else {
+                    detents = [.height(400), .large]
+                    presentationDetent = .height(400)
+                }
+                self.load(existingProfile)
+            } else {
                 detents = [.height(270), .large]
                 presentationDetent = .height(270)
-            } else {
-                detents = [.medium, .large]
-                presentationDetent = .medium
             }
         }
     }
