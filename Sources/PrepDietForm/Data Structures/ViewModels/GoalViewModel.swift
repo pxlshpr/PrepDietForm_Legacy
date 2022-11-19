@@ -240,6 +240,18 @@ extension GoalViewModel {
             }
         }
     }
+    func validateNoPercentageBoundGreaterThan100() {
+        if let lowerBound, lowerBound > 100 {
+            withAnimation {
+                self.lowerBound = 100
+            }
+        }
+        if let upperBound, upperBound > 100 {
+            withAnimation {
+                self.upperBound = 100
+            }
+        }
+    }
 
     func validate() {
         switch energyGoalType {
@@ -259,6 +271,8 @@ extension GoalViewModel {
             case .deficit:
                 validateNoPercentageBoundResultingInLessThan500()
             }
+        case .percentOfDietGoal:
+            validateNoPercentageBoundGreaterThan100()
         default:
             return
         }

@@ -81,7 +81,7 @@ public enum GoalType: Hashable, Codable {
     var unitString: String {
         switch self {
         case .energy(let type):
-            return type.shortDescription
+            return type.description
         case .macro:
             return "g"
         case .micro(_, _, let nutrientUnit):
@@ -89,10 +89,10 @@ public enum GoalType: Hashable, Codable {
         }
     }
     
-    var relativeString: String? {
+    var accessoryDescription: String? {
         switch self {
         case .energy(let type):
-            return type.deltaDescription
+            return type.accessoryDescription
         case .macro:
             return nil
         case .micro:
@@ -100,10 +100,10 @@ public enum GoalType: Hashable, Codable {
         }
     }
     
-    var differenceSystemImage: String? {
+    var accessorySystemImage: String? {
         switch self {
         case .energy(let type):
-            return type.deltaSystemImage
+            return type.accessorySystemImage
         default:
             return nil
         }

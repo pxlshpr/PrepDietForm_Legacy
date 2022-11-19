@@ -85,7 +85,7 @@ extension EnergyForm {
     
     var unitView: some View {
         HStack {
-            Text(goal.energyGoalType?.shortDescription ?? "")
+            Text(goal.energyGoalType?.description ?? "")
                 .foregroundColor(Color(.tertiaryLabel))
             if let difference = goal.energyGoalDelta {
                 Spacer()
@@ -298,8 +298,13 @@ extension GoalViewModel {
     
     var equivalentUnitString: String? {
         switch type {
-        case .energy:
-            return goalSet.userUnits.energy.shortDescription
+        case .energy(let type):
+            switch type {
+            case .percentOfDietGoal:
+                return nil
+            default:
+                return goalSet.userUnits.energy.shortDescription
+            }
         case .macro:
             return NutrientUnit.g.shortDescription
         case .micro(_, _, let nutrientUnit):

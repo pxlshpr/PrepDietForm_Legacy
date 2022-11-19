@@ -1222,15 +1222,12 @@ extension TDEEForm.ViewModel {
     }
 
     var shouldShowSaveButton: Bool {
-        guard isEditing else { return false }
-        if existingProfile != nil {
-            /// if we have an existing profile—check if the values differs
-            //TODO: Check if newProfile != existingProfile by comparing their values
-            return false
-        } else {
-            /// otherwise, check if we have enough to save a new profile (simply check if maintenance value is not nil)
-            return newProfile != nil
+        guard isEditing, let newProfile else { return false }
+        if let existingProfile {
+            /// We're only checking the parameters as the `updatedAt` flag, `syncStatus` and actual `tdeeInKcal` might differ.
+            return existingProfile.parameters != newProfile.parameters
         }
+        return true
     }
     
     var shouldShowEditButton: Bool {

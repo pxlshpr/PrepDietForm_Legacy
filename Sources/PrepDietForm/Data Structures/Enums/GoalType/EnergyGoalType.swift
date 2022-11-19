@@ -31,8 +31,7 @@ extension EnergyGoalType {
 
 public extension EnergyGoalType {
     
-    //TODO: Use user's units instead of kcal
-    var shortDescription: String {
+    var description: String {
         switch self {
         case .fixed(let energyUnit):
             return energyUnit.shortDescription
@@ -41,21 +40,7 @@ public extension EnergyGoalType {
         case .percentFromMaintenance:
             return "%"
         case .percentOfDietGoal:
-            return "% of day's total"
-        }
-    }
-    
-    //TODO: Use user's units instead of kcal
-    var description: String {
-        switch self {
-        case .fixed(let energyUnit):
-            return energyUnit.shortDescription
-        case .fromMaintenance(let energyUnit, _):
-            return energyUnit.shortDescription
-        case .percentFromMaintenance:
-            return "percentage"
-        case .percentOfDietGoal:
-            return "percentage of day's total"
+            return "%"
         }
     }
     
@@ -68,12 +53,30 @@ public extension EnergyGoalType {
         }
     }
     
-    var deltaDescription: String? {
-        delta?.description
+    var accessoryDescription: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .fromMaintenance(_, let delta):
+            return delta.description
+        case .percentFromMaintenance(let delta):
+            return delta.description
+        case .percentOfDietGoal:
+            return "of day's total"
+        }
     }
     
-    var deltaSystemImage: String? {
-        delta?.systemImage
+    var accessorySystemImage: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .fromMaintenance(_, let delta):
+            return delta.systemImage
+        case .percentFromMaintenance(let delta):
+            return delta.systemImage
+        case .percentOfDietGoal:
+            return "percent"
+        }
     }
     
     var delta: Delta? {

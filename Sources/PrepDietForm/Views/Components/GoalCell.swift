@@ -48,8 +48,8 @@ struct GoalCell: View {
     @ViewBuilder
     var typeText: some View {
         if !showingEquivalentValues,
-           let string = goal.type.relativeString,
-           let icon = goal.type.differenceSystemImage
+           let string = goal.type.accessoryDescription,
+           let icon = goal.type.accessorySystemImage
         {
             HStack {
                 Image(systemName: icon)
