@@ -1,5 +1,43 @@
 import PrepDataTypes
 
+public struct WorkoutDuration: Codable, Hashable {
+    public var value: Double
+    public var unit: WorkoutDurationUnit
+    public var source: WorkoutDurationSource
+    public var healthAppType: WorkoutDurationHealthAppType?
+    public var healthAppWorkoutsToAverage: Int?
+    
+    init(
+        _ value: Double,
+        unit: WorkoutDurationUnit = .min,
+        source: WorkoutDurationSource = .userEntered,
+        healthAppType: WorkoutDurationHealthAppType? = nil,
+        healthAppWorkoutsToAverage: Int? = nil
+    ) {
+        self.value = value
+        self.unit = unit
+        self.source = source
+        self.healthAppType = healthAppType
+        self.healthAppWorkoutsToAverage = healthAppWorkoutsToAverage
+    }
+}
+
+
+public enum WorkoutDurationHealthAppType: Int16, Codable, CaseIterable {
+    case previousDay = 1
+    case averageOfPastWorkouts
+}
+
+public enum WorkoutDurationSource: Int16, Codable, CaseIterable {
+    case userEntered = 1
+    case healthApp
+}
+
+public enum WorkoutDurationUnit: Int16, Codable, CaseIterable {
+    case min = 1
+    case hour
+}
+
 public enum MacroGoalType: Codable, Hashable {
     
     case fixed
@@ -9,7 +47,7 @@ public enum MacroGoalType: Codable, Hashable {
     case percentageOfEnergy
     
     /// Only used for meal profiles, for things like pre-workout meals. The planned activity duration is included so that we can make this calculation.
-    case gramsPerMinutesOfActivity(Double)
+    case gramsPerWorkoutDuration(WorkoutDuration)
 
     static var units: [(NutrientUnit, String)] {
         [
@@ -40,7 +78,7 @@ extension MacroGoalType {
     
     var isGramsPerMinutesOfExercise: Bool {
         switch self {
-        case .gramsPerMinutesOfActivity:
+        case .gramsPerWorkoutDuration:
             return true
         default:
             return false

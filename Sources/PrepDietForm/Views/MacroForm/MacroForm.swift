@@ -435,7 +435,7 @@ struct MacroFormPreview: View {
     init() {
         let goalSet = GoalSetForm.ViewModel(
             userUnits: .standard,
-            isMealProfile: false,
+            isMealProfile: true,
             existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
                 Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
             ]),
@@ -443,7 +443,8 @@ struct MacroFormPreview: View {
         )
         let goal = GoalViewModel(
             goalSet: goalSet,
-            type: .macro(.gramsPerBodyMass(.weight, .kg), .protein)
+            isForMeal: true,
+            type: .macro(.gramsPerWorkoutDuration(WorkoutDuration(90)), .carb)
         )
         _goalSet = StateObject(wrappedValue: goalSet)
         _goal = StateObject(wrappedValue: goal)

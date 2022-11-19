@@ -517,7 +517,7 @@ extension GoalViewModel {
             let energyInKcal = energyUnit == .kcal ? energy : energy * KcalsPerKilojule
             return macro.grams(equallingPercent: value, of: energyInKcal)
             
-        case .gramsPerMinutesOfActivity(let minutes):
+        case .gramsPerWorkoutDuration(let minutes):
             return nil
         }
     }

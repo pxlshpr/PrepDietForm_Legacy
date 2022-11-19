@@ -309,7 +309,7 @@ extension GoalViewModel {
             break
         case .gramsPerBodyMass:
             break
-        case .gramsPerMinutesOfActivity:
+        case .gramsPerWorkoutDuration:
             break
         case .percentageOfEnergy:
             break
