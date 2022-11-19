@@ -70,6 +70,10 @@ extension BodyProfile.Parameters {
 
 extension BodyProfile {
     
+    var hasTDEE: Bool {
+        tdeeInUnit != nil
+    }
+    
     var tdeeInUnit: Double? {
         parameters.tdee
     }

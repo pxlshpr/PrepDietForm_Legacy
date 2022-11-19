@@ -96,16 +96,12 @@ extension TDEEForm {
         .padding(.horizontal, 17)
     }
     
+    var canBeSaved: Bool {
+        viewModel.shouldShowSaveButton && viewModel.bodyProfile.hasTDEE
+    }
+    
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if viewModel.shouldShowSaveButton, let newProfile = viewModel.newProfile {
-                Button {
-                    didTapSave(newProfile)
-                    dismiss()
-                } label: {
-                    Text("Save")
-                }
-            }
             if viewModel.shouldShowEditButton {
                 Button {
                     transitionToEditState()

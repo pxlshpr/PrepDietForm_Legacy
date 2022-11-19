@@ -22,10 +22,15 @@ extension TDEEForm.ViewModel {
 
         self.lbmSource = params.lbmSource
         self.lbmFormula = params.lbmFormula ?? .boer
-        self.lbm = params.lbm
-        self.lbmTextFieldString = params.lbm?.cleanAmount ?? ""
         self.lbmDate = params.lbmDate
-
+        
+        if self.lbmSource == .fatPercentage {
+            self.lbm = params.fatPercentage
+        } else {
+            self.lbm = params.lbm
+        }
+        self.lbmTextFieldString = self.lbm?.cleanAmount ?? ""
+        
         self.weightSource = params.weightSource
         self.weight = params.weight
         self.weightTextFieldString = params.weight?.cleanAmount ?? ""

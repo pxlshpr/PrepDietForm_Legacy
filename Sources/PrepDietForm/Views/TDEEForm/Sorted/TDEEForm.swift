@@ -28,7 +28,7 @@ struct TDEEForm: View {
             existingProfile: existingProfile,
             userUnits: userUnits
         )
-        if existingProfile != nil {
+        if let existingProfile, existingProfile.tdeeInUnit != nil {
             detentHeightPrimary = .collapsed
             detentHeightSecondary = .collapsed
         } else {
@@ -57,17 +57,20 @@ struct TDEEForm: View {
     
     var navigationView: some View {
         NavigationStack(path: $viewModel.path) {
-            form
-                .scrollDismissesKeyboard(.interactively)
-                .navigationTitle("Maintenance Calories")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar { trailingContent }
-                .toolbar { leadingContent }
-                .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
-                .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
-                .navigationDestination(for: Route.self, destination: navigationDestination)
-                .interactiveDismissDisabled(viewModel.isEditing)
-                .task { await initialTask() }
+            ZStack {
+                form
+                buttonsLayer
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Maintenance Calories")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { trailingContent }
+            .toolbar { leadingContent }
+            .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
+            .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
+            .navigationDestination(for: Route.self, destination: navigationDestination)
+            .interactiveDismissDisabled(viewModel.isEditing)
+            .task { await initialTask() }
         }
     }
     

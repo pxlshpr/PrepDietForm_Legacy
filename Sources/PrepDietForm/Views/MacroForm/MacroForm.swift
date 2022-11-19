@@ -29,34 +29,6 @@ struct MacroForm: View {
     }
 }
 
-
-public struct MacroWeightForm: View {
-    
-    @EnvironmentObject var viewModel: TDEEForm.ViewModel
-    
-    public var body: some View {
-        NavigationView {
-            FormStyledScrollView {
-                WeightSection()
-                    .navigationTitle("Weight")
-            }
-        }
-    }
-}
-
-public struct MacroLeanBodyMassForm: View {
-
-    @EnvironmentObject var viewModel: TDEEForm.ViewModel
-    
-    public var body: some View {
-        NavigationView {
-            LeanBodyMassForm()
-                .environmentObject(viewModel)
-        }
-    }
-
-}
-
 extension MacroForm {
     
     var body: some View {
@@ -81,8 +53,12 @@ extension MacroForm {
     }
     
     var leanMassForm: some View {
-        MacroLeanBodyMassForm()
-            .environmentObject(goalSet.macroTDEEFormViewModel)
+        MacroLeanBodyMassForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
+            goalSet.setBodyProfile(bodyProfile)
+        }, didTapClose: {
+            goalSet.resetMacroTDEEFormViewModel()
+        })
+        .environmentObject(goalSet.macroTDEEFormViewModel)
     }
     
     var bodyMassSection: some View {

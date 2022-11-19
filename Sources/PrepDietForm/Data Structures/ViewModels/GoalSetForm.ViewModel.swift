@@ -51,7 +51,7 @@ extension GoalSetForm {
             self.existingGoalSet = existing
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""
-            self.macroTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: nil, userUnits: userUnits)
+            self.macroTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
             
             self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
         }
@@ -59,6 +59,21 @@ extension GoalSetForm {
 }
 
 extension GoalSetForm.ViewModel {
+    
+    func resetMacroTDEEFormViewModel() {
+        setMacroTDEEFormViewModel(with: bodyProfile)
+    }
+    
+    func setMacroTDEEFormViewModel(with bodyProfile: BodyProfile?) {
+        macroTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
+    }
+    
+    func setBodyProfile(_ bodyProfile: BodyProfile) {
+        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetForm.ViewModel (or at least the relevant fields for weight and lbm)
+        self.bodyProfile = bodyProfile
+        setMacroTDEEFormViewModel(with: bodyProfile)
+    }
+    
     func containsMacro(_ macro: Macro) -> Bool {
         goals.containsMacro(macro)
     }

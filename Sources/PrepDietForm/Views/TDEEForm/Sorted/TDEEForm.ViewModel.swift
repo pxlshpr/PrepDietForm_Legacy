@@ -1222,21 +1222,17 @@ extension TDEEForm.ViewModel {
     }
 
     var shouldShowSaveButton: Bool {
-        guard isEditing, let newProfile else { return false }
+        guard isEditing, bodyProfile.hasTDEE else { return false }
         if let existingProfile {
             /// We're only checking the parameters as the `updatedAt` flag, `syncStatus` might differ.
-            return existingProfile.parameters != newProfile.parameters
+            return existingProfile.parameters != bodyProfile.parameters
         }
         return true
     }
     
     var shouldShowEditButton: Bool {
         guard !isEditing else { return false }
-        if existingProfile == nil {
-            return newProfile != nil
-        } else {
-            return true
-        }
+        return existingProfile != nil
     }
     
     var shouldShowInitialSetupButton: Bool {
@@ -1245,7 +1241,7 @@ extension TDEEForm.ViewModel {
     }
     
     var shouldShowSummary: Bool {
-        existingProfile != nil || newProfile != nil
+        existingProfile != nil || bodyProfile.hasTDEE
     }
     
     var isDynamic: Bool {
@@ -1257,115 +1253,23 @@ extension TDEEForm.ViewModel {
     
     //MARK: - Profile
     
-    var newProfile: BodyProfile? {
-        guard
-            let restingEnergyValue,
-            let activeEnergyValue,
-            let restingEnergySource,
-            let activeEnergySource
-        else {
-            return nil
-        }
+    var bodyProfile: BodyProfile {
         
-        var restingEnergyFormula: RestingEnergyFormula? {
-            guard restingEnergySource == .formula else { return nil }
-            return self.restingEnergyFormula
-        }
-
-        var restingEnergyPeriod: HealthPeriodOption? {
-            guard restingEnergySource == .healthApp else { return nil }
-            return self.restingEnergyPeriod
-        }
-
-        var restingEnergyIntervalValue: Int? {
-            guard restingEnergySource == .healthApp else { return nil }
-            return self.restingEnergyIntervalValue
-        }
-
-        var restingEnergyInterval: HealthAppInterval? {
-            guard restingEnergySource == .healthApp else { return nil }
-            return self.restingEnergyInterval
-        }
+        var restingEnergyFormula: RestingEnergyFormula? { restingEnergySource == .formula ? self.restingEnergyFormula : nil }
+        var restingEnergyPeriod: HealthPeriodOption? { restingEnergySource == .healthApp ? self.restingEnergyPeriod : nil }
+        var restingEnergyIntervalValue: Int? { restingEnergySource == .healthApp ? self.restingEnergyIntervalValue : nil }
+        var restingEnergyInterval: HealthAppInterval? { restingEnergySource == .healthApp ? self.restingEnergyInterval : nil }
         
         var activeEnergyPeriod: HealthPeriodOption? { activeEnergySource == .healthApp ? self.activeEnergyPeriod : nil }
         var activeEnergyActivityLevel: ActivityLevel? { activeEnergySource == .activityLevel ? self.activeEnergyActivityLevel : nil }
-
-        var activeEnergyIntervalValue: Int? {
-            guard activeEnergySource == .healthApp else { return nil }
-            return self.activeEnergyIntervalValue
-        }
-
-        var activeEnergyInterval: HealthAppInterval? {
-            guard activeEnergySource == .healthApp else { return nil }
-            return self.activeEnergyInterval
-        }
+        var activeEnergyIntervalValue: Int? { activeEnergySource == .healthApp ? self.activeEnergyIntervalValue : nil }
+        var activeEnergyInterval: HealthAppInterval? { activeEnergySource == .healthApp ? self.activeEnergyInterval : nil }
         
-        var usingLeanBodyMass: Bool {
-            guard let restingEnergyFormula else { return false }
-            return restingEnergyFormula.usesLeanBodyMass
-        }
+        var lbmFormula: LeanBodyMassFormula? { lbmSource == .formula ? self.lbmFormula : nil }
+        var lbmDate: Date? { lbmSource == .healthApp ? self.lbmDate : nil }
         
-        var lbmValue: Double? {
-            guard usingLeanBodyMass else { return nil }
-            return self.lbmValue
-        }
-        
-        var lbmSource: LeanBodyMassSourceOption? {
-            guard usingLeanBodyMass else { return nil }
-            return self.lbmSource
-        }
-
-        var lbmFormula: LeanBodyMassFormula? {
-            guard let lbmSource, lbmSource == .formula else { return nil }
-            return self.lbmFormula
-        }
-        
-        var lbmDate: Date? {
-            guard let lbmSource, lbmSource == .healthApp else { return nil }
-            return self.lbmDate
-        }
-        
-        var usingWeight: Bool {
-            guard let restingEnergyFormula else { return false }
-            if restingEnergyFormula.usesLeanBodyMass {
-                guard let lbmSource else { return false }
-                return lbmSource.usesWeight
-            } else {
-                /// all other formula's use weight
-                return true
-            }
-        }
-
-        var usingHeight: Bool {
-            guard let restingEnergyFormula else { return false }
-            return !restingEnergyFormula.usesLeanBodyMass && restingEnergyFormula.requiresHeight
-        }
-        
-        var usingSex: Bool {
-            guard let restingEnergyFormula else { return false }
-            return !restingEnergyFormula.usesLeanBodyMass
-        }
-
-        var usingAge: Bool {
-            guard let restingEnergyFormula else { return false }
-            return !restingEnergyFormula.usesLeanBodyMass
-        }
-
-        var fatPercentage: Double? { usingWeight ? self.fatPercentage : nil }
-        var weight: Double? { usingWeight ? self.weight : nil }
-        var weightSource: MeasurementSourceOption? { usingWeight ? self.weightSource : nil }
         var weightDate: Date? { weightSource == .healthApp ? self.weightDate : nil }
-
-        var height: Double? { usingHeight ? self.height : nil }
-        var heightSource: MeasurementSourceOption? { usingHeight ? self.heightSource : nil }
         var heightDate: Date? { heightSource == .healthApp ? self.heightDate : nil }
-
-        var sexIsFemale: Bool? { usingSex ? self.sexIsFemale : nil }
-        var sexSource: MeasurementSourceOption? { usingSex ? self.sexSource : nil }
-
-        var age: Int? { usingAge ? self.age : nil }
-        var dob: DateComponents? { usingAge ? self.dob : nil }
-        var ageSource: MeasurementSourceOption? { usingAge ? self.ageSource : nil }
         
         let parameters = BodyProfile.Parameters(
             energyUnit: userEnergyUnit,

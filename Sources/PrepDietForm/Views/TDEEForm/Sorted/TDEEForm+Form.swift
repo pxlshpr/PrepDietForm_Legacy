@@ -10,8 +10,49 @@ extension TDEEForm {
                 viewContents
             }
         }
+        .safeAreaInset(edge: .bottom) { safeAreaInset }
     }
     
+    @ViewBuilder
+    var safeAreaInset: some View {
+        if canBeSaved {
+            //TODO: Programmatically get this inset (67516AA6)
+            Spacer()
+                .frame(height: 100)
+        }
+    }
+
+    @ViewBuilder
+    var buttonsLayer: some View {
+        if canBeSaved {
+            VStack {
+                Spacer()
+                saveButtons
+            }
+            .edgesIgnoringSafeArea(.bottom)
+            .transition(.move(edge: .bottom))
+        }
+    }
+
+    var saveButtons: some View {
+        var saveButton: some View {
+            FormPrimaryButton(title: "Save") {
+                didTapSave(viewModel.bodyProfile)
+                dismiss()
+            }
+        }
+        
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                saveButton
+                    .padding(.vertical)
+            }
+            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+            .padding(.bottom, 30)
+        }
+        .background(.thinMaterial)
+    }
     var viewContents: some View {
         Group {
             promptSection
