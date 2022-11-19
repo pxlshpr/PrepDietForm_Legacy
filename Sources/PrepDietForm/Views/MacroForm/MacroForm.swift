@@ -73,7 +73,7 @@ extension MacroForm {
     @ViewBuilder
     var bodyMassSection: some View {
         if pickedDietMacroGoalType == .gramsPerBodyMass {
-            FormStyledSection(header: Text("of"), footer: EmptyView()) {
+            FormStyledSection(header: Text("with"), footer: EmptyView()) {
                 HStack {
                     bodyMassButton
                     Spacer()
