@@ -55,8 +55,9 @@ extension EnergyForm {
                     goal.upperBound = goal.lowerBound
                     goal.lowerBound = nil
                 } label: {
-                    Image(systemName: "arrowshape.right.fill")
-                        .foregroundColor(.secondary)
+//                    Image(systemName: "arrowshape.right.fill")
+                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
+                        .foregroundColor(.accentColor)
                 }
             } else if goal.upperBound != nil, goal.lowerBound == nil {
                 Button {
@@ -64,8 +65,9 @@ extension EnergyForm {
                     goal.lowerBound = goal.upperBound
                     goal.upperBound = nil
                 } label: {
-                    Image(systemName: "arrowshape.left.fill")
-                        .foregroundColor(.secondary)
+//                    Image(systemName: "arrowshape.left.fill")
+                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
+                        .foregroundColor(.accentColor)
                 }
             }
 //            else if goal.upperBound != nil, goal.lowerBound != nil {
@@ -352,7 +354,7 @@ extension GoalViewModel {
                 }
                 
             case .fixed:
-                return nil
+                return lowerBound
             }
         
         case .macro(let macroGoalType, let macro):
@@ -361,7 +363,7 @@ extension GoalViewModel {
                 from: trueLowerBound,
                 for: macroGoalType,
                 macro: macro,
-                energy: goalSet.energyGoal?.equivalentLowerBound
+                energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
             )
             
 //        case .micro(let microGoalType, let nutrientType, let nutrientUnit):
@@ -414,10 +416,8 @@ extension GoalViewModel {
             }
             
         case .percentageOfEnergy:
-            guard
-                let energy,
-                let energyUnit = goalSet.bodyProfile?.parameters.energyUnit
-            else { return nil }
+            guard let energy else { return nil }
+            let energyUnit = goalSet.bodyProfile?.parameters.energyUnit ?? self.goalSet.userUnits.energy
             
             let energyInKcal = energyUnit == .kcal ? energy : energy * KcalsPerKilojule
             return macro.grams(equallingPercent: value, of: energyInKcal)
@@ -472,7 +472,7 @@ extension GoalViewModel {
                 }
 
             case .fixed:
-                return nil
+                return upperBound
             }
             
         case .macro(let macroGoalType, let macro):
@@ -481,7 +481,7 @@ extension GoalViewModel {
                 from: trueUpperBound,
                 for: macroGoalType,
                 macro: macro,
-                energy: goalSet.energyGoal?.equivalentUpperBound
+                energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
             )
 
 //        case .macro(let macroGoalType, let macro):

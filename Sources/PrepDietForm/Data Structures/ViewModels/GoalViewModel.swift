@@ -50,8 +50,26 @@ public class GoalViewModel: ObservableObject {
     }
     
     var haveEquivalentValues: Bool {
-        equivalentLowerBound != nil || equivalentUpperBound != nil
+        switch type {
+        case .energy(let energyGoalType):
+            switch energyGoalType {
+            case .fixed:
+                return false
+            default:
+                return true
+            }
+        case .macro(let macroGoalType, _):
+            switch macroGoalType {
+            case .fixed:
+                return false
+            default:
+                return true
+            }
+        case .micro:
+            return false
+        }
     }
+    
     var energyGoalDelta: EnergyGoalType.Delta? {
         get {
             switch type {
