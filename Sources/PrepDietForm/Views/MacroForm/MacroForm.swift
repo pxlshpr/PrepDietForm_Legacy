@@ -13,12 +13,10 @@ struct MacroForm: View {
     @State var pickedBodyMassType: MacroGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
-    @State var showingMaintenanceCalculator: Bool = false
-    
     init(goal: GoalViewModel) {
         self.goal = goal
-        let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal)
-        let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal)
+        let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal) ?? .fixed
+        let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal) ?? .fixed
         let bodyMassType = goal.bodyMassType ?? .weight
         let bodyMassUnit = goal.bodyMassUnit ?? .kg // TODO: User's default unit here
         _pickedMealMacroGoalType = State(initialValue: pickedMealMacroGoalType)
@@ -36,22 +34,84 @@ extension MacroForm {
                 lowerBoundSection
                 upperBoundSection
             }
+//                .background(.green)
             unitSection
+//                .background(.green)
+            bodyMassSection
+//                .background(.green)
             equivalentSection
+//                .background(.green)
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(isPresented: $showingMaintenanceCalculator) { tdeeForm }
     }
     
-    var tdeeForm: some View {
-        TDEEForm(userUnits: .standard) { profile in
-            
+    var bodyMassSection: some View {
+        FormStyledSection(header: Text("Body Mass")) {
+            HStack {
+                bodyMassButton
+                Spacer()
+            }
+        }
+    }
+    
+    var haveBodyMass: Bool {
+        true
+    }
+    
+    var bodyMassIsSyncedWithHealth: Bool {
+        true
+    }
+    
+    var bodyMassFormattedWithUnit: String {
+        "95 kg"
+    }
+    
+    @ViewBuilder
+    var bodyMassButton: some View {
+        Button {
+            goalSet.path.append(pickedBodyMassType == .weight ? .weightForm : .lbmForm)
+//            showingTDEEForm = true
+        } label: {
+            if haveBodyMass {
+                if bodyMassIsSyncedWithHealth {
+                    PickerLabel(
+                        bodyMassFormattedWithUnit,
+                        prefix: "\(pickedBodyMassType.description)",
+                        systemImage: "figure.arms.open",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white,
+                        prefixColor: Color(hex: "F3DED7"),
+                        imageScale: .medium
+                    )
+                } else {
+                    PickerLabel(
+                        bodyMassFormattedWithUnit,
+                        prefix: "\(pickedBodyMassType.description)",
+                        systemImage: "figure.arms.open",
+                        imageColor: Color(.tertiaryLabel),
+                        imageScale: .medium
+                    )
+                }
+            } else {
+                PickerLabel(
+                    "\(pickedBodyMassType.description)",
+                    prefix: "set",
+                    systemImage: "figure.arms.open",
+                    imageColor: Color.white.opacity(0.75),
+                    backgroundColor: .accentColor,
+                    foregroundColor: .white,
+                    prefixColor: Color.white.opacity(0.75),
+                    imageScale: .medium
+                )
+            }
         }
     }
 
     var unitSection: some View {
-        FormStyledSection(header: Text("Unit"), footer: footer, horizontalPadding: 0, verticalPadding: 0) {
+        FormStyledSection(footer: footer, horizontalPadding: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     typePicker
@@ -62,16 +122,15 @@ extension MacroForm {
                 .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+//            .frame(height: 50)
         }
     }
     
     @ViewBuilder
     var footer: some View {
-        Color.clear
-//        if goal.macroGoalType == .gramsPerMinutesOfActivity {
-//            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
-//        }
+        if goal.macroGoalType?.isGramsPerMinutesOfExercise == true {
+            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
+        }
     }
     
     var lowerBoundSection: some View {
@@ -172,6 +231,7 @@ extension MacroForm {
                     pickedBodyMassType.pickerDescription,
                     prefix: pickedBodyMassType.pickerPrefix
                 )
+                .animation(.none, value: pickedBodyMassType)
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {
@@ -271,12 +331,15 @@ struct MacroFormPreview: View {
     init() {
         let goalSet = GoalSetForm.ViewModel(
             userUnits: .standard,
-            isMealProfile: true,
+            isMealProfile: false,
             existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
                 Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
             ])
         )
-        let goal = GoalViewModel(goalSet: goalSet, type: .macro(.fixed, .carb))
+        let goal = GoalViewModel(
+            goalSet: goalSet,
+            type: .macro(.gramsPerBodyMass(.weight, .kg), .protein)
+        )
         _goalSet = StateObject(wrappedValue: goalSet)
         _goal = StateObject(wrappedValue: goal)
     }

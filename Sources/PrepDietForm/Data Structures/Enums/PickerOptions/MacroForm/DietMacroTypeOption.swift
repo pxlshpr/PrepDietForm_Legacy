@@ -5,8 +5,17 @@ enum DietMacroTypeOption: CaseIterable {
     case gramsPerBodyMass
     case percentageOfEnergy
     
-    init(goalViewModel: GoalViewModel) {
-        self = .fixed
+    init?(goalViewModel: GoalViewModel) {
+        switch goalViewModel.macroGoalType {
+        case .fixed:
+            self = .fixed
+        case .gramsPerBodyMass:
+            self = .gramsPerBodyMass
+        case .percentageOfEnergy:
+            self = .percentageOfEnergy
+        default:
+            return nil
+        }
     }
     
     var menuDescription: String {

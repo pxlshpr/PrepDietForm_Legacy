@@ -38,6 +38,15 @@ extension MacroGoalType {
         }
     }
     
+    var isGramsPerMinutesOfExercise: Bool {
+        switch self {
+        case .gramsPerMinutesOfActivity:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var isGrams: Bool {
         isFixedGrams || isGramsPerBodyMass
     }

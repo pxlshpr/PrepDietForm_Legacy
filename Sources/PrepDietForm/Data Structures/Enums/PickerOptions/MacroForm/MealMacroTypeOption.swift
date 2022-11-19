@@ -4,8 +4,15 @@ enum MealMacroTypeOption: CaseIterable {
     case fixed
     case gramsPerMinutesOfActivity
     
-    init(goalViewModel: GoalViewModel) {
-        self = .fixed
+    init?(goalViewModel: GoalViewModel) {
+        switch goalViewModel.macroGoalType {
+        case .fixed:
+            self = .fixed
+        case .gramsPerMinutesOfActivity:
+            self = .gramsPerMinutesOfActivity
+        default:
+            return nil
+        }
     }
     
     var menuDescription: String {

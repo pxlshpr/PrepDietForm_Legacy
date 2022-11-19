@@ -4,6 +4,12 @@ import SwiftHaptics
 
 public struct GoalSetForm: View {
     
+    enum Route: Hashable {
+        case goal(GoalViewModel)
+        case weightForm
+        case lbmForm
+    }
+    
     @Environment(\.dismiss) var dismiss
     
     @StateObject var viewModel: ViewModel
@@ -21,7 +27,7 @@ public struct GoalSetForm: View {
     }
     
     public var body: some View {
-        NavigationView {
+        NavigationStack(path: $viewModel.path) {
             content
             .background(Color(.systemGroupedBackground))
             .navigationTitle(title)
@@ -30,6 +36,16 @@ public struct GoalSetForm: View {
             .toolbar { leadingContent }
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .goal(let goalViewModel):
+                    goalForm(for: goalViewModel)
+                case .weightForm:
+                    Text("Weight")
+                case .lbmForm:
+                    Text("LBM")
+                }
+            }
         }
     }
     
@@ -63,11 +79,19 @@ public struct GoalSetForm: View {
         }
     }
     
-    func cell(for goal: GoalViewModel) -> some View {
-        NavigationLink {
-            goalForm(for: goal)
+    func cell(for goalViewModel: GoalViewModel) -> some View {
+//        NavigationLink {
+//            goalForm(for: goal)
+//        } label: {
+//            GoalCell(goal: goal, showingEquivalentValues: $showingEquivalentValues)
+//        }
+        Button {
+            viewModel.path.append(.goal(goalViewModel))
         } label: {
-            GoalCell(goal: goal, showingEquivalentValues: $showingEquivalentValues)
+            GoalCell(
+                goal: goalViewModel,
+                showingEquivalentValues: $showingEquivalentValues
+            )
         }
     }
     

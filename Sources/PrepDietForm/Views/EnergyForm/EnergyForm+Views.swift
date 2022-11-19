@@ -4,10 +4,6 @@ import SwiftHaptics
 
 extension EnergyForm {
     
-    var headerOpacity: CGFloat {
-        goal.lowerBound != nil && goal.upperBound != nil ? 0 : 1
-    }
-    
     var lowerBoundSection: some View {
         let binding = Binding<Double?>(
             get: {
@@ -21,8 +17,7 @@ extension EnergyForm {
         )
         
         var header: some View {
-            Text("At least")
-                .opacity(headerOpacity)
+            Text(goal.haveBothBounds ? "From" : "At least")
         }
         return FormStyledSection(header: header) {
             HStack {
@@ -42,8 +37,7 @@ extension EnergyForm {
         )
 
         var header: some View {
-            Text("At most")
-                .opacity(headerOpacity)
+            Text(goal.haveBothBounds ? "To" : "At most")
         }
         return FormStyledSection(header: header) {
             HStack {
@@ -73,11 +67,12 @@ extension EnergyForm {
                     Image(systemName: "arrowshape.left.fill")
                         .foregroundColor(.secondary)
                 }
-            } else if goal.upperBound != nil, goal.lowerBound != nil {
-                Text("to")
-                    .font(.system(size: 17))
-                    .foregroundColor(Color(.tertiaryLabel))
             }
+//            else if goal.upperBound != nil, goal.lowerBound != nil {
+//                Text("to")
+//                    .font(.system(size: 17))
+//                    .foregroundColor(Color(.tertiaryLabel))
+//            }
         }
         .padding(.top, 10)
         .frame(width: 16, height: 20)
@@ -104,7 +99,9 @@ extension EnergyForm {
         @ViewBuilder
         var header: some View {
             if isDynamic {
-                Text("Currently")
+                Text("Currently Equals")
+            } else {
+                Text("Equals")
             }
         }
         
@@ -272,7 +269,7 @@ extension EnergyForm {
                         PickerLabel(
                             profile.formattedTDEEWithUnit,
                             systemImage: "flame.fill",
-                            imageColor: Color(.secondaryLabel),
+                            imageColor: Color(.tertiaryLabel),
                             imageScale: .small
                         )
                     }
@@ -445,7 +442,7 @@ struct EnergyFormPreview: View {
             goalSet: goalSetViewModel,
             isForMeal: true,
             type: .energy(.fromMaintenance(.kcal, .deficit)),
-            lowerBound: 500  
+            lowerBound: 500
 //            , upperBound: 750
         )
         _viewModel = StateObject(wrappedValue: goalSetViewModel)

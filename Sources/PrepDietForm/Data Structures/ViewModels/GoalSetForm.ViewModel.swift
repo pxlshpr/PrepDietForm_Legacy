@@ -28,11 +28,14 @@ struct UserUnits {
 
 extension GoalSetForm {
     public class ViewModel: ObservableObject {
+        
         @Published var emoji: String
         @Published var name: String
         @Published var isMealProfile = false
         @Published var goals: [GoalViewModel] = []
         @Published var currentTDEEProfile: TDEEProfile?
+        
+        @Published var path: [Route] = []
         
         let userUnits: UserUnits
 

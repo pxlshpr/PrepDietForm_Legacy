@@ -186,6 +186,10 @@ public class GoalViewModel: ObservableObject {
             return nil
         }
     }
+    
+    var haveBothBounds: Bool {
+        lowerBound != nil && upperBound != nil
+    }
 }
 
 extension GoalViewModel {
