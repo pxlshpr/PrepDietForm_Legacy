@@ -48,8 +48,12 @@ extension MacroForm {
     }
     
     var weightForm: some View {
-        MacroWeightForm()
-            .environmentObject(goalSet.macroTDEEFormViewModel)
+        MacroWeightForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
+            goalSet.setBodyProfile(bodyProfile)
+        }, didTapClose: {
+            goalSet.resetMacroTDEEFormViewModel()
+        })
+        .environmentObject(goalSet.macroTDEEFormViewModel)
     }
     
     var leanMassForm: some View {

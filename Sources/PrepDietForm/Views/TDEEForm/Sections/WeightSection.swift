@@ -10,6 +10,11 @@ struct WeightSection: View {
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
     @Namespace var namespace
     @FocusState var isFocused: Bool
+    let includeHeader: Bool
+    
+    init(includeHeader: Bool = true) {
+        self.includeHeader = includeHeader
+    }
     
     var content: some View {
         VStack {
@@ -181,8 +186,11 @@ struct WeightSection: View {
         }
     }
  
+    @ViewBuilder
     var header: some View {
-        Text("Weight")
+        if includeHeader {
+            Text("Weight")
+        }
     }
     
     var body: some View {
