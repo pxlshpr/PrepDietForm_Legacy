@@ -103,7 +103,7 @@ extension MacroWeightForm {
             }
         }
         /// In either case, return true only if there is a valid lean body mass value
-        return viewModel.bodyProfile.hasLBM
+        return viewModel.bodyProfile.hasWeight
     }
 }
 
