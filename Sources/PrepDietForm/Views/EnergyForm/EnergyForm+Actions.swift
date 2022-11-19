@@ -3,6 +3,7 @@ import Foundation
 extension EnergyForm {
 
     func appeared() {
+        print("Appeared")
         pickedMealEnergyGoalType = MealEnergyTypeOption(goalViewModel: goal) ?? .fixed
         pickedDietEnergyGoalType = DietEnergyTypeOption(goalViewModel: goal) ?? .fixed
         pickedDelta = EnergyDeltaOption(goalViewModel: goal) ?? .below

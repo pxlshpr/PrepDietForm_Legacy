@@ -10,13 +10,11 @@ struct DoubleTextField: View {
     
     let focusOnAppear: Bool
     
-    let validator: ((Double) -> (Double))?
-    init(double: Binding<Double?>, placeholder: String, focusOnAppear: Bool = false, validator: ((Double) -> (Double))? = nil) {
+    init(double: Binding<Double?>, placeholder: String, focusOnAppear: Bool = false) {
         _double = double
         _internalString = State(initialValue: double.wrappedValue?.cleanAmount ?? "")
         self.placeholder = placeholder
         self.focusOnAppear = focusOnAppear
-        self.validator = validator
     }
     
     var body: some View {
@@ -33,13 +31,9 @@ struct DoubleTextField: View {
                 guard let double = Double(newValue) else {
                     return
                 }
-                var validatedDouble = double
-                if let validator {
-                    validatedDouble = validator(double)
-                }
-                self.double = validatedDouble
+                self.double = double
                 withAnimation {
-                    self.internalString = validatedDouble.cleanAmount
+                    self.internalString = newValue
                 }
             }
         )

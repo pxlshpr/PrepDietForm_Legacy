@@ -189,24 +189,48 @@ public class GoalViewModel: ObservableObject {
 }
 
 extension GoalViewModel {
-    func validateUpperBound(_ double: Double) -> Double {
-//        if let lower = lowerBound {
-//            guard double > lower else {
-//                return lower
-//            }
-//        }
-        return double
-    }
-    
-    func validateLowerBound(_ double: Double) -> Double {
-//        if let upper = upperBound {
-//            guard double < upper else {
-//                return upper
-//            }
-//        }
-        return double
+    func validateLowerBoundLowerThanUpper() {
+        guard let lowerBound, let upperBound else { return }
+        if lowerBound == upperBound {
+            withAnimation {
+                self.lowerBound = nil
+            }
+        } else if lowerBound > upperBound {
+            withAnimation {
+                self.lowerBound = upperBound
+                self.upperBound = lowerBound
+            }
+        }
     }
 
+    func validateNoBoundResultingInLessThanZero(unit: EnergyUnit) {
+        guard let profile = goalSet.currentTDEEProfile else { return }
+        let tdee = profile.tdee(in: unit).rounded()
+        
+        if let lowerBound, tdee - lowerBound < 0 {
+            self.lowerBound = tdee
+        }
+
+        if let upperBound, tdee - upperBound < 0 {
+            self.upperBound = tdee
+        }
+    }
+    func validate() {
+        validateLowerBoundLowerThanUpper()
+        switch energyGoalType {
+        case .fixed:
+            break
+        case .fromMaintenance(let energyUnit, let delta):
+            switch delta {
+            case .surplus:
+                break
+            case .deficit:
+                validateNoBoundResultingInLessThanZero(unit: energyUnit)
+            }
+        default:
+            return
+        }
+    }    
 }
 
 extension GoalViewModel: Hashable {

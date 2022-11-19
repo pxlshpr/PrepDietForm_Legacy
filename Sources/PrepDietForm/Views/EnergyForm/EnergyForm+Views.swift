@@ -26,7 +26,7 @@ extension EnergyForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional", validator: goal.validateLowerBound)
+                DoubleTextField(double: binding, placeholder: "Optional")
             }
         }
     }
@@ -47,7 +47,7 @@ extension EnergyForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional", validator: goal.validateUpperBound)
+                DoubleTextField(double: binding, placeholder: "Optional")
             }
         }
     }
@@ -176,6 +176,7 @@ extension EnergyForm {
         .onChange(of: pickedDelta, perform: deltaChanged)
         .onAppear(perform: appeared)
         .sheet(isPresented: $showingTDEEForm) { tdeeForm }
+        .onDisappear(perform: goal.validate)
     }
     
     var trailingContent: some ToolbarContent {
