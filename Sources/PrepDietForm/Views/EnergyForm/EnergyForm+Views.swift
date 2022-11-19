@@ -207,7 +207,8 @@ extension EnergyForm {
     @ViewBuilder
     var unitsFooter: some View {
         if isDynamic {
-            Text("Your maintenance energy will automatically adjust to changes from the Health App, making this a dynamic goal.")
+//            Text("Your maintenance energy will automatically adjust to changes from the Health App, making this a dynamic goal.")
+            Text("Your maintenance energy is synced with the Health App, making this goal automatically adjust to any changes.")
         }
     }
     

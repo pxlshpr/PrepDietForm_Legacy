@@ -47,9 +47,54 @@ extension MacroForm {
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar { trailingContent }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
         .onDisappear(perform: goal.validateMacro)
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if isDynamic {
+                Text("Dynamic")
+                    .font(.footnote)
+                    .textCase(.uppercase)
+                    .foregroundColor(Color(.tertiaryLabel))
+                Image(systemName: "bolt.horizontal.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(
+                        .linearGradient(
+                            colors: [
+                                Color(hex: AppleHealthTopColorHex),
+                                Color(hex: AppleHealthBottomColorHex)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        }
+    }
+    
+    
+    var unitsFooter: some View {
+        var component: String {
+            switch macroGoalType {
+            case .gramsPerBodyMass(let bodyMass, _):
+                return bodyMass.description
+            case .percentageOfEnergy:
+                return "maintenance energy (which your energy goal is based on)"
+            default:
+                return ""
+            }
+        }
+        return Group {
+            if isDynamic {
+                Text("Your \(component) is synced with the Health App. This goal will automatically adjust when it changes.")
+            } else if goal.macroGoalType?.isGramsPerMinutesOfExercise == true {
+                Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
+            }
+        }
     }
     
     var weightForm: some View {
@@ -92,7 +137,9 @@ extension MacroForm {
     }
     
     var bodyMassIsSyncedWithHealth: Bool {
-        guard let params = goalSet.bodyProfile?.parameters else { return false }
+        guard let params = goalSet.bodyProfile?.parameters, pickedDietMacroGoalType == .gramsPerBodyMass
+        else { return false }
+        
         switch pickedBodyMassType {
         case .weight:
             return params.weightUpdatesWithHealth == true
@@ -101,8 +148,13 @@ extension MacroForm {
         }
     }
     
+    var energyIsSyncedWithHealth: Bool {
+        guard pickedDietMacroGoalType == .percentageOfEnergy else { return false }
+        return goalSet.bodyProfile?.parameters.updatesWithHealthApp == true
+    }
+    
     var isDynamic: Bool {
-        bodyMassIsSyncedWithHealth
+        bodyMassIsSyncedWithHealth || energyIsSyncedWithHealth
     }
 
     var bodyMassFormattedWithUnit: String {
@@ -165,7 +217,7 @@ extension MacroForm {
     }
 
     var unitSection: some View {
-        FormStyledSection(footer: footer, horizontalPadding: 0) {
+        FormStyledSection(footer: unitsFooter, horizontalPadding: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     typePicker
@@ -177,13 +229,6 @@ extension MacroForm {
             }
             .frame(maxWidth: .infinity)
 //            .frame(height: 50)
-        }
-    }
-    
-    @ViewBuilder
-    var footer: some View {
-        if goal.macroGoalType?.isGramsPerMinutesOfExercise == true {
-            Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
         }
     }
     
