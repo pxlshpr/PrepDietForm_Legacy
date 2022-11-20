@@ -150,7 +150,7 @@ public struct GoalSetForm: View {
             HStack(alignment: .firstTextBaseline) {
                 appleHealthBolt
                     .imageScale(.small)
-                Text("Goals marked with this symbol are dynamic and will automatically update when new data is  synced from the Health App.")
+                Text("Goals marked with this symbol are dynamic and will automatically update when new data is synced from the Health App.")
             }
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
