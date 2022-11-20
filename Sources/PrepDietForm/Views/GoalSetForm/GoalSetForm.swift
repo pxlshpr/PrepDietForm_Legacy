@@ -13,7 +13,7 @@ public struct GoalSetForm: View {
     @StateObject var viewModel: ViewModel
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
-    @State var showingEquivalentValues = false
+    @State var showingEquivalentValues = true //TODO: **** Set as: false
     
     @FocusState var isFocused: Bool
     
@@ -75,6 +75,7 @@ public struct GoalSetForm: View {
                 energyCell
                 macroCells
                 microCells
+                dynamicInfoContent
             }
             .padding(.horizontal, 20)
         }
@@ -103,7 +104,7 @@ public struct GoalSetForm: View {
             )
         }
     }
-    
+        
     @ViewBuilder
     var macroCells: some View {
         if !viewModel.macroGoals.isEmpty {
@@ -143,6 +144,27 @@ public struct GoalSetForm: View {
         .padding(.bottom, 10)
     }
     
+    @ViewBuilder
+    var dynamicInfoContent: some View {
+        if !viewModel.containsDynamicGoal {
+            HStack(alignment: .firstTextBaseline) {
+                appleHealthBolt
+                    .imageScale(.small)
+                Text("Goals marked with this symbol are dynamic and will automatically change when new data is  synced from the Health App")
+            }
+            .font(.footnote)
+            .foregroundColor(Color(.secondaryLabel))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.primary)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 13)
+            .padding(.top, 13)
+            .background(Color(.secondarySystemGroupedBackground).opacity(0))
+            .cornerRadius(10)
+            .padding(.bottom, 10)
+        }
+    }
+
     var emojiButton: some View {
         Button {
             showingEmojiPicker = true
@@ -199,5 +221,170 @@ public struct GoalSetForm: View {
                 closeButtonLabel
             }
         }
+    }
+}
+
+
+//MARK: - 👁‍🗨 Previews
+
+struct GoalSetForm_Previews: PreviewProvider {
+    static var previews: some View {
+        GoalSetFormPreview()
+    }
+}
+
+
+struct EnergyForm_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        EnergyFormPreview()
+    }
+}
+
+struct MacroForm_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        MacroFormPreview()
+    }
+}
+
+
+//MARK: Energy Form Preview
+
+struct EnergyFormPreview: View {
+    
+    @StateObject var viewModel: GoalSetForm.ViewModel
+    @StateObject var goalViewModel: GoalViewModel
+    
+    init() {
+        let goalSetViewModel = GoalSetForm.ViewModel(
+            userUnits:.standard,
+            isMealProfile: false,
+            existingGoalSet: nil,
+            bodyProfile: BodyProfile(
+                id: UUID(),
+                parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
+                syncStatus: .notSynced,
+                updatedAt: Date().timeIntervalSince1970
+            )
+        )
+        let goalViewModel = GoalViewModel(
+            goalSet: goalSetViewModel,
+            isForMeal: false,
+            type: .energy(.fromMaintenance(.kcal, .deficit)),
+            lowerBound: 500
+//            , upperBound: 750
+        )
+        _viewModel = StateObject(wrappedValue: goalSetViewModel)
+        _goalViewModel = StateObject(wrappedValue: goalViewModel)
+    }
+    
+    var body: some View {
+        NavigationView {
+            EnergyForm(goal: goalViewModel)
+                .environmentObject(viewModel)
+        }
+    }
+}
+
+//MARK: Macro Form
+
+struct MacroFormPreview: View {
+    
+    @StateObject var goalSet: GoalSetForm.ViewModel
+    @StateObject var goal: GoalViewModel
+    
+    init() {
+        let goalSet = GoalSetForm.ViewModel(
+            userUnits: .standard,
+            isMealProfile: false,
+            existingGoalSet: GoalSet(
+                name: "Bulking",
+                emoji: "",
+                goals: [
+                    Goal(type: .energy(.fromMaintenance(.kcal, .surplus)), lowerBound: 500, upperBound: 1500)
+                ]
+            ),
+            bodyProfile: .mock(
+                restingEnergy: 1000,
+                lbm: 77
+            )
+        )
+        let goal = GoalViewModel(
+            goalSet: goalSet,
+            isForMeal: false,
+            type: .macro(.percentageOfEnergy, .carb),
+            lowerBound: 20,
+            upperBound: 30
+        )
+        _goalSet = StateObject(wrappedValue: goalSet)
+        _goal = StateObject(wrappedValue: goal)
+    }
+    
+    var body: some View {
+        NavigationView {
+            MacroForm(goal: goal)
+                .environmentObject(goalSet)
+        }
+    }
+}
+
+//MARK: - GoalSet Form Preview
+struct GoalSetFormPreview: View {
+    
+    static let energyGoal = Goal(
+        type: .energy(.fromMaintenance(.kcal, .surplus)),
+        lowerBound: 500,
+        upperBound: 750
+    )
+    
+    static let fatGoalPerBodyMass = Goal(
+        type: .macro(.gramsPerBodyMass(.leanMass, .kg), .fat),
+        upperBound: 1
+    )
+
+    static let fatGoalPerEnergy = Goal(
+        type: .macro(.percentageOfEnergy, .fat),
+        upperBound: 20
+    )
+
+    static let proteinGoal = Goal(
+        type: .macro(.gramsPerBodyMass(.weight, .kg), .protein),
+        lowerBound: 1.1,
+        upperBound: 2.5
+    )
+
+    static let carbGoal = Goal(
+        type: .macro(.gramsPerWorkoutDuration(.min), .carb),
+        lowerBound: 0.5
+    )
+
+    static let bodyProfile = BodyProfile.mock(
+        restingEnergy: 2000,
+        activeEnergy: 1000,
+        weight: 98,
+        lbm: 65
+    )
+    
+    static let goalSet = GoalSet(
+        name: "Cutting",
+        emoji: "⤵️",
+        goals: [
+            energyGoal,
+//            proteinGoal,
+//            carbGoal,
+            fatGoalPerEnergy,
+        ],
+        isMealProfile: false
+    )
+    
+    
+    var body: some View {
+        GoalSetForm(
+            isMealProfile: false,
+            existingGoalSet: Self.goalSet,
+            bodyProfile: Self.bodyProfile
+//            , presentedGoalId: Self.fatGoal.id
+        )
     }
 }

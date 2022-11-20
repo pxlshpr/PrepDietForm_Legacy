@@ -150,18 +150,7 @@ extension MacroForm {
                     .font(.footnote)
                     .textCase(.uppercase)
                     .foregroundColor(Color(.tertiaryLabel))
-                Image(systemName: "bolt.horizontal.fill")
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(
-                        .linearGradient(
-                            colors: [
-                                Color(hex: AppleHealthTopColorHex),
-                                Color(hex: AppleHealthBottomColorHex)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                appleHealthBolt
             }
         }
     }
@@ -251,25 +240,8 @@ extension MacroForm {
         }
     }
     
-    var bodyMassIsSyncedWithHealth: Bool {
-        guard let params = goalSet.bodyProfile?.parameters, pickedDietMacroGoalType == .gramsPerBodyMass
-        else { return false }
-        
-        switch pickedBodyMassType {
-        case .weight:
-            return params.weightUpdatesWithHealth == true
-        case .leanMass:
-            return params.lbmUpdatesWithHealth == true
-        }
-    }
-    
-    var energyIsSyncedWithHealth: Bool {
-        guard pickedDietMacroGoalType == .percentageOfEnergy else { return false }
-        return goalSet.bodyProfile?.parameters.updatesWithHealthApp == true
-    }
-    
     var isDynamic: Bool {
-        bodyMassIsSyncedWithHealth || energyIsSyncedWithHealth
+        goal.isDynamic
     }
 
     var bodyMassFormattedWithUnit: String {
@@ -298,7 +270,7 @@ extension MacroForm {
             }
         } label: {
             if haveBodyMass {
-                if bodyMassIsSyncedWithHealth {
+                if goal.bodyMassIsSyncedWithHealth {
                     PickerLabel(
                         bodyMassFormattedWithUnit,
                         prefix: "\(pickedBodyMassType.description)",

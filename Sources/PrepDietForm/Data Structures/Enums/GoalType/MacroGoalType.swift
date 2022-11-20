@@ -44,7 +44,7 @@ extension MacroGoalType {
         case .gramsPerBodyMass(_, let weightUnit):
             return "g per \(weightUnit.shortDescription)"
         case .percentageOfEnergy:
-            return "% of energy"
+            return "%"
         case .gramsPerWorkoutDuration(let workoutDurationUnit):
             return "g per \(workoutDurationUnit.menuDescription)"
         }
@@ -68,7 +68,7 @@ extension MacroGoalType {
         case .fixed:
             return nil
         case .percentageOfEnergy:
-            return "percent"
+            return "flame.fill"
         case .gramsPerBodyMass(_, _):
             return "figure.arms.open"
         case .gramsPerWorkoutDuration(_):

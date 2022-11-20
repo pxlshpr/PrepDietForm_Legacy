@@ -77,14 +77,6 @@ extension GoalSetForm.ViewModel {
         setMacroTDEEFormViewModel(with: bodyProfile)
     }
     
-    func containsMacro(_ macro: Macro) -> Bool {
-        goals.containsMacro(macro)
-    }
-    
-    func containsMicro(_ micro: NutrientType) -> Bool {
-        goals.containsMicro(micro)
-    }
-    
     func didAddNutrients(pickedEnergy: Bool, pickedMacros: [Macro], pickedMicros: [NutrientType]) {
         if pickedEnergy, !goals.containsEnergy {
             goals.append(GoalViewModel(
@@ -112,6 +104,31 @@ extension GoalSetForm.ViewModel {
         }
     }
     
+    //MARK: - Convenience
+    
+    func containsMacro(_ macro: Macro) -> Bool {
+        goals.containsMacro(macro)
+    }
+    
+    func containsMicro(_ micro: NutrientType) -> Bool {
+        goals.containsMicro(micro)
+    }
+    
+    var containsDynamicGoal: Bool {
+        goals.contains(where: { $0.isDynamic })
+    }
+    
+    var hasTDEE: Bool {
+        bodyProfile?.hasTDEE ?? false
+    }
+    
+    var hasWeight: Bool {
+        bodyProfile?.hasWeight ?? false
+    }
+    var hasLBM: Bool {
+        bodyProfile?.hasLBM ?? false
+    }
+
     var energyGoal: GoalViewModel? {
         get {
             goals.first(where: { $0.type.isEnergy })

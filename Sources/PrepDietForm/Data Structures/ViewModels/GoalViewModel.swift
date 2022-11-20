@@ -242,6 +242,100 @@ public class GoalViewModel: ObservableObject {
         lowerBound != nil && upperBound != nil
     }
 
+    var hasOneBound: Bool {
+        lowerBound != nil || upperBound != nil
+    }
+
+    var hasOneEquivalentBound: Bool {
+        equivalentLowerBound != nil || equivalentUpperBound != nil
+    }
+
+    var isDynamic: Bool {
+        switch type {
+        case .energy:
+            return goalSet.bodyProfile?.parameters.updatesWithHealthApp ?? false
+        case .macro:
+            return bodyMassIsSyncedWithHealth || energyIsSyncedWithHealth
+        case .micro:
+            //TODO: Do this
+            return false
+        }
+    }
+    
+    var bodyMassIsSyncedWithHealth: Bool {
+        guard let params = goalSet.bodyProfile?.parameters,
+              let macroGoalType, macroGoalType.isGramsPerBodyMass,
+              let bodyMassType
+        else { return false }
+        
+        switch bodyMassType {
+        case .weight:
+            return params.weightUpdatesWithHealth == true
+        case .leanMass:
+            return params.lbmUpdatesWithHealth == true
+        }
+    }
+    
+    var energyIsSyncedWithHealth: Bool {
+        guard let macroGoalType, macroGoalType.isPercent
+        else { return false }
+        
+        return goalSet.bodyProfile?.parameters.updatesWithHealthApp ?? false
+    }
+    
+    var placeholderText: String? {
+        /// First check that we have at least one value—otherwise returning the default placeholder
+        guard hasOneBound else {
+            return "Set Goal"
+        }
+        
+        /// Now check for special cases (dependent goals, etc)
+        switch type {
+        case .energy(let type):
+            switch type {
+            case .fixed:
+                break
+            case .fromMaintenance, .percentFromMaintenance:
+                guard goalSet.hasTDEE else {
+                    return "Requires Maintenance Energy"
+                }
+            }
+        case .macro(let type, _):
+            switch type {
+            case .fixed:
+                break
+            case .gramsPerBodyMass(let bodyMass, _):
+                switch bodyMass {
+                case .weight:
+                    guard goalSet.hasWeight else {
+                        return "Requires Weight"
+                    }
+                case .leanMass:
+                    guard goalSet.hasLBM else {
+                        return "Requires Lean Body Mass"
+                    }
+                }
+            case .percentageOfEnergy:
+                //TODO: Check that energyGoal is available
+                guard let energyGoal = goalSet.energyGoal,
+                      energyGoal.hasOneEquivalentBound
+                else {
+                    return "Requires Energy Goal"
+                }
+                return nil
+            case .gramsPerWorkoutDuration:
+                return "Calculated when used"
+            }
+        case .micro(let type, _, _, _):
+            switch type {
+            case .quantityPerWorkoutDuration:
+                return "Calculated when used"
+            case .fixed:
+                break
+            }
+        }
+        return nil
+    }
 }
 
 extension GoalViewModel {

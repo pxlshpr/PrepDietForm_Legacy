@@ -40,12 +40,18 @@ struct GoalCell: View {
             }
             Spacer()
             typeText
+            if !goal.isDynamic {
+//                appleHealthSymbol
+                appleHealthBolt
+                    .imageScale(.small)
+            }
             disclosureArrow
         }
         .foregroundColor(labelColor)
     }
     
     var shouldShowType: Bool {
+        guard goal.hasOneBound else { return false }
         if goal.equivalentLowerBound == nil && goal.equivalentUpperBound == nil {
             return true
         }
@@ -119,21 +125,45 @@ struct GoalCell: View {
                 Image(systemName: "equal.square.fill")
                     .foregroundColor(Color(.tertiaryLabel))
             }
-            if let lowerBound {
-                if upperBound == nil {
-                    accessoryText("at least")
-                }
-                amountAndUnitTexts(lowerBound, upperBound == nil ? unitString : nil)
-            } else if upperBound == nil {
-                Text("Set Goal")
-                    .foregroundColor(amountColor)
-                    .font(.system(size: isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-            }
-            if let upperBound {
-                accessoryText(lowerBound == nil ? "at most" : "to")
-                amountAndUnitTexts(upperBound, unitString)
-            }
+            bottomRowTexts
             Spacer()
+        }
+        .frame(minHeight: 35)
+    }
+    
+    var placeholderText: String? {
+        guard let placeholderText = goal.placeholderText else {
+            return nil
+        }
+        /// If the goal has at least one value
+        if goal.hasOneBound {
+            /// Only show the placeholder text (if available) when showing equivalent values
+            guard showingEquivalentValues else {
+                return nil
+            }
+        }
+        
+        return placeholderText
+    }
+    @ViewBuilder
+    var bottomRowTexts: some View {
+        if let placeholderText {
+            Text(placeholderText)
+                .foregroundColor(Color(.quaternaryLabel))
+                .font(.system(size: 20, weight: .medium, design: .rounded))
+        } else {
+            HStack {
+                if let lowerBound {
+                    if upperBound == nil {
+                        accessoryText("at least")
+                    }
+                    amountAndUnitTexts(lowerBound, upperBound == nil ? unitString : nil)
+                }
+                if let upperBound {
+                    accessoryText(lowerBound == nil ? "below" : "to")
+                    amountAndUnitTexts(upperBound, unitString)
+                }
+            }
         }
     }
     
@@ -166,164 +196,5 @@ struct GoalCell: View {
         } else {
             return goal.type.unitString
         }
-    }
-}
-
-//MARK: - 👁‍🗨 Previews
-
-struct GoalSetForm_Previews: PreviewProvider {
-    static var previews: some View {
-        GoalSetFormPreview()
-    }
-}
-
-
-struct EnergyForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        EnergyFormPreview()
-    }
-}
-
-struct MacroForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        MacroFormPreview()
-    }
-}
-
-
-//MARK: Energy Form Preview
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel: GoalSetForm.ViewModel
-    @StateObject var goalViewModel: GoalViewModel
-    
-    init() {
-        let goalSetViewModel = GoalSetForm.ViewModel(
-            userUnits:.standard,
-            isMealProfile: false,
-            existingGoalSet: nil,
-            bodyProfile: BodyProfile(
-                id: UUID(),
-                parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
-                syncStatus: .notSynced,
-                updatedAt: Date().timeIntervalSince1970
-            )
-        )
-        let goalViewModel = GoalViewModel(
-            goalSet: goalSetViewModel,
-            isForMeal: false,
-            type: .energy(.fromMaintenance(.kcal, .deficit)),
-            lowerBound: 500
-//            , upperBound: 750
-        )
-        _viewModel = StateObject(wrappedValue: goalSetViewModel)
-        _goalViewModel = StateObject(wrappedValue: goalViewModel)
-    }
-    
-    var body: some View {
-        NavigationView {
-            EnergyForm(goal: goalViewModel)
-                .environmentObject(viewModel)
-        }
-    }
-}
-
-//MARK: Macro Form
-
-struct MacroFormPreview: View {
-    
-    @StateObject var goalSet: GoalSetForm.ViewModel
-    @StateObject var goal: GoalViewModel
-    
-    init() {
-        let goalSet = GoalSetForm.ViewModel(
-            userUnits: .standard,
-            isMealProfile: false,
-            existingGoalSet: GoalSet(
-                name: "Bulking",
-                emoji: "",
-                goals: [
-                    Goal(type: .energy(.fromMaintenance(.kcal, .surplus)), lowerBound: 500, upperBound: 1500)
-                ]
-            ),
-            bodyProfile: .mock(
-                restingEnergy: 1000,
-                lbm: 77
-            )
-        )
-        let goal = GoalViewModel(
-            goalSet: goalSet,
-            isForMeal: false,
-            type: .macro(.percentageOfEnergy, .carb),
-            lowerBound: 20,
-            upperBound: 30
-        )
-        _goalSet = StateObject(wrappedValue: goalSet)
-        _goal = StateObject(wrappedValue: goal)
-    }
-    
-    var body: some View {
-        NavigationView {
-            MacroForm(goal: goal)
-                .environmentObject(goalSet)
-        }
-    }
-}
-
-//MARK: - GoalSet Form Preview
-struct GoalSetFormPreview: View {
-    
-    static let energyGoal = Goal(
-        type: .energy(.fromMaintenance(.kcal, .surplus)),
-        lowerBound: 500,
-        upperBound: 1000
-    )
-    
-    static let fatGoal = Goal(
-        type: .macro(.gramsPerBodyMass(.leanMass, .kg), .fat),
-        upperBound: 20
-    )
-
-    static let proteinGoal = Goal(
-        type: .macro(.gramsPerBodyMass(.weight, .kg), .protein),
-        lowerBound: 1.1,
-        upperBound: 2.5
-    )
-
-    static let carbGoal = Goal(
-        type: .macro(.gramsPerWorkoutDuration(.min), .carb),
-        lowerBound: 0.5
-    )
-
-    static let bodyProfile = BodyProfile.mock(
-        restingEnergy: 2000,
-        activeEnergy: 1000,
-        weight: 98,
-        lbm: 65
-    )
-    
-    static let goalSet = GoalSet(
-        name: "Bulking",
-        emoji: "🏋🏼‍♂️",
-        goals: [
-            energyGoal,
-//            proteinGoal,
-//            carbGoal,
-            fatGoal,
-        ],
-        isMealProfile: false
-    )
-    
-    
-    var body: some View {
-        GoalSetForm(
-            isMealProfile: false,
-            existingGoalSet: Self.goalSet,
-            bodyProfile: Self.bodyProfile
-            , presentedGoalId: Self.fatGoal.id
-        )
     }
 }

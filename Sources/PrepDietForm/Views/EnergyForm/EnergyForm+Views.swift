@@ -166,24 +166,13 @@ extension EnergyForm {
                     .font(.footnote)
                     .textCase(.uppercase)
                     .foregroundColor(Color(.tertiaryLabel))
-                Image(systemName: "bolt.horizontal.fill")
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(
-                        .linearGradient(
-                            colors: [
-                                Color(hex: AppleHealthTopColorHex),
-                                Color(hex: AppleHealthBottomColorHex)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                appleHealthBolt
             }
         }
     }
     
     var isDynamic: Bool {
-        viewModel.bodyProfile?.parameters.updatesWithHealthApp == true
+        goal.isDynamic
     }
     
     @ViewBuilder
