@@ -101,29 +101,34 @@ public enum GoalType: Hashable, Codable {
         switch self {
         case .energy(let energyGoalType):
             switch energyGoalType {
-            case .fromMaintenance, .percentFromMaintenance:
-                return true
+            case .fixed:
+                return false
             default:
+                return true
+            }
+        case .macro(let macroGoalType, _):
+            switch macroGoalType {
+            case .fixed, .gramsPerWorkoutDuration:
+                return false
+            default:
+                return true
+            }
+        case .micro(let microGoalType, _, _, _):
+            switch microGoalType {
+            case .fixed, .quantityPerWorkoutDuration:
                 return false
             }
-        case .macro(let macroGoalType, let macro):
-            //TODO: Revisit this
-            return false
-        case .micro(let microGoalType, let nutrientType, let nutrientUnit, _):
-            //TODO: Revisit this
-            return false
         }
     }
     
-
     var accessoryDescription: String? {
         switch self {
         case .energy(let type):
             return type.accessoryDescription
-        case .macro:
-            return nil
-        case .micro:
-            return nil
+        case .macro(let type, _):
+            return type.accessoryDescription
+        case .micro(let type, _, _, _):
+            return type.accessoryDescription
         }
     }
     
@@ -131,8 +136,10 @@ public enum GoalType: Hashable, Codable {
         switch self {
         case .energy(let type):
             return type.accessorySystemImage
-        default:
-            return nil
+        case .macro(let type, _):
+            return type.accessorySystemImage
+        case .micro(let type, _, _, _):
+            return type.accessorySystemImage
         }
     }
     

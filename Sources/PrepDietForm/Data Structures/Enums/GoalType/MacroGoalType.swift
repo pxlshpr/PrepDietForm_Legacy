@@ -41,12 +41,38 @@ extension MacroGoalType {
         switch self {
         case .fixed:
             return "g"
-        case .gramsPerBodyMass(let bodyMass, let weightUnit):
-            return "g/\(weightUnit.shortDescription) of \(bodyMass.description)"
+        case .gramsPerBodyMass(_, let weightUnit):
+            return "g per \(weightUnit.shortDescription)"
         case .percentageOfEnergy:
             return "% of energy"
         case .gramsPerWorkoutDuration(let workoutDurationUnit):
-            return "g/\(workoutDurationUnit.menuDescription) of workout"
+            return "g per \(workoutDurationUnit.menuDescription)"
+        }
+    }
+    
+    var accessoryDescription: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .percentageOfEnergy:
+            return "of energy goal"
+        case .gramsPerBodyMass(let bodyMass, _):
+            return "of \(bodyMass.description)"
+        case .gramsPerWorkoutDuration(_):
+            return "of workout time"
+        }
+    }
+    
+    var accessorySystemImage: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .percentageOfEnergy:
+            return "percent"
+        case .gramsPerBodyMass(_, _):
+            return "figure.arms.open"
+        case .gramsPerWorkoutDuration(_):
+            return "clock"
         }
     }
     

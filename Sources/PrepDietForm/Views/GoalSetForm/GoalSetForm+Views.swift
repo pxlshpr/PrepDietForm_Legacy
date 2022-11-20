@@ -56,7 +56,7 @@ extension GoalSetForm {
                 showingEquivalentValues.toggle()
             }
         } label: {
-            Image(systemName: "equal.circle\(showingEquivalentValues ? ".fill" : "")")
+            Image(systemName: "equal.square\(showingEquivalentValues ? ".fill" : "")")
         }
     }
     

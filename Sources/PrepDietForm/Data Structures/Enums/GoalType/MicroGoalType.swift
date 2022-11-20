@@ -12,9 +12,28 @@ extension MicroGoalType {
     func description(nutrientUnit: NutrientUnit) -> String {
         switch self {
         case .fixed:
-            return "g"
+            return "\(nutrientUnit.shortDescription)"
         case .quantityPerWorkoutDuration(let durationUnit):
-            return "\(nutrientUnit.shortDescription)/\(durationUnit.menuDescription) of workout"
+            return "\(nutrientUnit.shortDescription) per \(durationUnit.menuDescription)"
+        }
+    }
+    
+    
+    var accessoryDescription: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .quantityPerWorkoutDuration(_):
+            return "of workout time"
+        }
+    }
+    
+    var accessorySystemImage: String? {
+        switch self {
+        case .fixed:
+            return nil
+        case .quantityPerWorkoutDuration(_):
+            return "clock"
         }
     }
 }

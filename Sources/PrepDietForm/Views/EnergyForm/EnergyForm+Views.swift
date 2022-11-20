@@ -110,31 +110,7 @@ extension EnergyForm {
         return Group {
             if goal.haveEquivalentValues {
                 FormStyledSection(header: header) {
-                    HStack {
-                        goal.equivalentTextHStack
-                        Spacer()
-                    }
-//                    HStack {
-//                        if let lower = goal.equivalentLowerBound {
-//                            if goal.equivalentUpperBound == nil {
-//                                equivalentAccessoryText("at least")
-//                            }
-//                            HStack(spacing: 3) {
-//                                equivalentValueText(lower.formattedEnergy)
-//                                if goal.equivalentUpperBound == nil {
-//                                    equivalentUnitText("kcal")
-//                                }
-//                            }
-//                        }
-//                        if let upper = goal.equivalentUpperBound {
-//                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
-//                            HStack(spacing: 3) {
-//                                equivalentValueText(upper.formattedEnergy)
-//                                equivalentUnitText("kcal")
-//                            }
-//                        }
-//                        Spacer()
-//                    }
+                    goal.equivalentTextHStack
                 }
             }
         }
@@ -299,10 +275,20 @@ extension GoalViewModel {
             default:
                 return goalSet.userUnits.energy.shortDescription
             }
-        case .macro:
-            return NutrientUnit.g.shortDescription
-        case .micro(_, _, let nutrientUnit, _):
-            return nutrientUnit.shortDescription
+        case .macro(let type, _):
+            switch type {
+            case .gramsPerWorkoutDuration:
+                return type.description
+            default:
+                return NutrientUnit.g.shortDescription
+            }
+        case .micro(let type, _, let nutrientUnit, _):
+            switch type {
+            case .fixed:
+                return type.description(nutrientUnit: nutrientUnit)
+            case .quantityPerWorkoutDuration(_):
+                return type.description(nutrientUnit: nutrientUnit)
+            }
         }
     }
     
