@@ -9,12 +9,15 @@ struct DoubleTextField: View {
     @State var internalString: String
     
     let focusOnAppear: Bool
-    
-    init(double: Binding<Double?>, placeholder: String, focusOnAppear: Bool = false) {
+
+    @Binding var shouldResignFocus: Bool
+
+    init(double: Binding<Double?>, placeholder: String, focusOnAppear: Bool = false, shouldResignFocus: Binding<Bool>) {
         _double = double
         _internalString = State(initialValue: double.wrappedValue?.cleanAmount ?? "")
         self.placeholder = placeholder
         self.focusOnAppear = focusOnAppear
+        _shouldResignFocus = shouldResignFocus
     }
     
     var body: some View {
@@ -59,6 +62,11 @@ struct DoubleTextField: View {
                 }
             }
             .onChange(of: double, perform: doubleChanged)
+            .onChange(of: shouldResignFocus, perform: shouldResignFocusChanged)
+    }
+    
+    func shouldResignFocusChanged(to newValue: Bool) {
+        isFocused = false
     }
     
     /// Detect external changes

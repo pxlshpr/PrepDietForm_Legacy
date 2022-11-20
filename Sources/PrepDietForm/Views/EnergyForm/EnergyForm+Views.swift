@@ -21,7 +21,11 @@ extension EnergyForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
             }
         }
     }
@@ -41,7 +45,11 @@ extension EnergyForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
             }
         }
     }
@@ -140,6 +148,7 @@ extension EnergyForm {
         .onDisappear(perform: goal.validateEnergy)
         .onChange(of: goal.lowerBound, perform: lowerBoundChanged)
         .onChange(of: goal.upperBound, perform: upperBoundChanged)
+        .scrollDismissesKeyboard(.interactively)
     }
     
     func lowerBoundChanged(to newValue: Double?) {
@@ -226,6 +235,7 @@ extension EnergyForm {
     var tdeeButton: some View {
         if shouldShowEnergyDeltaElements {
             Button {
+                shouldResignFocus.toggle()
                 showingTDEEForm = true
             } label: {
                 if let profile = viewModel.bodyProfile, let formattedTDEE = profile.formattedTDEEWithUnit {
@@ -347,19 +357,21 @@ extension GoalViewModel {
                     macro: macro,
                     energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
                 )
-            } else if
-                macroGoalType == .percentageOfEnergy,
-                let trueUpperBound,
-                goalSet.energyGoal?.haveBothBounds == true,
-                let lowerEnergy = goalSet.energyGoal?.equivalentLowerBound
-            {
-                return macroValue(
-                    from: trueUpperBound,
-                    for: macroGoalType,
-                    macro: macro,
-                    energy: lowerEnergy
-                )
-            } else {
+            }
+//            else if
+//                macroGoalType == .percentageOfEnergy,
+//                let trueUpperBound,
+//                goalSet.energyGoal?.haveBothBounds == true,
+//                let lowerEnergy = goalSet.energyGoal?.equivalentLowerBound
+//            {
+//                return macroValue(
+//                    from: trueUpperBound,
+//                    for: macroGoalType,
+//                    macro: macro,
+//                    energy: lowerEnergy
+//                )
+//            }
+            else {
                 return nil
             }
             
@@ -427,19 +439,21 @@ extension GoalViewModel {
                     macro: macro,
                     energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
                 )
-            } else if
-                macroGoalType == .percentageOfEnergy,
-                let trueLowerBound,
-                goalSet.energyGoal?.haveBothBounds == true,
-                let upperEnergy = goalSet.energyGoal?.equivalentUpperBound
-            {
-                return macroValue(
-                    from: trueLowerBound,
-                    for: macroGoalType,
-                    macro: macro,
-                    energy: upperEnergy
-                )
-            } else {
+            }
+//            else if
+//                macroGoalType == .percentageOfEnergy,
+//                let trueLowerBound,
+//                goalSet.energyGoal?.haveBothBounds == true,
+//                let upperEnergy = goalSet.energyGoal?.equivalentUpperBound
+//            {
+//                return macroValue(
+//                    from: trueLowerBound,
+//                    for: macroGoalType,
+//                    macro: macro,
+//                    energy: upperEnergy
+//                )
+//            }
+            else {
                 return nil
             }
 

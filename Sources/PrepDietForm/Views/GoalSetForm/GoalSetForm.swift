@@ -39,6 +39,7 @@ public struct GoalSetForm: View {
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
             .navigationDestination(for: Route.self, destination: navigationDestination)
+            .scrollDismissesKeyboard(.interactively)
         }
     }
     

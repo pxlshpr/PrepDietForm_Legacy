@@ -18,6 +18,8 @@ struct MacroForm: View {
     @State var showingLeanMassForm: Bool = false
     @State var showingWeightForm: Bool = false
     
+    @State var shouldResignFocus = false
+    
     init(goal: GoalViewModel) {
         self.goal = goal
         let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal) ?? .fixed
@@ -88,7 +90,11 @@ extension MacroForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
             }
         }
     }
@@ -126,7 +132,11 @@ extension MacroForm {
         }
         return FormStyledSection(header: header) {
             HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
             }
         }
     }
@@ -279,6 +289,7 @@ extension MacroForm {
     @ViewBuilder
     var bodyMassButton: some View {
         Button {
+            shouldResignFocus.toggle()
             switch pickedBodyMassType {
             case .weight:
                 showingWeightForm = true

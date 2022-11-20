@@ -12,7 +12,9 @@ struct EnergyForm: View {
     @State var pickedDelta: EnergyDeltaOption
     
     @State var showingTDEEForm: Bool = false
+    
     @State var refreshBool = false
+    @State var shouldResignFocus = false
     
     init(goal: GoalViewModel) {
         self.goal = goal
