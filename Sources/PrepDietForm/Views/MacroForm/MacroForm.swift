@@ -39,7 +39,7 @@ extension MacroForm {
         FormStyledScrollView {
             HStack(spacing: 0) {
                 lowerBoundSection
-                middleSection
+                swapValuesButton
                 upperBoundSection
             }
             unitSection
@@ -53,6 +53,85 @@ extension MacroForm {
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
         .onDisappear(perform: goal.validateMacro)
     }
+    
+    //MARK: - Sections
+    
+    
+    var unitSection: some View {
+        FormStyledSection(footer: unitsFooter, horizontalPadding: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    typePicker
+                    bodyMassUnitPicker
+                    bodyMassTypePicker
+                    workoutDurationUnitPicker
+                    Spacer()
+                }
+                .padding(.horizontal, 10)
+            }
+            .frame(maxWidth: .infinity)
+//            .frame(height: 50)
+        }
+    }
+    
+    var lowerBoundSection: some View {
+        let binding = Binding<Double?>(
+            get: { goal.lowerBound },
+            set: { newValue in
+                withAnimation {
+                    goal.lowerBound = newValue
+                }
+            }
+        )
+        return FormStyledSection(header: Text("At least")) {
+            HStack {
+                DoubleTextField(double: binding, placeholder: "Optional")
+            }
+        }
+    }
+    
+    var equivalentSection: some View {
+        @ViewBuilder
+        var header: some View {
+            if isDynamic {
+                Text("Currently Equals")
+            } else {
+                Text("Equals")
+            }
+        }
+        
+        return Group {
+            if goal.haveEquivalentValues {
+                FormStyledSection(header: header) {
+                    HStack {
+                        goal.equivalentTextHStack
+                        Spacer()
+                        Image(systemName: "flame.fill")
+                            .foregroundColor(Color(.tertiaryLabel))
+                        goalSet.energyGoal?.equivalentTextHStack
+                    }
+                }
+            }
+        }
+    }
+    
+    var upperBoundSection: some View {
+        let binding = Binding<Double?>(
+            get: { goal.upperBound },
+            set: { newValue in
+                withAnimation {
+                    goal.upperBound = newValue
+                }
+            }
+        )
+        return FormStyledSection(header: Text("At most")) {
+            HStack {
+                DoubleTextField(double: binding, placeholder: "Optional")
+            }
+        }
+    }
+    
+    //MARK: - Decorator Views
     
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -76,34 +155,7 @@ extension MacroForm {
             }
         }
     }
-    
-    var middleSection: some View {
-        VStack(spacing: 7) {
-            Text("")
-            if goal.lowerBound != nil, goal.upperBound == nil {
-                Button {
-                    Haptics.feedback(style: .rigid)
-                    goal.upperBound = goal.lowerBound
-                    goal.lowerBound = nil
-                } label: {
-                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
-                        .foregroundColor(.accentColor)
-                }
-            } else if goal.upperBound != nil, goal.lowerBound == nil {
-                Button {
-                    Haptics.feedback(style: .rigid)
-                    goal.lowerBound = goal.upperBound
-                    goal.upperBound = nil
-                } label: {
-                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
-                        .foregroundColor(.accentColor)
-                }
-            }
-        }
-        .padding(.top, 10)
-        .frame(width: 16, height: 20)
-    }
-    
+
     var unitsFooter: some View {
         var component: String {
             switch macroGoalType {
@@ -121,9 +173,16 @@ extension MacroForm {
             }
             else if goal.isQuantityPerWorkoutDuration == true {
                 Text("You can set your planned workout duration when creating a meal with this type.")
+                /**
+                 Text("Use this when you want to create a dynamic goal based on how long you workout for.")
+                 Text("For e.g., you could create an \"intra-workout\" meal type that has a 0.5g/min carb goal.")
+                 Text("You can then set or use your last workout time when creating a meal with this type.")
+                 */
             }
         }
     }
+    
+    //MARK: - Forms
     
     var weightForm: some View {
         MacroWeightForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
@@ -154,6 +213,8 @@ extension MacroForm {
             }
         }
     }
+    
+    //MARK: - Convenience
 
     var haveBodyMass: Bool {
         switch pickedBodyMassType {
@@ -196,6 +257,8 @@ extension MacroForm {
             return lbm.rounded(toPlaces: 1).cleanAmount + " \(params.weightUnit.shortDescription)"
         }
     }
+    
+    //MARK: - Buttons
     
     @ViewBuilder
     var bodyMassButton: some View {
@@ -244,94 +307,35 @@ extension MacroForm {
         }
     }
 
-    var unitSection: some View {
-        FormStyledSection(footer: unitsFooter, horizontalPadding: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    typePicker
-                    bodyMassUnitPicker
-                    bodyMassTypePicker
-                    workoutDurationUnitPicker
-                    Spacer()
+    var swapValuesButton: some View {
+        VStack(spacing: 7) {
+            Text("")
+            if goal.lowerBound != nil, goal.upperBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.upperBound = goal.lowerBound
+                    goal.lowerBound = nil
+                } label: {
+                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
+                        .foregroundColor(.accentColor)
                 }
-                .padding(.horizontal, 10)
+            } else if goal.upperBound != nil, goal.lowerBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.lowerBound = goal.upperBound
+                    goal.upperBound = nil
+                } label: {
+                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
+                        .foregroundColor(.accentColor)
+                }
             }
-            .frame(maxWidth: .infinity)
-//            .frame(height: 50)
         }
+        .padding(.top, 10)
+        .frame(width: 16, height: 20)
     }
     
-    var lowerBoundSection: some View {
-        let binding = Binding<Double?>(
-            get: { goal.lowerBound },
-            set: { newValue in
-                withAnimation {
-                    goal.lowerBound = newValue
-                }
-            }
-        )
-        return FormStyledSection(header: Text("At least")) {
-            HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
-            }
-        }
-    }
+    //MARK: - Pickers
     
-    var equivalentSection: some View {
-        @ViewBuilder
-        var header: some View {
-            if isDynamic {
-                Text("Currently Equals")
-            } else {
-                Text("Equals")
-            }
-        }
-        
-        return Group {
-            if goal.haveEquivalentValues {
-                FormStyledSection(header: header) {
-                    HStack {
-                        if let lower = goal.equivalentLowerBound {
-                            if goal.equivalentUpperBound == nil {
-                                equivalentAccessoryText("at least")
-                            }
-                            HStack(spacing: 3) {
-                                equivalentValueText(lower.formattedMacro)
-                                if goal.equivalentUpperBound == nil {
-                                    equivalentUnitText("g")
-                                }
-                            }
-                        }
-                        if let upper = goal.equivalentUpperBound {
-                            equivalentAccessoryText(goal.equivalentLowerBound == nil ? "up to" : "to")
-                            HStack(spacing: 3) {
-                                equivalentValueText(upper.formattedMacro)
-                                equivalentUnitText("g")
-                            }
-                        }
-                        Spacer()
-                    }
-                }
-            }
-        }
-    }
-    
-    var upperBoundSection: some View {
-        let binding = Binding<Double?>(
-            get: { goal.upperBound },
-            set: { newValue in
-                withAnimation {
-                    goal.upperBound = newValue
-                }
-            }
-        )
-        return FormStyledSection(header: Text("At most")) {
-            HStack {
-                DoubleTextField(double: binding, placeholder: "Optional")
-            }
-        }
-    }
-
     @ViewBuilder
     var typePicker: some View {
         if goal.isForMeal {
@@ -376,10 +380,14 @@ extension MacroForm {
                 self.goal.macroGoalType = macroGoalType
             }
         )
+        
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietMacroTypeOption.allCases, id: \.self) {
-                    Text($0.menuDescription).tag($0)
+                    if !goalSet.shouldDisable($0) {
+                        Text($0.menuDescription)
+                            .tag($0)
+                    }
                 }
             }
         } label: {
@@ -490,6 +498,71 @@ extension MacroForm {
     }
 }
 
+extension GoalViewModel {
+    @ViewBuilder
+    var equivalentTextHStack: some View {
+        if let equivalentUnitString {
+            HStack {
+                if let lower = equivalentLowerBound {
+                    if equivalentUpperBound == nil {
+                        equivalentAccessoryText("at least")
+                    }
+                    HStack(spacing: 3) {
+                        equivalentValueText(lower.formattedEnergy)
+                        if equivalentUpperBound == nil {
+                            equivalentUnitText(equivalentUnitString)
+                        }
+                    }
+                }
+                if let upper = equivalentUpperBound {
+                    equivalentAccessoryText(lowerBound == nil ? "up to" : "to")
+                    HStack(spacing: 3) {
+                        equivalentValueText(upper.formattedEnergy)
+                        equivalentUnitText(equivalentUnitString)
+                    }
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                Capsule(style: .continuous)
+                    .foregroundColor(Color(.secondarySystemFill))
+            )
+        }
+    }
+}
+
+func equivalentAccessoryText(_ string: String) -> some View {
+    Text(string)
+        .font(.system(.callout, design: .rounded, weight: .regular))
+        .foregroundColor(Color(.tertiaryLabel))
+}
+
+func equivalentUnitText(_ string: String) -> some View {
+    Text(string)
+        .font(.system(.caption2, design: .rounded, weight: .regular))
+        .foregroundColor(Color(.tertiaryLabel))
+}
+
+func equivalentValueText(_ string: String) -> some View {
+    Text(string)
+        .monospacedDigit()
+        .font(.system(.body, design: .rounded, weight: .regular))
+        .foregroundColor(.secondary)
+}
+
+
+extension GoalSetForm.ViewModel {
+    func shouldDisable(_ type: DietMacroTypeOption) -> Bool {
+        if type == .percentageOfEnergy {
+            guard self.energyGoal != nil else {
+                return true
+            }
+        }
+        return false
+    }
+}
+
 struct MacroFormPreview: View {
     
     @StateObject var goalSet: GoalSetForm.ViewModel
@@ -498,16 +571,22 @@ struct MacroFormPreview: View {
     init() {
         let goalSet = GoalSetForm.ViewModel(
             userUnits: .standard,
-            isMealProfile: true,
-            existingGoalSet: GoalSet(name: "Bulking", emoji: "", goals: [
-                Goal(type: .energy(.fromMaintenance(.kcal, .deficit)), lowerBound: 500)
-            ]),
+            isMealProfile: false,
+            existingGoalSet: GoalSet(
+                name: "Bulking",
+                emoji: "",
+                goals: [
+                    Goal(type: .energy(.fixed(.kcal)), lowerBound: 500)
+                ]
+            ),
             bodyProfile: .mock(weight: 98)
         )
         let goal = GoalViewModel(
             goalSet: goalSet,
-            isForMeal: true,
-            type: .macro(.gramsPerWorkoutDuration(.min), .carb)
+            isForMeal: false,
+            type: .macro(.percentageOfEnergy, .carb),
+            lowerBound: 20,
+            upperBound: 30
         )
         _goalSet = StateObject(wrappedValue: goalSet)
         _goal = StateObject(wrappedValue: goal)

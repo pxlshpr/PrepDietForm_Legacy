@@ -90,10 +90,10 @@ public enum GoalType: Hashable, Codable {
         switch self {
         case .energy(let type):
             return type.description
-        case .macro:
-            return "g"
-        case .micro(_, _, let nutrientUnit, _):
-            return nutrientUnit.shortDescription
+        case .macro(let type, _):
+            return type.description
+        case .micro(let type, _, let nutrientUnit, _):
+            return type.description(nutrientUnit: nutrientUnit)
         }
     }
     

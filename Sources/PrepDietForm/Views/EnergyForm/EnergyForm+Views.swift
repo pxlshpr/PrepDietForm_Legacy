@@ -110,50 +110,32 @@ extension EnergyForm {
         return Group {
             if goal.haveEquivalentValues {
                 FormStyledSection(header: header) {
-                    HStack {
-                        if let lower = goal.equivalentLowerBound {
-                            if goal.equivalentUpperBound == nil {
-                                equivalentAccessoryText("at least")
-                            }
-                            HStack(spacing: 3) {
-                                equivalentValueText(lower.formattedEnergy)
-                                if goal.equivalentUpperBound == nil {
-                                    equivalentUnitText("kcal")
-                                }
-                            }
-                        }
-                        if let upper = goal.equivalentUpperBound {
-                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
-                            HStack(spacing: 3) {
-                                equivalentValueText(upper.formattedEnergy)
-                                equivalentUnitText("kcal")
-                            }
-                        }
-                        Spacer()
-                    }
+                    goal.equivalentTextHStack
+//                    HStack {
+//                        if let lower = goal.equivalentLowerBound {
+//                            if goal.equivalentUpperBound == nil {
+//                                equivalentAccessoryText("at least")
+//                            }
+//                            HStack(spacing: 3) {
+//                                equivalentValueText(lower.formattedEnergy)
+//                                if goal.equivalentUpperBound == nil {
+//                                    equivalentUnitText("kcal")
+//                                }
+//                            }
+//                        }
+//                        if let upper = goal.equivalentUpperBound {
+//                            equivalentAccessoryText(goal.lowerBound == nil ? "up to" : "to")
+//                            HStack(spacing: 3) {
+//                                equivalentValueText(upper.formattedEnergy)
+//                                equivalentUnitText("kcal")
+//                            }
+//                        }
+//                        Spacer()
+//                    }
                 }
             }
         }
     }
-}
-
-func equivalentAccessoryText(_ string: String) -> some View {
-    Text(string)
-        .font(.system(.callout, design: .rounded, weight: .regular))
-        .foregroundColor(Color(.tertiaryLabel))
-}
-
-func equivalentUnitText(_ string: String) -> some View {
-    Text(string)
-        .font(.system(.caption2, design: .rounded, weight: .regular))
-        .foregroundColor(Color(.tertiaryLabel))
-}
-
-func equivalentValueText(_ string: String) -> some View {
-    Text(string)
-        .monospacedDigit()
-        .font(.system(.body, design: .rounded, weight: .regular))
-        .foregroundColor(.secondary)
 }
 
 extension EnergyForm {
@@ -177,6 +159,16 @@ extension EnergyForm {
         .onAppear(perform: appeared)
         .sheet(isPresented: $showingTDEEForm) { tdeeForm }
         .onDisappear(perform: goal.validateEnergy)
+        .onChange(of: goal.lowerBound, perform: lowerBoundChanged)
+        .onChange(of: goal.upperBound, perform: upperBoundChanged)
+    }
+    
+    func lowerBoundChanged(to newValue: Double?) {
+        print("lowerBound is now: \(newValue)")
+    }
+    
+    func upperBoundChanged(to newValue: Double?) {
+        print("upperBound is now: \(newValue)")
     }
     
     var trailingContent: some ToolbarContent {
@@ -310,6 +302,7 @@ extension GoalViewModel {
             return nutrientUnit.shortDescription
         }
     }
+    
     var equivalentLowerBound: Double? {
         switch type {
         case .energy(let energyGoalType):

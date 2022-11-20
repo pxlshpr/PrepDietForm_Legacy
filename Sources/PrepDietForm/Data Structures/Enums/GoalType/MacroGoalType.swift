@@ -36,6 +36,20 @@ public enum MacroGoalType: Codable, Hashable {
 }
 
 extension MacroGoalType {
+    
+    var description: String {
+        switch self {
+        case .fixed:
+            return "g"
+        case .gramsPerBodyMass(let bodyMass, let weightUnit):
+            return "g/\(weightUnit.description) of \(bodyMass.description)"
+        case .percentageOfEnergy:
+            return "% of energy"
+        case .gramsPerWorkoutDuration(let workoutDurationUnit):
+            return "g/\(workoutDurationUnit.menuDescription) of workout"
+        }
+    }
+    
     var usesWeight: Bool {
         switch self {
         case .gramsPerBodyMass:

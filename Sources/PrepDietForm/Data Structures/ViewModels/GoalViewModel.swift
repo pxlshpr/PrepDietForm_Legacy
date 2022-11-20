@@ -234,6 +234,7 @@ public class GoalViewModel: ObservableObject {
     var haveBothBounds: Bool {
         lowerBound != nil && upperBound != nil
     }
+
 }
 
 extension GoalViewModel {

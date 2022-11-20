@@ -156,3 +156,33 @@ struct GoalCell: View {
         }
     }
 }
+
+
+//MARK: - Previews
+
+struct GoalSetFormPreview: View {
+    
+    let existing = GoalSet(
+        name: "Bulking",
+        emoji: "🏋🏼‍♂️",
+        goals: [
+            Goal(type: .energy(.fixed(.kcal)), lowerBound: 2000, upperBound: 2500),
+            Goal(type: .macro(.percentageOfEnergy, .fat), upperBound: 20),
+//            Goal(type: .macro(.fixed, .protein), lowerBound: 200, upperBound: 250),
+//            Goal(type: .micro(.fixed, .magnesium, .mg, false), lowerBound: 400),
+//            Goal(type: .macro(.fixed, .carb), upperBound: 220),
+        ],
+        isMealProfile: false
+    )
+    
+    var body: some View {
+        GoalSetForm(isMealProfile: false, existingGoalSet: existing)
+//        GoalSetForm(isMealProfile: false)
+    }
+}
+
+struct GoalSetForm_Previews: PreviewProvider {
+    static var previews: some View {
+        GoalSetFormPreview()
+    }
+}
