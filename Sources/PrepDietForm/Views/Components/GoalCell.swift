@@ -40,7 +40,7 @@ struct GoalCell: View {
             }
             Spacer()
             typeText
-            if !goal.isDynamic {
+            if goal.isDynamic {
 //                appleHealthSymbol
                 appleHealthBolt
                     .imageScale(.small)

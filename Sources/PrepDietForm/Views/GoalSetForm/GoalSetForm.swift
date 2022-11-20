@@ -13,7 +13,7 @@ public struct GoalSetForm: View {
     @StateObject var viewModel: ViewModel
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
-    @State var showingEquivalentValues = true //TODO: **** Set as: false
+    @State var showingEquivalentValues = false
     
     @FocusState var isFocused: Bool
     
@@ -146,11 +146,11 @@ public struct GoalSetForm: View {
     
     @ViewBuilder
     var dynamicInfoContent: some View {
-        if !viewModel.containsDynamicGoal {
+        if viewModel.containsDynamicGoal {
             HStack(alignment: .firstTextBaseline) {
                 appleHealthBolt
                     .imageScale(.small)
-                Text("Goals marked with this symbol are dynamic and will automatically change when new data is  synced from the Health App")
+                Text("Goals marked with this symbol are dynamic and will automatically update when new data is  synced from the Health App.")
             }
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
