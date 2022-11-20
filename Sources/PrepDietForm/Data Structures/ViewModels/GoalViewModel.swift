@@ -3,7 +3,7 @@ import PrepDataTypes
 
 public class GoalViewModel: ObservableObject {
     
-    var goalSet: GoalSetForm.ViewModel
+    @Published var goalSet: GoalSetForm.ViewModel
     
     let isForMeal: Bool
     

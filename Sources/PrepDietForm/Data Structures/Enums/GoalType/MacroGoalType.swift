@@ -42,7 +42,7 @@ extension MacroGoalType {
         case .fixed:
             return "g"
         case .gramsPerBodyMass(let bodyMass, let weightUnit):
-            return "g/\(weightUnit.description) of \(bodyMass.description)"
+            return "g/\(weightUnit.shortDescription) of \(bodyMass.description)"
         case .percentageOfEnergy:
             return "% of energy"
         case .gramsPerWorkoutDuration(let workoutDurationUnit):

@@ -110,7 +110,10 @@ extension EnergyForm {
         return Group {
             if goal.haveEquivalentValues {
                 FormStyledSection(header: header) {
-                    goal.equivalentTextHStack
+                    HStack {
+                        goal.equivalentTextHStack
+                        Spacer()
+                    }
 //                    HStack {
 //                        if let lower = goal.equivalentLowerBound {
 //                            if goal.equivalentUpperBound == nil {
@@ -215,7 +218,7 @@ extension EnergyForm {
                         deltaPicker
                         tdeeButton
                     }
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 17)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -359,6 +362,7 @@ extension GoalViewModel {
                     energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
                 )
             } else if
+                macroGoalType == .percentageOfEnergy,
                 let trueUpperBound,
                 goalSet.energyGoal?.haveBothBounds == true,
                 let lowerEnergy = goalSet.energyGoal?.equivalentLowerBound
@@ -438,6 +442,7 @@ extension GoalViewModel {
                     energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
                 )
             } else if
+                macroGoalType == .percentageOfEnergy,
                 let trueLowerBound,
                 goalSet.energyGoal?.haveBothBounds == true,
                 let upperEnergy = goalSet.energyGoal?.equivalentUpperBound
@@ -513,49 +518,6 @@ extension GoalViewModel {
         case .gramsPerWorkoutDuration(let minutes):
             return nil
         }
-    }
-}
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel: GoalSetForm.ViewModel
-    @StateObject var goalViewModel: GoalViewModel
-    
-    init() {
-        let goalSetViewModel = GoalSetForm.ViewModel(
-            userUnits:.standard,
-            isMealProfile: true,
-            existingGoalSet: nil,
-            bodyProfile: BodyProfile(
-                id: UUID(),
-                parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
-                syncStatus: .notSynced,
-                updatedAt: Date().timeIntervalSince1970
-            )
-        )
-        let goalViewModel = GoalViewModel(
-            goalSet: goalSetViewModel,
-            isForMeal: true,
-            type: .energy(.fromMaintenance(.kcal, .deficit)),
-            lowerBound: 500
-//            , upperBound: 750
-        )
-        _viewModel = StateObject(wrappedValue: goalSetViewModel)
-        _goalViewModel = StateObject(wrappedValue: goalViewModel)
-    }
-    
-    var body: some View {
-        NavigationView {
-            EnergyForm(goal: goalViewModel)
-                .environmentObject(viewModel)
-        }
-    }
-}
-
-struct EnergyForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        EnergyFormPreview()
     }
 }
 

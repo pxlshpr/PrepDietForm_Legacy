@@ -44,7 +44,7 @@ extension GoalSetForm {
 
         let existingGoalSet: GoalSet?
         
-        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil) {
+        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
             self.userUnits = userUnits
             self.isMealProfile = isMealProfile
             self.bodyProfile = bodyProfile
@@ -52,8 +52,11 @@ extension GoalSetForm {
             self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
             self.name = existing?.name ?? ""
             self.macroTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-            
             self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
+            
+            if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
+                self.path = [.goal(goalViewModel)]
+            }
         }
     }
 }

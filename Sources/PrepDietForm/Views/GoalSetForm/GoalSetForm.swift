@@ -17,11 +17,13 @@ public struct GoalSetForm: View {
     
     @FocusState var isFocused: Bool
     
-    public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil) {
+    public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
         let viewModel = ViewModel(
             userUnits: .standard,
             isMealProfile: isMealProfile,
-            existingGoalSet: existingGoalSet
+            existingGoalSet: existingGoalSet,
+            bodyProfile: bodyProfile,
+            presentedGoalId: presentedGoalId
         )
         _viewModel = StateObject(wrappedValue: viewModel)
     }
