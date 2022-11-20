@@ -13,6 +13,8 @@ struct MacroForm: View {
     @State var pickedBodyMassType: MacroGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
+    @State var pickedWorkoutDurationUnit: WorkoutDurationUnit
+    
     @State var showingLeanMassForm: Bool = false
     @State var showingWeightForm: Bool = false
     
@@ -22,10 +24,12 @@ struct MacroForm: View {
         let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal) ?? .fixed
         let bodyMassType = goal.bodyMassType ?? .weight
         let bodyMassUnit = goal.bodyMassUnit ?? .kg // TODO: User's default unit here
+        let workoutDurationUnit = goal.workoutDurationUnit ?? .min
         _pickedMealMacroGoalType = State(initialValue: pickedMealMacroGoalType)
         _pickedDietMacroGoalType = State(initialValue: pickedDietMacroGoalType)
         _pickedBodyMassType = State(initialValue: bodyMassType)
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
+        _pickedWorkoutDurationUnit = State(initialValue: workoutDurationUnit)
     }
 }
 
@@ -35,15 +39,12 @@ extension MacroForm {
         FormStyledScrollView {
             HStack(spacing: 0) {
                 lowerBoundSection
+                middleSection
                 upperBoundSection
             }
-//            .background(.green)
             unitSection
-//                .background(.green)
             bodyMassSection
-//                .background(.green)
             equivalentSection
-//                .background(.green)
         }
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
@@ -76,6 +77,32 @@ extension MacroForm {
         }
     }
     
+    var middleSection: some View {
+        VStack(spacing: 7) {
+            Text("")
+            if goal.lowerBound != nil, goal.upperBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.upperBound = goal.lowerBound
+                    goal.lowerBound = nil
+                } label: {
+                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
+                        .foregroundColor(.accentColor)
+                }
+            } else if goal.upperBound != nil, goal.lowerBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.lowerBound = goal.upperBound
+                    goal.upperBound = nil
+                } label: {
+                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
+                        .foregroundColor(.accentColor)
+                }
+            }
+        }
+        .padding(.top, 10)
+        .frame(width: 16, height: 20)
+    }
     
     var unitsFooter: some View {
         var component: String {
@@ -91,8 +118,9 @@ extension MacroForm {
         return Group {
             if isDynamic {
                 Text("Your \(component) is synced with the Health App. This goal will automatically adjust when it changes.")
-            } else if goal.macroGoalType?.isGramsPerMinutesOfExercise == true {
-                Text("You will be asked for the duration you plan to exercise for when you use this meal profile.")
+            }
+            else if goal.isQuantityPerWorkoutDuration == true {
+                Text("You can set your planned workout duration when creating a meal with this type.")
             }
         }
     }
@@ -126,7 +154,7 @@ extension MacroForm {
             }
         }
     }
-    
+
     var haveBodyMass: Bool {
         switch pickedBodyMassType {
         case .weight:
@@ -223,6 +251,7 @@ extension MacroForm {
                     typePicker
                     bodyMassUnitPicker
                     bodyMassTypePicker
+                    workoutDurationUnitPicker
                     Spacer()
                 }
                 .padding(.horizontal, 10)
@@ -394,6 +423,40 @@ extension MacroForm {
         }
     }
     
+    var workoutDurationUnitPicker: some View {
+        let binding = Binding<WorkoutDurationUnit>(
+            get: { pickedWorkoutDurationUnit },
+            set: { newUnit in
+                withAnimation {
+                    self.pickedWorkoutDurationUnit = newUnit
+                }
+                self.goal.macroGoalType = macroGoalType
+            }
+        )
+        return Group {
+            if goal.isForMeal, pickedMealMacroGoalType == .gramsPerWorkoutDuration {
+                Menu {
+                    Picker(selection: binding, label: EmptyView()) {
+                        ForEach(WorkoutDurationUnit.allCases, id: \.self) {
+                            Text($0.pickerDescription).tag($0)
+                        }
+                    }
+                } label: {
+                    PickerLabel(
+                        pickedWorkoutDurationUnit.menuDescription,
+                        prefix: "per"
+                    )
+                }
+                .animation(.none, value: pickedWorkoutDurationUnit)
+                .simultaneousGesture(TapGesture().onEnded {
+                    Haptics.feedback(style: .soft)
+                })
+                Text("working out")
+                    .foregroundColor(Color(.secondaryLabel))
+            }
+        }
+    }
+    
     var bodyMassUnitPicker: some View {
         let binding = Binding<WeightUnit>(
             get: { pickedBodyMassUnit },
@@ -444,7 +507,7 @@ struct MacroFormPreview: View {
         let goal = GoalViewModel(
             goalSet: goalSet,
             isForMeal: true,
-            type: .macro(.gramsPerWorkoutDuration(WorkoutDuration(90)), .carb)
+            type: .macro(.gramsPerWorkoutDuration(.min), .carb)
         )
         _goalSet = StateObject(wrappedValue: goalSet)
         _goal = StateObject(wrappedValue: goal)

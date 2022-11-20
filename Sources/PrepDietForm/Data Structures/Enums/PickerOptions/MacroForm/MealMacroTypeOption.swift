@@ -20,7 +20,7 @@ enum MealMacroTypeOption: CaseIterable {
         case .fixed:
             return "grams"
         case .gramsPerWorkoutDuration:
-            return "grams / exercise duration"
+            return "grams / workout duration"
         }
     }
     

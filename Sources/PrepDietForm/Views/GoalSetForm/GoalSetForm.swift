@@ -15,6 +15,8 @@ public struct GoalSetForm: View {
     @State var showingEmojiPicker = false
     @State var showingEquivalentValues = false
     
+    @FocusState var isFocused: Bool
+    
     public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil) {
         let viewModel = ViewModel(
             userUnits: .standard,
@@ -89,6 +91,7 @@ public struct GoalSetForm: View {
 //            GoalCell(goal: goal, showingEquivalentValues: $showingEquivalentValues)
 //        }
         Button {
+            isFocused = false
             viewModel.path.append(.goal(goalViewModel))
         } label: {
             GoalCell(
@@ -151,6 +154,7 @@ public struct GoalSetForm: View {
         TextField("Enter a Name", text: $viewModel.name)
             .font(.title3)
             .multilineTextAlignment(.leading)
+            .focused($isFocused)
     }
     
     func titleCell(_ title: String) -> some View {

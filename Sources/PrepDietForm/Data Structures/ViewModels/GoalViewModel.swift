@@ -195,6 +195,31 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
+    var workoutDurationUnit: WorkoutDurationUnit? {
+        switch type {
+        case .macro(let type, _):
+            switch type {
+            case .gramsPerWorkoutDuration(let workoutDurationUnit):
+                return workoutDurationUnit
+            default:
+                return nil
+            }
+        case .micro(let type, _, _, _):
+            switch type {
+            case .quantityPerWorkoutDuration(let workoutDurationUnit):
+                return workoutDurationUnit
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
+    
+    var isQuantityPerWorkoutDuration: Bool {
+        workoutDurationUnit != nil
+    }
+    
     var energyUnit: EnergyUnit? {
         switch energyGoalType {
         case .fixed(let energyUnit):

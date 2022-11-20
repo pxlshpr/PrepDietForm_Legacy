@@ -2,10 +2,6 @@ import Foundation
 
 extension MacroForm {
     
-    var workoutDuration: WorkoutDuration? {
-        nil
-    }
-    
     var macroGoalType: MacroGoalType? {
         if goal.isForMeal {
             
@@ -13,8 +9,7 @@ extension MacroForm {
             case .fixed:
                 return .fixed
             case .gramsPerWorkoutDuration:
-                guard let workoutDuration else { return nil }
-                return .gramsPerWorkoutDuration(workoutDuration)
+                return .gramsPerWorkoutDuration(pickedWorkoutDurationUnit)
             }
             
         } else {
