@@ -1,9 +1,10 @@
 import SwiftUI
 import PrepDataTypes
+import Combine
 
 public class GoalViewModel: ObservableObject {
     
-    @Published var goalSet: GoalSetForm.ViewModel
+    var goalSet: GoalSetForm.ViewModel
     
     let isForMeal: Bool
     
@@ -11,6 +12,8 @@ public class GoalViewModel: ObservableObject {
     @Published var type: GoalType
     @Published var lowerBound: Double?
     @Published var upperBound: Double?
+    
+    var anyCancellable: AnyCancellable? = nil
     
     public init(
         goalSet: GoalSetForm.ViewModel,
@@ -26,6 +29,10 @@ public class GoalViewModel: ObservableObject {
         self.type = type
         self.lowerBound = lowerBound
         self.upperBound = upperBound
+        
+        anyCancellable = goalSet.objectWillChange.sink { [weak self] (_) in
+            self?.objectWillChange.send()
+        }
     }
     
     //MARK: - Energy

@@ -310,9 +310,9 @@ struct GoalSetFormPreview: View {
         emoji: "🏋🏼‍♂️",
         goals: [
             energyGoal,
-            proteinGoal,
-            carbGoal,
-//            fatGoal,
+//            proteinGoal,
+//            carbGoal,
+            fatGoal,
         ],
         isMealProfile: false
     )
@@ -323,7 +323,7 @@ struct GoalSetFormPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: Self.bodyProfile
-//            , presentedGoalId: Self.fatGoal.id
+            , presentedGoalId: Self.fatGoal.id
         )
     }
 }
