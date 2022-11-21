@@ -4,8 +4,8 @@ import SwiftHaptics
 
 struct MealTypesInfo: View {
     
-    @Environment(\.dismiss) var dismiss
     @State var showingDetails: Bool = false
+    @Binding var isPresented: Bool
 
     var body: some View {
         FormStyledScrollView {
@@ -44,7 +44,8 @@ struct MealTypesInfo: View {
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                dismiss()
+                Haptics.feedback(style: .soft)
+                isPresented = false
             } label: {
                 closeButtonLabel
             }
@@ -83,7 +84,7 @@ struct MealTypesInfo: View {
 }
 struct MealGoalsInfo: View {
     
-    @Environment(\.dismiss) var dismiss
+    @Binding var isPresented: Bool
     @State var showingDetails: Bool = false
     
     var body: some View {
@@ -125,12 +126,14 @@ struct MealGoalsInfo: View {
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                dismiss()
+                Haptics.feedback(style: .soft)
+                isPresented = false
             } label: {
                 closeButtonLabel
             }
         }
     }
+
 
     var details: some View {
         Group {
@@ -181,7 +184,7 @@ struct MealGoalsInfo: View {
             Text("Using with Meal Types")
             Spacer()
             NavigationLink {
-                MealTypesInfo()
+                MealTypesInfo(isPresented: $isPresented)
             } label: {
                 HStack {
                     Text("Learn More")

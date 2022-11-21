@@ -356,7 +356,7 @@ struct NutrientForm: View {
     }
 
     var mealGoalsInfo: some View {
-        MealGoalsInfo()
+        MealGoalsInfo(isPresented: $showingMealGoalsInfo)
     }
 
     //MARK: - Convenience
