@@ -53,9 +53,9 @@ struct MealGoalsInfo: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                FormStyledSection(header: Text("Disabling Micronutrients")) {
+                FormStyledSection(header: Text("Disabling for Micronutrients")) {
                     VStack(alignment: .leading) {
-                        Text("These subgoals can be disabled for micronutrient goals of your choosing.")
+                        Text("This subgoal creation can be disabled for micronutrient goals of your choosing.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
                         Text("For example, you could disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
