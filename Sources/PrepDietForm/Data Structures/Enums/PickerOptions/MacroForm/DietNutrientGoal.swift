@@ -1,8 +1,10 @@
 import Foundation
+import PrepDataTypes
 
 enum DietNutrientGoal: CaseIterable {
     case fixed
     case quantityPerBodyMass
+    case quantityPerEnergy
     case percentageOfEnergy
     
     init?(goalViewModel: GoalViewModel) {
@@ -18,23 +20,25 @@ enum DietNutrientGoal: CaseIterable {
         }
     }
     
-    var menuDescription: String {
+    func menuDescription(nutrientUnit: NutrientUnit) -> String {
         switch self {
         case .fixed:
-            return "grams"
+            return "\(nutrientUnit.shortDescription)"
         case .quantityPerBodyMass:
-            return "grams / body mass"
+            return "\(nutrientUnit.shortDescription) / body mass"
+        case .quantityPerEnergy:
+            return "\(nutrientUnit.shortDescription) / energy"
         case .percentageOfEnergy:
             return "% of energy"
         }
     }
     
-    var pickerDescription: String {
+    func pickerDescription(nutrientUnit: NutrientUnit) -> String {
         switch self {
-        case .fixed, .quantityPerBodyMass:
-            return "g"
+        case .fixed, .quantityPerBodyMass, .quantityPerEnergy:
+            return "\(nutrientUnit.shortDescription)"
         case .percentageOfEnergy:
-            return "% of energy"
+            return "\(nutrientUnit.shortDescription) of energy"
         }
     }
 }

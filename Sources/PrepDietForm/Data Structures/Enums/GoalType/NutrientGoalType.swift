@@ -7,7 +7,8 @@ public enum NutrientGoalType: Codable, Hashable {
     /// Only used with Diets
     case quantityPerBodyMass(BodyMass, WeightUnit)
     case percentageOfEnergy
-    
+    case quantityPerEnergy(Double, EnergyUnit) /// `Double` indicates the value we're using
+
     /// Only used for meal profiles, for things like pre-workout meals
     case quantityPerWorkoutDuration(WorkoutDurationUnit)
 }
@@ -24,6 +25,8 @@ extension NutrientGoalType {
             return "%"
         case .quantityPerWorkoutDuration(let workoutDurationUnit):
             return "\(nutrientUnit.shortDescription) per \(workoutDurationUnit.menuDescription)"
+        case .quantityPerEnergy:
+            return "\(nutrientUnit.shortDescription)"
         }
     }
     
@@ -37,6 +40,8 @@ extension NutrientGoalType {
             return "of \(bodyMass.description)"
         case .quantityPerWorkoutDuration(_):
             return "of workout time"
+        case .quantityPerEnergy(let energyValue, let energyUnit):
+            return "per \(energyValue.cleanAmount) \(energyUnit.shortDescription)"
         }
     }
     
@@ -44,7 +49,7 @@ extension NutrientGoalType {
         switch self {
         case .fixed:
             return nil
-        case .percentageOfEnergy:
+        case .percentageOfEnergy, .quantityPerEnergy:
             return "flame.fill"
         case .quantityPerBodyMass(_, _):
             return "figure.arms.open"
@@ -80,8 +85,13 @@ extension NutrientGoalType {
         }
     }
     
-    var isQuantity: Bool {
-        isFixedQuantity || isQuantityPerBodyMass
+    var isQuantityPerEnergy: Bool {
+        switch self {
+        case .quantityPerEnergy:
+            return true
+        default:
+            return false
+        }
     }
     
     var isQuantityPerBodyMass: Bool {

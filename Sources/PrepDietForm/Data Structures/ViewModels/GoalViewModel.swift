@@ -273,6 +273,26 @@ public class GoalViewModel: ObservableObject {
         }
     }
 
+    var nutrientUnit: NutrientUnit? {
+        switch type {
+        case .macro:
+            return .g
+        case .micro(_, let nutrientType, _, _):
+            return nutrientType.units.first
+        default:
+            return nil
+        }
+    }
+    
+    var defaultSupportsMealSplitting: Bool {
+        switch type {
+        case .energy, .macro:
+            return true
+        case .micro(_, let nutrientType, _, _):
+            return nutrientType.group?.supportsMealSplitting ?? false
+        }
+    }
+    
     //MARK: - Common
     
     var workoutDurationUnit: WorkoutDurationUnit? {
@@ -401,8 +421,7 @@ public class GoalViewModel: ObservableObject {
                     return "Requires Lean Body Mass"
                 }
             }
-        case .percentageOfEnergy:
-            //TODO: Check that energyGoal is available
+        case .percentageOfEnergy, .quantityPerEnergy:
             guard let energyGoal = goalSet.energyGoal,
                   energyGoal.hasOneEquivalentBound
             else {
@@ -519,6 +538,8 @@ extension GoalViewModel {
         case .quantityPerWorkoutDuration:
             break
         case .percentageOfEnergy:
+            break
+        case .quantityPerEnergy:
             break
         }
 //        switch macroGoalType {
@@ -766,6 +787,11 @@ extension GoalViewModel {
         return upperBound
     }
     
+    func calculatedQuantityPerEnergy(value: Double, perEnergyKcal: Double, from goalEnergyKcal: Double) -> Double? {
+        guard perEnergyKcal > 0 else { return nil }
+        return (value * goalEnergyKcal) / perEnergyKcal
+    }
+    
     func macroValue(from value: Double, for nutrientGoalType: NutrientGoalType, macro: Macro, energy: Double?) -> Double? {
         switch nutrientGoalType {
         case .quantityPerBodyMass(let bodyMass, let weightUnit):
@@ -774,7 +800,11 @@ extension GoalViewModel {
         case .percentageOfEnergy:
             guard let energyInKcal = calculatedEnergyInKcal(from: energy) else { return nil }
             return macro.grams(equallingPercent: value, of: energyInKcal)
-            
+        
+        case .quantityPerEnergy(let energyValue, let energyUnit):
+            guard let goalEnergyKcal = calculatedEnergyInKcal(from: energy) else { return nil }
+            let perEnergyKcal = energyUnit == .kcal ? energyValue : EnergyUnit.convertToKilocalories(fromKilojules: energyValue)
+            return calculatedQuantityPerEnergy(value: value, perEnergyKcal: perEnergyKcal, from: goalEnergyKcal)
         default:
             return nil
         }
@@ -789,7 +819,12 @@ extension GoalViewModel {
         case .percentageOfEnergy:
             guard let energyInKcal = calculatedEnergyInKcal(from: energy) else { return nil }
             return nutrientType.grams(equallingPercent: value, of: energyInKcal)
-            
+        
+        case .quantityPerEnergy(let energyValue, let energyUnit):
+            guard let goalEnergyKcal = calculatedEnergyInKcal(from: energy) else { return nil }
+            let perEnergyKcal = energyUnit == .kcal ? energyValue : EnergyUnit.convertToKilocalories(fromKilojules: energyValue)
+            return calculatedQuantityPerEnergy(value: value, perEnergyKcal: perEnergyKcal, from: goalEnergyKcal)
+
         default:
             return nil
         }
@@ -837,4 +872,15 @@ extension NutrientType {
         }
     }
 
+}
+
+extension NutrientTypeGroup {
+    var supportsMealSplitting: Bool {
+        switch self {
+        case .minerals, .vitamins:
+            return false
+        default:
+            return true
+        }
+    }
 }

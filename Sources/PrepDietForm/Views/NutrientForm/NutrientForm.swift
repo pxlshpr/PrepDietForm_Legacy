@@ -9,23 +9,35 @@ struct NutrientForm: View {
     
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
+
+    let nutrientUnit: NutrientUnit
     
     @State var pickedMealNutrientGoal: MealNutrientGoal
     @State var pickedDietNutrientGoal: DietNutrientGoal
     @State var pickedBodyMassType: NutrientGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
+    @State var energyValue: Double = 1000
+    @State var pickedEnergyUnit: EnergyUnit = .kcal
+    
     @State var pickedWorkoutDurationUnit: WorkoutDurationUnit
     
     @State var showingLeanMassForm: Bool = false
     @State var showingWeightForm: Bool = false
+    @State var showingMealGoalsInfo: Bool = true
     
     @State var shouldResignFocus = false
+    
+    @State var supportsMealSplitting: Bool
     
     let didTapDelete: (GoalViewModel) -> ()
 
     init(goal: GoalViewModel, didTapDelete: @escaping ((GoalViewModel) -> ())) {
+        
         self.goal = goal
+        
+        self.nutrientUnit = goal.nutrientUnit ?? .g
+        
         let pickedMealNutrientGoal = MealNutrientGoal(goalViewModel: goal) ?? .fixed
         let pickedDietNutrientGoal = DietNutrientGoal(goalViewModel: goal) ?? .fixed
         let bodyMassType = goal.bodyMassType ?? .weight
@@ -36,7 +48,8 @@ struct NutrientForm: View {
         _pickedBodyMassType = State(initialValue: bodyMassType)
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
         _pickedWorkoutDurationUnit = State(initialValue: workoutDurationUnit)
-        
+     
+        _supportsMealSplitting = State(initialValue: goal.defaultSupportsMealSplitting)
         self.didTapDelete = didTapDelete
     }
     
@@ -50,6 +63,7 @@ struct NutrientForm: View {
             unitSection
             bodyMassSection
             equivalentSection
+            mealSplittingSection
         }
         .navigationTitle(goal.description)
         .navigationBarTitleDisplayMode(.large)
@@ -58,11 +72,11 @@ struct NutrientForm: View {
         .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
+        .sheet(isPresented: $showingMealGoalsInfo) { mealGoalsInfo }
         .onDisappear(perform: goal.validateNutrient)
     }
     
     //MARK: - Sections
-    
     
     var unitSection: some View {
         FormStyledSection(footer: unitsFooter, horizontalPadding: 0) {
@@ -72,6 +86,7 @@ struct NutrientForm: View {
                     bodyMassUnitPicker
                     bodyMassTypePicker
                     workoutDurationUnitPicker
+                    energyButton
                     Spacer()
                 }
                 .padding(.horizontal, 17)
@@ -142,6 +157,90 @@ struct NutrientForm: View {
                     placeholder: "Optional",
                     shouldResignFocus: $shouldResignFocus
                 )
+            }
+        }
+    }
+    
+    var mealSplittingSection: some View {
+        let binding = Binding<Bool>(
+            get: { supportsMealSplitting },
+            set: { newValue in
+                Haptics.feedback(style: .rigid)
+                withAnimation {
+                    supportsMealSplitting = newValue
+                }
+            }
+        )
+        
+        var toggle: some View {
+            Toggle(isOn: binding) {
+//                Label(
+//                    "\(supportsMealSplitting ? "Split" : "Do not split") across meals",
+//                    systemImage: "rectangle.on.rectangle\(supportsMealSplitting ? "" : ".slash")"
+//                )
+                HStack {
+                    Text("Automatically create meal goals")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+//            .toggleStyle(.button)
+        }
+ 
+        @ViewBuilder
+        var footer: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                if supportsMealSplitting {
+//                    Text("This goal will be automatically split across meals for the day.")
+//                    Text("This is ideal for nutrients like sugar, which you may want to be spread out across your meals for the day so that you don't spike your blood sugar drastically.")
+                    Text("This is ideal for nutrients like sugar, which you may want to be spread out across your meals for the day so that you don't spike your blood sugar drastically.")
+                } else {
+//                    Text("This goal will not be automatically split across meals for the day.")
+                    Text("Having this disabled is ideal for vitamin and mineral goals, which you might use supplements for, and not want to spread out across your meals.")
+                }
+            }
+        }
+        
+        var header: some View {
+            HStack {
+                Text("Meal Goals")
+                Spacer()
+                Button {
+                    showingMealGoalsInfo = true
+                } label: {
+                    HStack {
+                        Text("Learn More")
+                            .textCase(.none)
+                        Image(systemName: "info.circle")
+                    }
+                    .foregroundColor(.accentColor)
+                }
+            }
+        }
+        return Group {
+            if goal.type.isMicro, !goal.isForMeal {
+                FormStyledSection(header: header, footer: footer) {
+                    HStack {
+                        toggle
+                        Spacer()
+                    }
+                }
+            }
+        }
+    }
+    
+    var bodyMassSection: some View {
+        
+        var footer: some View {
+            Text("Your \(pickedBodyMassType.description) is being used to calculate this goal.")
+        }
+        return Group {
+            if pickedDietNutrientGoal == .quantityPerBodyMass {
+                FormStyledSection(header: Text("with"), footer: footer) {
+                    HStack {
+                        bodyMassButton
+                        Spacer()
+                    }
+                }
             }
         }
     }
@@ -236,7 +335,7 @@ struct NutrientForm: View {
         }
     }
     
-    //MARK: - Forms
+    //MARK: - Sheets
     
     var weightForm: some View {
         NutrientWeightForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
@@ -255,24 +354,11 @@ struct NutrientForm: View {
         })
         .environmentObject(goalSet.nutrientTDEEFormViewModel)
     }
-    
-    var bodyMassSection: some View {
-        
-        var footer: some View {
-            Text("Your \(pickedBodyMassType.description) is being used to calculate this goal.")
-        }
-        return Group {
-            if pickedDietNutrientGoal == .quantityPerBodyMass {
-                FormStyledSection(header: Text("with"), footer: footer) {
-                    HStack {
-                        bodyMassButton
-                        Spacer()
-                    }
-                }
-            }
-        }
+
+    var mealGoalsInfo: some View {
+        MealGoalsInfo()
     }
-    
+
     //MARK: - Convenience
 
     var nutrientGoalType: NutrientGoalType? {
@@ -293,6 +379,8 @@ struct NutrientForm: View {
                 return .quantityPerBodyMass(pickedBodyMassType, pickedBodyMassUnit)
             case .percentageOfEnergy:
                 return .percentageOfEnergy
+            case .quantityPerEnergy:
+                return .quantityPerEnergy(energyValue, pickedEnergyUnit)
             }
         }
     }
@@ -323,6 +411,22 @@ struct NutrientForm: View {
     }
     
     //MARK: - Buttons
+    
+    @ViewBuilder
+    var energyButton: some View {
+        if pickedDietNutrientGoal == .quantityPerEnergy {
+            Button {
+                
+            } label: {
+                PickerLabel(
+                    energyValue.cleanAmount + " " + pickedEnergyUnit.shortDescription,
+                    prefix: "per",
+                    systemImage: "flame.fill",
+                    imageScale: .small
+                )
+            }
+        }
+    }
     
     @ViewBuilder
     var bodyMassButton: some View {
@@ -434,7 +538,7 @@ struct NutrientForm: View {
             Haptics.feedback(style: .soft)
         })
     }
-    
+
     var dietTypePicker: some View {
         let binding = Binding<DietNutrientGoal>(
             get: { pickedDietNutrientGoal },
@@ -449,14 +553,14 @@ struct NutrientForm: View {
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietNutrientGoal.allCases, id: \.self) {
-                    Text($0.menuDescription).tag($0)
+                    Text($0.menuDescription(nutrientUnit: nutrientUnit)).tag($0)
                 }
             }
         } label: {
             if pickedDietNutrientGoal == .percentageOfEnergy {
                 if goalSet.energyGoal?.isDynamic == true {
                     PickerLabel(
-                        pickedDietNutrientGoal.pickerDescription,
+                        pickedDietNutrientGoal.pickerDescription(nutrientUnit: nutrientUnit),
                         systemImage: "flame.fill",
                         imageColor: Color(hex: "F3DED7"),
                         backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
@@ -466,13 +570,13 @@ struct NutrientForm: View {
                     )
                 } else {
                     PickerLabel(
-                        pickedDietNutrientGoal.pickerDescription,
+                        pickedDietNutrientGoal.pickerDescription(nutrientUnit: nutrientUnit),
                         systemImage: "flame.fill"
                     )
                 }
 
             } else {
-                PickerLabel(pickedDietNutrientGoal.pickerDescription)
+                PickerLabel(pickedDietNutrientGoal.pickerDescription(nutrientUnit: nutrientUnit))
             }
         }
         .animation(.none, value: pickedDietNutrientGoal)
