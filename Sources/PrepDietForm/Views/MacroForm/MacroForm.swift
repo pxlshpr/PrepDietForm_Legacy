@@ -12,7 +12,7 @@ struct MacroForm: View {
     
     @State var pickedMealMacroGoalType: MealMacroTypeOption
     @State var pickedDietMacroGoalType: DietMacroTypeOption
-    @State var pickedBodyMassType: MacroGoalType.BodyMass
+    @State var pickedBodyMassType: NutrientGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
     @State var pickedWorkoutDurationUnit: WorkoutDurationUnit
@@ -206,7 +206,7 @@ extension MacroForm {
     var unitsFooter: some View {
         var component: String {
             switch macroGoalType {
-            case .gramsPerBodyMass(let bodyMass, _):
+            case .quantityPerBodyMass(let bodyMass, _):
                 return bodyMass.description
             case .percentageOfEnergy:
                 return "maintenance energy (which your energy goal is based on)"
@@ -223,9 +223,9 @@ extension MacroForm {
                     EmptyView()
                 case .percentageOfEnergy:
                     Text("Your energy goal is being used to calculate this goal.")
-                case .gramsPerBodyMass:
+                case .quantityPerBodyMass:
                     EmptyView()
-                case .gramsPerWorkoutDuration(_):
+                case .quantityPerWorkoutDuration(_):
                     Text("Your planned workout duration will be used to calculate this goal. You can specify it when creating a meal with this type.")
                     /**
                      Text("Use this when you want to create a dynamic goal based on how long you workout for.")
@@ -467,7 +467,7 @@ extension MacroForm {
     }
     
     var bodyMassTypePicker: some View {
-        let binding = Binding<MacroGoalType.BodyMass>(
+        let binding = Binding<NutrientGoalType.BodyMass>(
             get: { pickedBodyMassType },
             set: { newBodyMassType in
                 withAnimation {
@@ -480,7 +480,7 @@ extension MacroForm {
             if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
-                        ForEach(MacroGoalType.BodyMass.allCases, id: \.self) {
+                        ForEach(NutrientGoalType.BodyMass.allCases, id: \.self) {
                             Text($0.menuDescription).tag($0)
                         }
                     }

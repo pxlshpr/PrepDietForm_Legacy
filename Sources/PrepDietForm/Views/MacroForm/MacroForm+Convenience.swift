@@ -2,14 +2,14 @@ import Foundation
 
 extension MacroForm {
     
-    var macroGoalType: MacroGoalType? {
+    var macroGoalType: NutrientGoalType? {
         if goal.isForMeal {
             
             switch pickedMealMacroGoalType {
             case .fixed:
                 return .fixed
             case .gramsPerWorkoutDuration:
-                return .gramsPerWorkoutDuration(pickedWorkoutDurationUnit)
+                return .quantityPerWorkoutDuration(pickedWorkoutDurationUnit)
             }
             
         } else {
@@ -17,7 +17,7 @@ extension MacroForm {
             case .fixed:
                 return .fixed
             case .gramsPerBodyMass:
-                return .gramsPerBodyMass(pickedBodyMassType, pickedBodyMassUnit)
+                return .quantityPerBodyMass(pickedBodyMassType, pickedBodyMassUnit)
             case .percentageOfEnergy:
                 return .percentageOfEnergy
             }

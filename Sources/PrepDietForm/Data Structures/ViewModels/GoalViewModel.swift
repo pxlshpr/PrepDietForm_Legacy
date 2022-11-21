@@ -110,7 +110,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var macroGoalType: MacroGoalType? {
+    var macroGoalType: NutrientGoalType? {
         get {
             switch type {
             case .macro(let type, _):
@@ -130,7 +130,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var macroBodyMassType: MacroGoalType.BodyMass? {
+    var macroBodyMassType: NutrientGoalType.BodyMass? {
         get {
             switch type {
             case .macro(let type, _):
@@ -178,7 +178,7 @@ public class GoalViewModel: ObservableObject {
         switch type {
         case .macro(let macroGoalType, _):
             switch macroGoalType {
-            case .gramsPerBodyMass(_, let weightUnit):
+            case .quantityPerBodyMass(_, let weightUnit):
                 return weightUnit
             default:
                 return nil
@@ -188,11 +188,11 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var bodyMassType: MacroGoalType.BodyMass? {
+    var bodyMassType: NutrientGoalType.BodyMass? {
         switch type {
         case .macro(let macroGoalType, _):
             switch macroGoalType {
-            case .gramsPerBodyMass(let bodyMassType, _):
+            case .quantityPerBodyMass(let bodyMassType, _):
                 return bodyMassType
             default:
                 return nil
@@ -278,7 +278,7 @@ public class GoalViewModel: ObservableObject {
         switch type {
         case .macro(let type, _):
             switch type {
-            case .gramsPerWorkoutDuration(let workoutDurationUnit):
+            case .quantityPerWorkoutDuration(let workoutDurationUnit):
                 return workoutDurationUnit
             default:
                 return nil
@@ -328,7 +328,7 @@ public class GoalViewModel: ObservableObject {
             return energyIsSyncedWithHealth
         case .macro(let type, _):
             switch type {
-            case .gramsPerBodyMass:
+            case .quantityPerBodyMass:
                 return bodyMassIsSyncedWithHealth
             case .percentageOfEnergy:
                 return energyGoalIsSyncedWithHealth
@@ -390,7 +390,7 @@ public class GoalViewModel: ObservableObject {
             switch type {
             case .fixed:
                 break
-            case .gramsPerBodyMass(let bodyMass, _):
+            case .quantityPerBodyMass(let bodyMass, _):
                 switch bodyMass {
                 case .weight:
                     guard goalSet.hasWeight else {
@@ -409,7 +409,7 @@ public class GoalViewModel: ObservableObject {
                     return "Requires Energy Goal"
                 }
                 return nil
-            case .gramsPerWorkoutDuration:
+            case .quantityPerWorkoutDuration:
                 return "Calculated when used"
             }
         case .micro(let type, _, _, _):
@@ -532,9 +532,9 @@ extension GoalViewModel {
         switch macroGoalType {
         case .fixed:
             break
-        case .gramsPerBodyMass:
+        case .quantityPerBodyMass:
             break
-        case .gramsPerWorkoutDuration:
+        case .quantityPerWorkoutDuration:
             break
         case .percentageOfEnergy:
             break

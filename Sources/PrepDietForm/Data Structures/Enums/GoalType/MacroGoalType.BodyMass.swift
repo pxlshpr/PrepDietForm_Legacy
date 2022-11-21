@@ -1,13 +1,13 @@
 import Foundation
 
-public extension MacroGoalType {
+public extension NutrientGoalType {
     enum BodyMass: Int16, Hashable, Codable, CaseIterable {
         case weight = 1
         case leanMass
     }
 }
 
-public extension MacroGoalType.BodyMass {
+public extension NutrientGoalType.BodyMass {
     
     var description: String {
         switch self {

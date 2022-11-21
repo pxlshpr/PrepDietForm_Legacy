@@ -9,7 +9,7 @@ enum DietMacroTypeOption: CaseIterable {
         switch goalViewModel.macroGoalType {
         case .fixed:
             self = .fixed
-        case .gramsPerBodyMass:
+        case .quantityPerBodyMass:
             self = .gramsPerBodyMass
         case .percentageOfEnergy:
             self = .percentageOfEnergy

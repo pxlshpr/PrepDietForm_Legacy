@@ -309,8 +309,8 @@ extension GoalViewModel {
             }
         case .macro(let type, _):
             switch type {
-            case .gramsPerWorkoutDuration:
-                return type.description
+            case .quantityPerWorkoutDuration:
+                return type.description(nutrientUnit: .g)
             default:
                 return NutrientUnit.g.shortDescription
             }
@@ -512,11 +512,11 @@ extension GoalViewModel {
         return upperBound
     }
     
-    func macroValue(from value: Double, for macroGoalType: MacroGoalType, macro: Macro, energy: Double?) -> Double? {
+    func macroValue(from value: Double, for macroGoalType: NutrientGoalType, macro: Macro, energy: Double?) -> Double? {
         switch macroGoalType {
         case .fixed:
             return nil
-        case .gramsPerBodyMass(let bodyMass, let weightUnit):
+        case .quantityPerBodyMass(let bodyMass, let weightUnit):
             switch bodyMass {
             case .weight:
                 guard let weight = goalSet.bodyProfile?.weight(in: weightUnit)
@@ -537,7 +537,7 @@ extension GoalViewModel {
             let energyInKcal = energyUnit == .kcal ? energy : energy * KcalsPerKilojule
             return macro.grams(equallingPercent: value, of: energyInKcal)
             
-        case .gramsPerWorkoutDuration(let minutes):
+        case .quantityPerWorkoutDuration(let minutes):
             return nil
         }
     }
@@ -687,7 +687,7 @@ public struct DietPreview: View {
     )
     
     static let fatGoalPerBodyMass = Goal(
-        type: .macro(.gramsPerBodyMass(.leanMass, .kg), .fat),
+        type: .macro(.quantityPerBodyMass(.leanMass, .kg), .fat),
         upperBound: 1
     )
 
@@ -697,7 +697,7 @@ public struct DietPreview: View {
     )
 
     static let proteinGoal = Goal(
-        type: .macro(.gramsPerBodyMass(.weight, .kg), .protein),
+        type: .macro(.quantityPerBodyMass(.weight, .kg), .protein),
         lowerBound: 1.1,
         upperBound: 2.5
     )
@@ -751,7 +751,7 @@ public struct MealTypePreview: View {
     )
 
     static let carbGoal = Goal(
-        type: .macro(.gramsPerWorkoutDuration(.min), .carb),
+        type: .macro(.quantityPerWorkoutDuration(.min), .carb),
         lowerBound: 0.5
     )
 

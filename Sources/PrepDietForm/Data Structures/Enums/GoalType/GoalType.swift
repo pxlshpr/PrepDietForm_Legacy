@@ -5,7 +5,7 @@ public enum GoalType: Hashable, Codable {
     
     case energy(EnergyGoalType)
     
-    case macro(MacroGoalType, Macro)
+    case macro(NutrientGoalType, Macro)
     
     /// The bool at the end indicates whether the micronutrient is ignored for meal-wise splits.
     /// This is useful for things like vitamins and minerals which we may not want to create automatic meal-split goals for unless the user explicitly specifies so.
@@ -91,7 +91,7 @@ public enum GoalType: Hashable, Codable {
         case .energy(let type):
             return type.description
         case .macro(let type, _):
-            return type.description
+            return type.description(nutrientUnit: .g)
         case .micro(let type, _, let nutrientUnit, _):
             return type.description(nutrientUnit: nutrientUnit)
         }

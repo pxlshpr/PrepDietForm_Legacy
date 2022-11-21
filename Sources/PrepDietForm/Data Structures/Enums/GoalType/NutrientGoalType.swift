@@ -1,52 +1,29 @@
 import PrepDataTypes
 
-public enum WorkoutDurationUnit: Int16, Codable, CaseIterable {
-    case min = 1
-    case hour
-    
-    var pickerDescription: String {
-        switch self {
-        case .min:
-            return "minute"
-        case .hour:
-            return "hour"
-        }
-    }
-    
-    var menuDescription: String {
-        switch self {
-        case .min:
-            return "minute"
-        case .hour:
-            return "hour"
-        }
-    }
-}
-
-public enum MacroGoalType: Codable, Hashable {
+public enum NutrientGoalType: Codable, Hashable {
     
     case fixed
     
     /// Only used with Diets
-    case gramsPerBodyMass(BodyMass, WeightUnit)
+    case quantityPerBodyMass(BodyMass, WeightUnit)
     case percentageOfEnergy
     
     /// Only used for meal profiles, for things like pre-workout meals
-    case gramsPerWorkoutDuration(WorkoutDurationUnit)
+    case quantityPerWorkoutDuration(WorkoutDurationUnit)
 }
 
-extension MacroGoalType {
+extension NutrientGoalType {
     
-    var description: String {
+    func description(nutrientUnit: NutrientUnit) -> String {
         switch self {
         case .fixed:
-            return "g"
-        case .gramsPerBodyMass(_, let weightUnit):
-            return "g per \(weightUnit.shortDescription)"
+            return "\(nutrientUnit.shortDescription)"
+        case .quantityPerBodyMass(_, let weightUnit):
+            return "\(nutrientUnit.shortDescription) per \(weightUnit.shortDescription)"
         case .percentageOfEnergy:
             return "%"
-        case .gramsPerWorkoutDuration(let workoutDurationUnit):
-            return "g per \(workoutDurationUnit.menuDescription)"
+        case .quantityPerWorkoutDuration(let workoutDurationUnit):
+            return "\(nutrientUnit.shortDescription) per \(workoutDurationUnit.menuDescription)"
         }
     }
     
@@ -56,9 +33,9 @@ extension MacroGoalType {
             return nil
         case .percentageOfEnergy:
             return "of energy goal"
-        case .gramsPerBodyMass(let bodyMass, _):
+        case .quantityPerBodyMass(let bodyMass, _):
             return "of \(bodyMass.description)"
-        case .gramsPerWorkoutDuration(_):
+        case .quantityPerWorkoutDuration(_):
             return "of workout time"
         }
     }
@@ -69,16 +46,16 @@ extension MacroGoalType {
             return nil
         case .percentageOfEnergy:
             return "flame.fill"
-        case .gramsPerBodyMass(_, _):
+        case .quantityPerBodyMass(_, _):
             return "figure.arms.open"
-        case .gramsPerWorkoutDuration(_):
+        case .quantityPerWorkoutDuration(_):
             return "clock"
         }
     }
     
     var usesWeight: Bool {
         switch self {
-        case .gramsPerBodyMass:
+        case .quantityPerBodyMass:
             return true
         default:
             return false
@@ -96,7 +73,7 @@ extension MacroGoalType {
     
     var isGramsPerMinutesOfExercise: Bool {
         switch self {
-        case .gramsPerWorkoutDuration:
+        case .quantityPerWorkoutDuration:
             return true
         default:
             return false
@@ -109,7 +86,7 @@ extension MacroGoalType {
     
     var isGramsPerBodyMass: Bool {
         switch self {
-        case .gramsPerBodyMass:
+        case .quantityPerBodyMass:
             return true
         default:
             return false
@@ -127,11 +104,11 @@ extension MacroGoalType {
 
 }
 
-extension MacroGoalType {
+extension NutrientGoalType {
     var bodyMassType: BodyMass? {
         get {
             switch self {
-            case .gramsPerBodyMass(let bodyMassType, _):
+            case .quantityPerBodyMass(let bodyMassType, _):
                 return bodyMassType
             default:
                 return nil
@@ -140,8 +117,8 @@ extension MacroGoalType {
         set {
             guard let newValue else { return }
             switch self {
-            case .gramsPerBodyMass(_, let weightUnit):
-                self = .gramsPerBodyMass(newValue, weightUnit)
+            case .quantityPerBodyMass(_, let weightUnit):
+                self = .quantityPerBodyMass(newValue, weightUnit)
             default:
                 break
             }
@@ -151,7 +128,7 @@ extension MacroGoalType {
     var bodyMassWeightUnit: WeightUnit? {
         get {
             switch self {
-            case .gramsPerBodyMass(_, let weightUnit):
+            case .quantityPerBodyMass(_, let weightUnit):
                 return weightUnit
             default:
                 return nil
@@ -160,8 +137,8 @@ extension MacroGoalType {
         set {
             guard let newValue else { return }
             switch self {
-            case .gramsPerBodyMass(let bodyMassType, _):
-                self = .gramsPerBodyMass(bodyMassType, newValue)
+            case .quantityPerBodyMass(let bodyMassType, _):
+                self = .quantityPerBodyMass(bodyMassType, newValue)
             default:
                 break
             }

@@ -8,7 +8,7 @@ enum MealMacroTypeOption: CaseIterable {
         switch goalViewModel.macroGoalType {
         case .fixed:
             self = .fixed
-        case .gramsPerWorkoutDuration:
+        case .quantityPerWorkoutDuration:
             self = .gramsPerWorkoutDuration
         default:
             return nil
