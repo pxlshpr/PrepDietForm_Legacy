@@ -24,7 +24,7 @@ struct NutrientForm: View {
     
     @State var showingLeanMassForm: Bool = false
     @State var showingWeightForm: Bool = false
-    @State var showingMealGoalsInfo: Bool = true
+    @State var showingMealGoalsInfo: Bool = false
     
     @State var shouldResignFocus = false
     
