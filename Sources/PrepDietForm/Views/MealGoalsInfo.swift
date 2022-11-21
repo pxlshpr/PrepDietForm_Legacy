@@ -41,10 +41,10 @@ struct MealGoalsInfo: View {
             FormStyledScrollView {
                 FormStyledSection(header: Text("What are they?")) {
                     VStack(alignment: .leading) {
-                        Text("When you select a diet, its goals are *equally* distributed amongst your un-planned meals for the day.")
+                        Text("When you select a diet, its goals are *equally* distributed across your **unplanned** meals for the day.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
-                        Text("This creates mini-goals for them that you can use as a guideline when prepping foods for those meals.")
+                        Text("This creates mini-goals for them that you can use as a guideline when prepping foods.")
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -52,7 +52,7 @@ struct MealGoalsInfo: View {
                 }
                 FormStyledSection(header: Text("Why disable them?")) {
                     VStack(alignment: .leading) {
-                        Text("These can be disabled for micronutrient goals that you do not plan on spreading out across your meals.")
+                        Text("These can be disabled for goals that you do not plan on spreading out across your meals.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
                         Text("For example, you may decide to disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
@@ -62,21 +62,17 @@ struct MealGoalsInfo: View {
                 }
                 FormStyledSection(header: mealTypesHeader) {
                     VStack(alignment: .leading) {
-                        Text("If you have meal types assigned to any meals, their goals will be used over the automatically created meal goals.")
+                        Text("If you have **Meal Types** assigned to any meals, their goals will be used *instead of* these automatically created meal goals.")
                             .fixedSize(horizontal: false, vertical: true)
-                        Divider().opacity(0)
-                        Text("Meals that do not have a type assigned to them will receive an equal portion of whatever the remaining goal amount is.")
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 FormStyledSection(header: Text("Planned meals")) {
                     VStack(alignment: .leading) {
-                        Text("Once a meal has been planned by prepping foods for it, the meal goals for any remaining unplanned meals will adjust to account for its nutrient totals.")
+                        Text("Once a meal has been planned by prepping foods for it, the goals for any remaining **unplanned** meals will adjust to total what's left of your diet's goal.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
-                        Text("In other words, these meal goals will always be an equal distribution of your remaining goal for each nutrient (after subtracting values from already-planned meals and goals of meal types you may have chosen).")
+                        Text("In other words, these meal goals will always be an equal distribution of your remaining goal for each nutrient (after subtracting values from **planned** meals and goals of **Meal Types** you may have chosen).")
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
                     }
