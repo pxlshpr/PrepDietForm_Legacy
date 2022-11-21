@@ -569,9 +569,10 @@ extension GoalSetForm.ViewModel {
 extension BodyProfile {
     static func mock(
         restingEnergy: Double? = nil,
-        activeEnergy: Double? = nil,
-        restingEnergySource: RestingEnergySourceOption? = nil,
+        restingEnergySource: RestingEnergySourceOption = .userEntered,
         restingEnergyFormula: RestingEnergyFormula? = nil,
+        activeEnergy: Double? = nil,
+        activeEnergySoruce: ActiveEnergySourceOption = .userEntered,
         weight: Double? = nil,
         lbm: Double? = nil
     ) -> BodyProfile {
