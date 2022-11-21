@@ -63,7 +63,8 @@ extension TDEEForm {
                     .padding(.bottom, 10)
                 if viewModel.isDynamic {
                     HStack(alignment: .firstTextBaseline) {
-                        appleHealthSymbol
+//                        appleHealthSymbol
+                        appleHealthBolt
                             .font(.caption2)
                         Text("These components will be continuously updated as new data comes in from the Health App.")
                     }

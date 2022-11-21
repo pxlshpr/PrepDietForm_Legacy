@@ -73,7 +73,7 @@ struct TDEEForm: View {
             .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
             .onChange(of: canBeSaved, perform: canBeSavedChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
-            .interactiveDismissDisabled(viewModel.isEditing)
+            .interactiveDismissDisabled(viewModel.isEditing && canBeSaved)
             .task { await initialTask() }
         }
     }

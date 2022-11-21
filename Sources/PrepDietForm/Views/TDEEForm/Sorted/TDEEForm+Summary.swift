@@ -42,7 +42,8 @@ extension TDEEForm {
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
                         if viewModel.restingEnergyIsDynamic {
-                            appleHealthSymbol
+//                            appleHealthSymbol
+                            appleHealthBolt
                                 .imageScale(.small)
                                 .matchedGeometryEffect(id: "resting-health-icon", in: namespace)
                         }
@@ -80,7 +81,8 @@ extension TDEEForm {
                             .foregroundColor(Color(.tertiaryLabel))
                             .imageScale(.medium)
                         if viewModel.activeEnergyIsDynamic {
-                            appleHealthSymbol
+//                            appleHealthSymbol
+                            appleHealthBolt
                                 .matchedGeometryEffect(id: "active-health-icon", in: namespace)
                                 .imageScale(.small)
                         }

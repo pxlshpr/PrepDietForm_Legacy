@@ -557,17 +557,19 @@ extension TDEEForm.ViewModel {
     }
     
     var calculatedLeanBodyMass: Double? {
+        let calculatedLBM: Double
         switch lbmSource {
         case .fatPercentage:
             guard let percent = lbm, let weight else { return nil }
             guard percent >= 0, percent <= 100 else { return nil }
-            return (1.0 - (percent/100.0)) * weight
+            calculatedLBM = (1.0 - (percent/100.0)) * weight
         case .formula:
             guard let weightInKg, let heightInCm, let sex else { return nil }
-            return lbmFormula.calculate(sex: sex, weightInKg: weightInKg, heightInCm: heightInCm)
+            calculatedLBM = lbmFormula.calculate(sex: sex, weightInKg: weightInKg, heightInCm: heightInCm)
         default:
             return nil
         }
+        return max(calculatedLBM, 0)
     }
 }
 

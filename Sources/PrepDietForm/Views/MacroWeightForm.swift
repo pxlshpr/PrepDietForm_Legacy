@@ -94,7 +94,6 @@ public struct MacroWeightForm: View {
                 saveButton
                     .padding(.vertical)
             }
-            .padding(.bottom, 30)
         }
         .background(.thinMaterial)
     }
