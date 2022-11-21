@@ -6,7 +6,7 @@ struct MealTypesInfo: View {
         FormStyledScrollView {
             FormStyledSection(header: Text("What are they?")) {
                 VStack(alignment: .leading) {
-                    Text("Meal Types are similar to Diets, in that they have their own set of goals, but apply to a single meal as opposed to the entire day.")
+                    Text("Meal Types are similar to Diets, in that they have their own sets of goals, but apply to a single meal as opposed to the entire day.")
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
