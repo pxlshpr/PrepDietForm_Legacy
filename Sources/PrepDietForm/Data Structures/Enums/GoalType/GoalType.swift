@@ -9,7 +9,7 @@ public enum GoalType: Hashable, Codable {
     
     /// The bool at the end indicates whether the micronutrient is ignored for meal-wise splits.
     /// This is useful for things like vitamins and minerals which we may not want to create automatic meal-split goals for unless the user explicitly specifies so.
-    case micro(MicroGoalType, NutrientType, NutrientUnit, Bool)
+    case micro(NutrientGoalType, NutrientType, NutrientUnit, Bool)
     
     /// A hash value that is independent of the associated values
     var identifyingHashValue: String {

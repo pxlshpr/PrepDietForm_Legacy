@@ -316,14 +316,14 @@ extension GoalViewModel {
             }
         case .micro(let type, _, let nutrientUnit, _):
             switch type {
-            case .fixed:
+            case .quantityPerWorkoutDuration:
                 return type.description(nutrientUnit: nutrientUnit)
-            case .quantityPerWorkoutDuration(_):
-                return type.description(nutrientUnit: nutrientUnit)
+            default:
+                return nutrientUnit.shortDescription
             }
         }
     }
-    
+        
     var equivalentLowerBound: Double? {
         switch type {
         case .energy(let energyGoalType):
@@ -669,7 +669,7 @@ struct MacroFormPreview: View {
     
     var body: some View {
         NavigationView {
-            MacroForm(goal: goal, didTapDelete: { _ in
+            NutrientForm(goal: goal, didTapDelete: { _ in
                 
             })
                 .environmentObject(goalSet)

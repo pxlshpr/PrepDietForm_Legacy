@@ -110,10 +110,12 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var macroGoalType: NutrientGoalType? {
+    var nutrientGoalType: NutrientGoalType? {
         get {
             switch type {
             case .macro(let type, _):
+                return type
+            case .micro(let type, _, _, _):
                 return type
             default:
                 return nil
@@ -124,6 +126,8 @@ public class GoalViewModel: ObservableObject {
             switch type {
             case .macro(_, let macro):
                 self.type = .macro(newValue, macro)
+            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
+                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
             default:
                 break
             }
@@ -203,25 +207,25 @@ public class GoalViewModel: ObservableObject {
     }
     
     //MARK: - Micro
-    var microGoalType: MicroGoalType? {
-        get {
-            switch type {
-            case .micro(let type, _, _, _):
-                return type
-            default:
-                return nil
-            }
-        }
-        set {
-            guard let newValue else { return }
-            switch type {
-            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
-                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
-            default:
-                break
-            }
-        }
-    }
+//    var microGoalType: MicroGoalType? {
+//        get {
+//            switch type {
+//            case .micro(let type, _, _, _):
+//                return type
+//            default:
+//                return nil
+//            }
+//        }
+//        set {
+//            guard let newValue else { return }
+//            switch type {
+//            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
+//                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
+//            default:
+//                break
+//            }
+//        }
+//    }
     
     var microNutrientType: NutrientType? {
         switch type {
@@ -343,7 +347,7 @@ public class GoalViewModel: ObservableObject {
     
     var bodyMassIsSyncedWithHealth: Bool {
         guard let params = goalSet.bodyProfile?.parameters,
-              let macroGoalType, macroGoalType.isGramsPerBodyMass,
+              let nutrientGoalType, nutrientGoalType.isQuantityPerBodyMass,
               let bodyMassType
         else { return false }
         
@@ -368,7 +372,7 @@ public class GoalViewModel: ObservableObject {
             return false
         }
     }
-    
+
     var placeholderText: String? {
         /// First check that we have at least one value—otherwise returning the default placeholder
         guard hasOneBound else {
@@ -386,42 +390,42 @@ public class GoalViewModel: ObservableObject {
                     return "Requires Maintenance Energy"
                 }
             }
-        case .macro(let type, _):
-            switch type {
-            case .fixed:
-                break
-            case .quantityPerBodyMass(let bodyMass, _):
-                switch bodyMass {
-                case .weight:
-                    guard goalSet.hasWeight else {
-                        return "Requires Weight"
-                    }
-                case .leanMass:
-                    guard goalSet.hasLBM else {
-                        return "Requires Lean Body Mass"
-                    }
-                }
-            case .percentageOfEnergy:
-                //TODO: Check that energyGoal is available
-                guard let energyGoal = goalSet.energyGoal,
-                      energyGoal.hasOneEquivalentBound
-                else {
-                    return "Requires Energy Goal"
-                }
-                return nil
-            case .quantityPerWorkoutDuration:
-                return "Calculated when used"
-            }
-        case .micro(let type, _, _, _):
-            switch type {
-            case .quantityPerWorkoutDuration:
-                return "Calculated when used"
-            case .fixed:
-                break
-            }
+        case .macro, .micro:
+            return nutrientPlaceholderText
         }
         return nil
     }
+    
+    var nutrientPlaceholderText: String? {
+        guard let nutrientGoalType else { return nil }
+        switch nutrientGoalType {
+        case .fixed:
+            break
+        case .quantityPerBodyMass(let bodyMass, _):
+            switch bodyMass {
+            case .weight:
+                guard goalSet.hasWeight else {
+                    return "Requires Weight"
+                }
+            case .leanMass:
+                guard goalSet.hasLBM else {
+                    return "Requires Lean Body Mass"
+                }
+            }
+        case .percentageOfEnergy:
+            //TODO: Check that energyGoal is available
+            guard let energyGoal = goalSet.energyGoal,
+                  energyGoal.hasOneEquivalentBound
+            else {
+                return "Requires Energy Goal"
+            }
+            return nil
+        case .quantityPerWorkoutDuration:
+            return "Calculated when used"
+        }
+        return nil
+    }
+    
 }
 
 extension GoalViewModel {
@@ -516,20 +520,9 @@ extension GoalViewModel {
     }
 
     //TODO: Do this
-    func validateMicro() {
-        guard let microGoalType else { return }
-        switch microGoalType {
-        case .fixed:
-            break
-        case .quantityPerWorkoutDuration:
-            break
-        }
-    }
-    
-    //TODO: Do this
-    func validateMacro() {
-        guard let macroGoalType else { return }
-        switch macroGoalType {
+    func validateNutrient() {
+        guard let nutrientGoalType else { return }
+        switch nutrientGoalType {
         case .fixed:
             break
         case .quantityPerBodyMass:
@@ -561,6 +554,17 @@ extension GoalViewModel {
 //        }
         validateLowerBoundLowerThanUpper()
         validateBoundsNotEqual()
+    }
+    
+    var description: String {
+        switch type {
+        case .energy:
+            return "Energy"
+        case .macro:
+            return macro?.description ?? "Macro"
+        case .micro:
+            return microNutrientType?.description ?? "Micro"
+        }
     }
 }
 

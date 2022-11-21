@@ -32,7 +32,7 @@ extension GoalSetForm {
             EnergyForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
             .environmentObject(viewModel)
         } else if goal.type.isMacro {
-            MacroForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+            NutrientForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
         } else {
             Color.blue

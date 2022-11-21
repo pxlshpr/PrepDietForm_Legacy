@@ -80,11 +80,11 @@ extension NutrientGoalType {
         }
     }
     
-    var isGrams: Bool {
-        isFixedGrams || isGramsPerBodyMass
+    var isQuantity: Bool {
+        isFixedQuantity || isQuantityPerBodyMass
     }
     
-    var isGramsPerBodyMass: Bool {
+    var isQuantityPerBodyMass: Bool {
         switch self {
         case .quantityPerBodyMass:
             return true
@@ -93,7 +93,7 @@ extension NutrientGoalType {
         }
     }
     
-    var isFixedGrams: Bool {
+    var isFixedQuantity: Bool {
         switch self {
         case .fixed:
             return true

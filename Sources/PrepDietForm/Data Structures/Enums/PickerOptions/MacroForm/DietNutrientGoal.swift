@@ -1,16 +1,16 @@
 import Foundation
 
-enum DietMacroTypeOption: CaseIterable {
+enum DietNutrientGoal: CaseIterable {
     case fixed
-    case gramsPerBodyMass
+    case quantityPerBodyMass
     case percentageOfEnergy
     
     init?(goalViewModel: GoalViewModel) {
-        switch goalViewModel.macroGoalType {
+        switch goalViewModel.nutrientGoalType {
         case .fixed:
             self = .fixed
         case .quantityPerBodyMass:
-            self = .gramsPerBodyMass
+            self = .quantityPerBodyMass
         case .percentageOfEnergy:
             self = .percentageOfEnergy
         default:
@@ -22,7 +22,7 @@ enum DietMacroTypeOption: CaseIterable {
         switch self {
         case .fixed:
             return "grams"
-        case .gramsPerBodyMass:
+        case .quantityPerBodyMass:
             return "grams / body mass"
         case .percentageOfEnergy:
             return "% of energy"
@@ -31,7 +31,7 @@ enum DietMacroTypeOption: CaseIterable {
     
     var pickerDescription: String {
         switch self {
-        case .fixed, .gramsPerBodyMass:
+        case .fixed, .quantityPerBodyMass:
             return "g"
         case .percentageOfEnergy:
             return "% of energy"

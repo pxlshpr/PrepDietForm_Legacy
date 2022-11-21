@@ -1,15 +1,15 @@
 import Foundation
 
-enum MealMacroTypeOption: CaseIterable {
+enum MealNutrientGoal: CaseIterable {
     case fixed
-    case gramsPerWorkoutDuration
+    case quantityPerWorkoutDuration
     
     init?(goalViewModel: GoalViewModel) {
-        switch goalViewModel.macroGoalType {
+        switch goalViewModel.nutrientGoalType {
         case .fixed:
             self = .fixed
         case .quantityPerWorkoutDuration:
-            self = .gramsPerWorkoutDuration
+            self = .quantityPerWorkoutDuration
         default:
             return nil
         }
@@ -19,7 +19,7 @@ enum MealMacroTypeOption: CaseIterable {
         switch self {
         case .fixed:
             return "grams"
-        case .gramsPerWorkoutDuration:
+        case .quantityPerWorkoutDuration:
             return "grams / workout duration"
         }
     }
@@ -28,7 +28,7 @@ enum MealMacroTypeOption: CaseIterable {
         switch self {
         case .fixed:
             return "g"
-        case .gramsPerWorkoutDuration:
+        case .quantityPerWorkoutDuration:
             return "g"
         }
     }

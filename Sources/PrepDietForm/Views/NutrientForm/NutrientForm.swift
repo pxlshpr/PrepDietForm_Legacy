@@ -3,15 +3,15 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-struct MacroForm: View {
+struct NutrientForm: View {
     
     @Environment(\.dismiss) var dismiss
     
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     
-    @State var pickedMealMacroGoalType: MealMacroTypeOption
-    @State var pickedDietMacroGoalType: DietMacroTypeOption
+    @State var pickedMealNutrientGoal: MealNutrientGoal
+    @State var pickedDietNutrientGoal: DietNutrientGoal
     @State var pickedBodyMassType: NutrientGoalType.BodyMass
     @State var pickedBodyMassUnit: WeightUnit
     
@@ -26,13 +26,13 @@ struct MacroForm: View {
 
     init(goal: GoalViewModel, didTapDelete: @escaping ((GoalViewModel) -> ())) {
         self.goal = goal
-        let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal) ?? .fixed
-        let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal) ?? .fixed
+        let pickedMealNutrientGoal = MealNutrientGoal(goalViewModel: goal) ?? .fixed
+        let pickedDietNutrientGoal = DietNutrientGoal(goalViewModel: goal) ?? .fixed
         let bodyMassType = goal.bodyMassType ?? .weight
         let bodyMassUnit = goal.bodyMassUnit ?? .kg // TODO: User's default unit here
         let workoutDurationUnit = goal.workoutDurationUnit ?? .min
-        _pickedMealMacroGoalType = State(initialValue: pickedMealMacroGoalType)
-        _pickedDietMacroGoalType = State(initialValue: pickedDietMacroGoalType)
+        _pickedMealNutrientGoal = State(initialValue: pickedMealNutrientGoal)
+        _pickedDietNutrientGoal = State(initialValue: pickedDietNutrientGoal)
         _pickedBodyMassType = State(initialValue: bodyMassType)
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
         _pickedWorkoutDurationUnit = State(initialValue: workoutDurationUnit)
@@ -41,7 +41,7 @@ struct MacroForm: View {
     }
 }
 
-extension MacroForm {
+extension NutrientForm {
     
     var body: some View {
         FormStyledScrollView {
@@ -54,14 +54,14 @@ extension MacroForm {
             bodyMassSection
             equivalentSection
         }
-        .navigationTitle("\(goal.macro?.description ?? "Macro")")
+        .navigationTitle(goal.description)
         .navigationBarTitleDisplayMode(.large)
         .toolbar { trailingContent }
         .toolbar { bottomContents }
         .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
-        .onDisappear(perform: goal.validateMacro)
+        .onDisappear(perform: goal.validateNutrient)
     }
     
     //MARK: - Sections
@@ -205,7 +205,7 @@ extension MacroForm {
     }
     var unitsFooter: some View {
         var component: String {
-            switch macroGoalType {
+            switch nutrientGoalType {
             case .quantityPerBodyMass(let bodyMass, _):
                 return bodyMass.description
             case .percentageOfEnergy:
@@ -218,7 +218,7 @@ extension MacroForm {
             if isDynamic {
                 Text("Your \(component) is synced with the Health App. This goal will automatically adjust when it changes.")
             } else {
-                switch macroGoalType {
+                switch nutrientGoalType {
                 case .fixed:
                     EmptyView()
                 case .percentageOfEnergy:
@@ -259,14 +259,13 @@ extension MacroForm {
         .environmentObject(goalSet.macroTDEEFormViewModel)
     }
     
-    @ViewBuilder
     var bodyMassSection: some View {
         
         var footer: some View {
             Text("Your \(pickedBodyMassType.description) is being used to calculate this goal.")
         }
         return Group {
-            if pickedDietMacroGoalType == .gramsPerBodyMass {
+            if pickedDietNutrientGoal == .quantityPerBodyMass {
                 FormStyledSection(header: Text("with"), footer: footer) {
                     HStack {
                         bodyMassButton
@@ -279,6 +278,28 @@ extension MacroForm {
     
     //MARK: - Convenience
 
+    var nutrientGoalType: NutrientGoalType? {
+        if goal.isForMeal {
+            
+            switch pickedMealNutrientGoal {
+            case .fixed:
+                return .fixed
+            case .quantityPerWorkoutDuration:
+                return .quantityPerWorkoutDuration(pickedWorkoutDurationUnit)
+            }
+            
+        } else {
+            switch pickedDietNutrientGoal {
+            case .fixed:
+                return .fixed
+            case .quantityPerBodyMass:
+                return .quantityPerBodyMass(pickedBodyMassType, pickedBodyMassUnit)
+            case .percentageOfEnergy:
+                return .percentageOfEnergy
+            }
+        }
+    }
+    
     var haveBodyMass: Bool {
         switch pickedBodyMassType {
         case .weight:
@@ -393,44 +414,44 @@ extension MacroForm {
     }
     
     var mealTypePicker: some View {
-        let binding = Binding<MealMacroTypeOption>(
-            get: { pickedMealMacroGoalType },
+        let binding = Binding<MealNutrientGoal>(
+            get: { pickedMealNutrientGoal },
             set: { newType in
                 withAnimation {
-                    self.pickedMealMacroGoalType = newType
+                    self.pickedMealNutrientGoal = newType
                 }
-                self.goal.macroGoalType = macroGoalType
+                self.goal.nutrientGoalType = nutrientGoalType
             }
         )
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
-                ForEach(MealMacroTypeOption.allCases, id: \.self) {
+                ForEach(MealNutrientGoal.allCases, id: \.self) {
                     Text($0.menuDescription).tag($0)
                 }
             }
         } label: {
-            PickerLabel(pickedMealMacroGoalType.pickerDescription)
+            PickerLabel(pickedMealNutrientGoal.pickerDescription)
         }
-        .animation(.none, value: pickedMealMacroGoalType)
+        .animation(.none, value: pickedMealNutrientGoal)
         .simultaneousGesture(TapGesture().onEnded {
             Haptics.feedback(style: .soft)
         })
     }
     
     var dietTypePicker: some View {
-        let binding = Binding<DietMacroTypeOption>(
-            get: { pickedDietMacroGoalType },
+        let binding = Binding<DietNutrientGoal>(
+            get: { pickedDietNutrientGoal },
             set: { newType in
                 withAnimation {
-                    self.pickedDietMacroGoalType = newType
+                    self.pickedDietNutrientGoal = newType
                 }
-                self.goal.macroGoalType = macroGoalType
+                self.goal.nutrientGoalType = nutrientGoalType
             }
         )
         
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
-                ForEach(DietMacroTypeOption.allCases, id: \.self) {
+                ForEach(DietNutrientGoal.allCases, id: \.self) {
                     if !goalSet.shouldDisable($0) {
                         Text($0.menuDescription)
                             .tag($0)
@@ -438,10 +459,10 @@ extension MacroForm {
                 }
             }
         } label: {
-            if pickedDietMacroGoalType == .percentageOfEnergy {
+            if pickedDietNutrientGoal == .percentageOfEnergy {
                 if goalSet.energyGoal?.isDynamic == true {
                     PickerLabel(
-                        pickedDietMacroGoalType.pickerDescription,
+                        pickedDietNutrientGoal.pickerDescription,
                         systemImage: "flame.fill",
                         imageColor: Color(hex: "F3DED7"),
                         backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
@@ -451,16 +472,16 @@ extension MacroForm {
                     )
                 } else {
                     PickerLabel(
-                        pickedDietMacroGoalType.pickerDescription,
+                        pickedDietNutrientGoal.pickerDescription,
                         systemImage: "flame.fill"
                     )
                 }
 
             } else {
-                PickerLabel(pickedDietMacroGoalType.pickerDescription)
+                PickerLabel(pickedDietNutrientGoal.pickerDescription)
             }
         }
-        .animation(.none, value: pickedDietMacroGoalType)
+        .animation(.none, value: pickedDietNutrientGoal)
         .simultaneousGesture(TapGesture().onEnded {
             Haptics.feedback(style: .soft)
         })
@@ -473,11 +494,11 @@ extension MacroForm {
                 withAnimation {
                     self.pickedBodyMassType = newBodyMassType
                 }
-                self.goal.macroGoalType = macroGoalType
+                self.goal.nutrientGoalType = nutrientGoalType
             }
         )
         return Group {
-            if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
+            if !goal.isForMeal, pickedDietNutrientGoal == .quantityPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach(NutrientGoalType.BodyMass.allCases, id: \.self) {
@@ -505,11 +526,11 @@ extension MacroForm {
                 withAnimation {
                     self.pickedWorkoutDurationUnit = newUnit
                 }
-                self.goal.macroGoalType = macroGoalType
+                self.goal.nutrientGoalType = nutrientGoalType
             }
         )
         return Group {
-            if goal.isForMeal, pickedMealMacroGoalType == .gramsPerWorkoutDuration {
+            if goal.isForMeal, pickedMealNutrientGoal == .quantityPerWorkoutDuration {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach(WorkoutDurationUnit.allCases, id: \.self) {
@@ -539,11 +560,11 @@ extension MacroForm {
                 withAnimation {
                     self.pickedBodyMassUnit = newWeightUnit
                 }
-                self.goal.macroGoalType = macroGoalType
+                self.goal.nutrientGoalType = nutrientGoalType
             }
         )
         return Group {
-            if !goal.isForMeal, pickedDietMacroGoalType == .gramsPerBodyMass {
+            if !goal.isForMeal, pickedDietNutrientGoal == .quantityPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach([WeightUnit.kg, WeightUnit.lb], id: \.self) {
@@ -624,7 +645,7 @@ func equivalentValueText(_ string: String) -> some View {
 
 
 extension GoalSetForm.ViewModel {
-    func shouldDisable(_ type: DietMacroTypeOption) -> Bool {
+    func shouldDisable(_ type: DietNutrientGoal) -> Bool {
         if type == .percentageOfEnergy {
             guard self.energyGoal != nil else {
                 return true
