@@ -52,6 +52,7 @@ extension GoalSetForm {
     //TODO: Get view model to only show this if we have goals that aren't fixed
     var calculatedButton: some View {
         Button {
+            Haptics.feedback(style: .rigid)
             withAnimation {
                 showingEquivalentValues.toggle()
             }

@@ -108,15 +108,17 @@ public enum GoalType: Hashable, Codable {
             }
         case .macro(let macroGoalType, _):
             switch macroGoalType {
-            case .fixed, .gramsPerWorkoutDuration:
+            case .fixed:
                 return false
             default:
                 return true
             }
         case .micro(let microGoalType, _, _, _):
             switch microGoalType {
-            case .fixed, .quantityPerWorkoutDuration:
+            case .fixed:
                 return false
+            default:
+                return true
             }
         }
     }
