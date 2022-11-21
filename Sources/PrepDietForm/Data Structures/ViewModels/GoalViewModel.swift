@@ -249,13 +249,20 @@ public class GoalViewModel: ObservableObject {
     var hasOneEquivalentBound: Bool {
         equivalentLowerBound != nil || equivalentUpperBound != nil
     }
-
+    
     var isDynamic: Bool {
         switch type {
         case .energy:
-            return goalSet.bodyProfile?.parameters.updatesWithHealthApp ?? false
-        case .macro:
-            return bodyMassIsSyncedWithHealth || energyIsSyncedWithHealth
+            return energyIsSyncedWithHealth
+        case .macro(let type, _):
+            switch type {
+            case .gramsPerBodyMass:
+                return bodyMassIsSyncedWithHealth
+            case .percentageOfEnergy:
+                return energyIsSyncedWithHealth
+            default:
+                return false
+            }
         case .micro:
             //TODO: Do this
             return false
@@ -277,10 +284,13 @@ public class GoalViewModel: ObservableObject {
     }
     
     var energyIsSyncedWithHealth: Bool {
-        guard let macroGoalType, macroGoalType.isPercent
-        else { return false }
-        
-        return goalSet.bodyProfile?.parameters.updatesWithHealthApp ?? false
+        guard let energyGoalType else { return false }
+        switch energyGoalType {
+        case .fromMaintenance, .percentFromMaintenance:
+            return goalSet.bodyProfile?.hasDynamicTDEE ?? false
+        default:
+            return false
+        }
     }
     
     var placeholderText: String? {

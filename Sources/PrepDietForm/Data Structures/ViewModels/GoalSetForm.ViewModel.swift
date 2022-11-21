@@ -106,6 +106,10 @@ extension GoalSetForm.ViewModel {
     
     //MARK: - Convenience
     
+    var containsGoalWithEquivalentValues: Bool {
+        goals.contains(where: { $0.type.showsEquivalentValues })
+    }
+    
     func containsMacro(_ macro: Macro) -> Bool {
         goals.containsMacro(macro)
     }

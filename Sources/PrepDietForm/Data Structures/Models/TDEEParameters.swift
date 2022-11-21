@@ -94,6 +94,9 @@ extension BodyProfile {
         parameters.lbm(in: other)
     }
 
+    var hasDynamicTDEE: Bool {
+        parameters.hasDynamicTDEE
+    }
 }
 
 extension WeightUnit {
@@ -104,6 +107,53 @@ extension WeightUnit {
 }
 
 extension BodyProfile.Parameters {
+    
+    var hasDynamicRestingEnergy: Bool {
+        switch restingEnergySource {
+        case .healthApp:
+            return true
+        case .formula:
+            guard let restingEnergyFormula else { return false }
+            if restingEnergyFormula.usesLeanBodyMass, hasDynamicLBM {
+                return hasDynamicLBM
+            } else {
+                return hasDynamicWeight
+            }
+        default:
+            return false
+        }
+    }
+    
+    var hasDynamicActiveEnergy: Bool {
+        switch activeEnergySource {
+        case .healthApp:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var hasDynamicTDEE: Bool {
+        hasDynamicRestingEnergy || hasDynamicActiveEnergy
+    }
+    
+    var hasDynamicLBM: Bool {
+        guard let lbmSource else { return false }
+        switch lbmSource {
+        case .healthApp:
+            return true
+        case .fatPercentage, .formula:
+            /// We don't care about the height being dynamic as it hardly changes after age 18-20
+            return hasDynamicWeight
+        default:
+            return false
+        }
+    }
+    
+    var hasDynamicWeight: Bool {
+        weightSource == .healthApp
+    }
+    
     func weight(in other: WeightUnit) -> Double? {
         guard let weight else { return nil }
         return weightUnit.convert(weight, to: other)
