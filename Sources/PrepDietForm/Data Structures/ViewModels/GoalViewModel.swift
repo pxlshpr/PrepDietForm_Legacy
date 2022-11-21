@@ -283,6 +283,10 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
+    var energyGoalIsSyncedWithHealth: Bool {
+        goalSet.energyGoal?.energyIsSyncedWithHealth ?? false
+    }
+    
     var energyIsSyncedWithHealth: Bool {
         guard let energyGoalType else { return false }
         switch energyGoalType {
