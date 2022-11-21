@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 struct MealTypesInfo: View {
     var body: some View {
@@ -58,6 +59,7 @@ struct MealGoalsInfo: View {
                 } else {
                     FormStyledSection {
                         Button {
+                            Haptics.feedback(style: .soft)
                             withAnimation {
                                 showingDetails = true
                             }
@@ -304,7 +306,7 @@ public struct DietPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-            , presentedGoalId: Self.sugarGoal.id
+//            , presentedGoalId: Self.sugarGoal.id
         )
     }
 }
