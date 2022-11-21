@@ -262,7 +262,7 @@ public struct DietPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-            , presentedGoalId: Self.sugarGoal.id
+//            , presentedGoalId: Self.sugarGoal.id
         )
     }
 }
@@ -310,7 +310,7 @@ public struct MealTypePreview: View {
             isMealProfile: true,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-            , presentedGoalId: Self.sodiumGoal.id
+//            , presentedGoalId: Self.sodiumGoal.id
         )
     }
 }
