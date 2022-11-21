@@ -4,6 +4,7 @@ import SwiftHaptics
 
 struct MealTypesInfo: View {
     
+    @Environment(\.dismiss) var dismiss
     @State var showingDetails: Bool = false
 
     var body: some View {
@@ -37,6 +38,17 @@ struct MealTypesInfo: View {
             }
         }
         .navigationTitle("Meal Types")
+        .toolbar { trailingContent }
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                dismiss()
+            } label: {
+                closeButtonLabel
+            }
+        }
     }
     
     var details: some View {
@@ -71,6 +83,7 @@ struct MealTypesInfo: View {
 }
 struct MealGoalsInfo: View {
     
+    @Environment(\.dismiss) var dismiss
     @State var showingDetails: Bool = false
     
     var body: some View {
@@ -105,10 +118,20 @@ struct MealGoalsInfo: View {
                 }
             }
             .navigationTitle("Meal Subgoals")
-//            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { trailingContent }
         }
     }
     
+    var trailingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                dismiss()
+            } label: {
+                closeButtonLabel
+            }
+        }
+    }
+
     var details: some View {
         Group {
             FormStyledSection(header: Text("What are they?")) {
