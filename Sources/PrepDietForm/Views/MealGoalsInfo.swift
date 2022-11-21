@@ -3,6 +3,9 @@ import SwiftUISugar
 import SwiftHaptics
 
 struct MealTypesInfo: View {
+    
+    @State var showingDetails: Bool = false
+
     var body: some View {
         FormStyledScrollView {
             FormStyledSection(header: Text("What are they?")) {
@@ -12,21 +15,49 @@ struct MealTypesInfo: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            
+            if showingDetails {
+                details
+                    .transition(.move(edge: .bottom))
+            } else {
+                FormStyledSection {
+                    Button {
+                        Haptics.feedback(style: .soft)
+                        withAnimation {
+                            showingDetails = true
+                        }
+                    } label: {
+                        Text("Tell me more")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .contentShape(Rectangle())
+                    .transition(.scale)
+                }
+            }
+        }
+        .navigationTitle("Meal Types")
+    }
+    
+    var details: some View {
+        Group {
             FormStyledSection(header: Text("Why use them?")) {
                 VStack(alignment: .leading) {
                     Text("They are useful for meals you might have specific goals for.")
                         .fixedSize(horizontal: false, vertical: true)
                     Divider().opacity(0)
                     Text("Since meals automatically get assigned equally distributed subgoals from your diet, there may be instances where you would like to override them with your own custom goals.")
-                        .fixedSize(horizontal: false, vertical: true)
-                    Divider().padding(.vertical)
-                    Text("For example, you could have a **\"Pre-Workout\"** Meal Type, and set a carb goal for it.")
-                        .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(Color(.secondaryLabel))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            FormStyledSection(header: Text("An Example")) {
+                VStack(alignment: .leading) {
+                    Text("You could create a **\"Pre-Workout\"** Meal Type, and set a carb goal for it.")
+                        .fixedSize(horizontal: false, vertical: true)
                     Divider().opacity(0)
-                    Text("This will display as your carb goal for that meal, regardless of the diet you've picked for that day.")
+                    Text("Once you've selected this Meal Type, this will set the carb goal for it, regardless of the diet you've picked for that day.")
                         .fixedSize(horizontal: false, vertical: true)
-                        .foregroundColor(Color(.secondaryLabel))
                     Divider().opacity(0)
                     Text("Additionally, your diet's automatically generated subgoals will account for this carb goal and only spread out the remainder of its goal.")
                         .fixedSize(horizontal: false, vertical: true)
@@ -35,13 +66,12 @@ struct MealTypesInfo: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .navigationTitle("Meal Types")
-//        .navigationBarTitleDisplayMode(.inline)
     }
 }
 struct MealGoalsInfo: View {
     
     @State var showingDetails: Bool = false
+    
     var body: some View {
         NavigationView {
             FormStyledScrollView {
@@ -65,7 +95,9 @@ struct MealGoalsInfo: View {
                             }
                         } label: {
                             Text("Tell me more")
+                                .frame(maxWidth: .infinity)
                         }
+                        .contentShape(Rectangle())
                         .transition(.scale)
                     }
                 }
