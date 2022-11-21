@@ -202,6 +202,78 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
+    //MARK: - Micro
+    var microGoalType: MicroGoalType? {
+        get {
+            switch type {
+            case .micro(let type, _, _, _):
+                return type
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else { return }
+            switch type {
+            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
+                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
+            default:
+                break
+            }
+        }
+    }
+    
+    var microNutrientType: NutrientType? {
+        switch type {
+        case .micro(_, let nutrientType, _, _):
+            return nutrientType
+        default:
+            return nil
+        }
+    }
+    
+    var microSupportsMealSplitting: Bool? {
+        get {
+            switch type {
+            case .micro(_, _, _, let supportsMealSplitting):
+                return supportsMealSplitting
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else { return }
+            switch type {
+            case .micro(let microGoalType, let nutrientType, let nutrientUnit, _):
+                self.type = .micro(microGoalType, nutrientType, nutrientUnit, newValue)
+            default:
+                break
+            }
+        }
+    }
+    
+    var microNutrientUnit: NutrientUnit? {
+        get {
+            switch type {
+            case .micro(_, _, let nutrientUnit, _):
+                return nutrientUnit
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else { return }
+            switch type {
+            case .micro(let microGoalType, let nutrientType, _, let supportsMealSplitting):
+                self.type = .micro(microGoalType, nutrientType, newValue, supportsMealSplitting)
+            default:
+                break
+            }
+        }
+    }
+
+    //MARK: - Common
+    
     var workoutDurationUnit: WorkoutDurationUnit? {
         switch type {
         case .macro(let type, _):
@@ -442,7 +514,19 @@ extension GoalViewModel {
         validateLowerBoundLowerThanUpper()
         validateBoundsNotEqual()
     }
+
+    //TODO: Do this
+    func validateMicro() {
+        guard let microGoalType else { return }
+        switch microGoalType {
+        case .fixed:
+            break
+        case .quantityPerWorkoutDuration:
+            break
+        }
+    }
     
+    //TODO: Do this
     func validateMacro() {
         guard let macroGoalType else { return }
         switch macroGoalType {
