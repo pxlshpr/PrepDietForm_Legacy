@@ -681,7 +681,7 @@ struct MacroFormPreview: View {
 public struct DietPreview: View {
     
     static let energyGoal = Goal(
-        type: .energy(.fromMaintenance(.kcal, .surplus)),
+        type: .energy(.fromMaintenance(.kcal, .deficit)),
         lowerBound: 500,
         upperBound: 750
     )
@@ -702,13 +702,25 @@ public struct DietPreview: View {
         upperBound: 2.5
     )
 
+    static let magnesiumGoal = Goal(
+        type: .micro(.fixed, .magnesium, .mg, false),
+        lowerBound: 400
+    )
+
+    static let sugarGoal = Goal(
+        type: .micro(.fixed, .sugars, .g, true),
+        upperBound: 80
+    )
+
     static let goalSet = GoalSet(
         name: "Cutting",
         emoji: "🫃🏽",
         goals: [
             energyGoal,
-            proteinGoal,
-            fatGoalPerEnergy,
+//            proteinGoal,
+//            fatGoalPerEnergy,
+            magnesiumGoal,
+            sugarGoal
         ],
         isMealProfile: false
     )
@@ -743,13 +755,20 @@ public struct MealTypePreview: View {
         lowerBound: 0.5
     )
 
+    static let sodiumGoal = Goal(
+        type: .micro(.quantityPerWorkoutDuration(.hour), .sodium, .mg, true),
+        lowerBound: 300,
+        upperBound: 600
+    )
+
     static let goalSet = GoalSet(
-        name: "Pre-workout",
-        emoji: "🏋🏽‍♂️",
+        name: "Workout Fuel",
+        emoji: "🚴🏽",
         goals: [
             energyGoal,
-            proteinGoal,
-            carbGoal,
+//            proteinGoal,
+//            carbGoal,
+            sodiumGoal
         ],
         isMealProfile: true
     )
