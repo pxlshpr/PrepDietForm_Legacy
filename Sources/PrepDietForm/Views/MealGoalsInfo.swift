@@ -44,7 +44,7 @@ struct MealGoalsInfo: View {
                     VStack(alignment: .leading) {
                         Text("When you select a diet, its goals are automatically *equally* distributed amongst your planned meals for the day.")
                             .fixedSize(horizontal: false, vertical: true)
-                        Divider()
+                        Divider().opacity(0)
                         Text("This creates mini-goals for each meal that you can use to visually aid you when planning your foods.")
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -54,7 +54,7 @@ struct MealGoalsInfo: View {
                     VStack(alignment: .leading) {
                         Text("This can be disabled for micronutrient goals that you do not plan on spreading out across your meals.")
                             .fixedSize(horizontal: false, vertical: true)
-                        Divider()
+                        Divider().opacity(0)
                         Text("For example, you may decide to disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
                             .foregroundColor(.secondary)
                     }
@@ -63,7 +63,7 @@ struct MealGoalsInfo: View {
                     VStack(alignment: .leading) {
                         Text("If you have meal types assigned to any meals, their goals will be used over the automatically created meal goals.")
                             .fixedSize(horizontal: false, vertical: true)
-                        Divider()
+                        Divider().opacity(0)
                         Text("Meals that do not have a type assigned to them will receive an equal portion of whatever the remaining goal amount is.")
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
