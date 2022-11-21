@@ -58,7 +58,7 @@ struct MealGoalsInfo: View {
                         Text("These subgoals can be disabled for micronutrient goals of your choosing.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
-                        Text("For example, you may decide to disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
+                        Text("For example, you could disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
                             .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,7 +72,7 @@ struct MealGoalsInfo: View {
                 }
                 FormStyledSection(header: Text("Planning meals")) {
                     VStack(alignment: .leading) {
-                        Text("Once a meal has been planned by prepping foods for it, any remaining subgoals for any will adjust to what's left of your diet's goal.")
+                        Text("Once a meal has been planned by prepping foods for it, any remaining subgoals will adjust to what's left of your diet's goal.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
                         Text("Keep in mind that these subgoals only serve as guidelines, and do not appear after you've prepped food for a meal, unlike the goals of **Meal Types** do.")
@@ -84,7 +84,7 @@ struct MealGoalsInfo: View {
                 }
                 FormStyledSection(header: Text("Summary")) {
                     VStack(alignment: .leading) {
-                        Text("In other words, these subgoals will always be an equal distribution of your remaining diet goal for each nutrient, after subtracting food totals from *planned* meals and goals of any **Meal Types** you may have chosen.")
+                        Text("Meal Subgoals are equally distributed goals of your remaining diet goal for each nutrient, after subtracting food totals from *planned* meals and goals of any **Meal Types** you may have chosen.")
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
