@@ -59,12 +59,6 @@ public struct GoalSetForm: View {
         switch route {
         case .goal(let goalViewModel):
             goalForm(for: goalViewModel)
-//                case .weightForm:
-//                    WeightForm()
-//                        .environmentObject(viewModel.macroTDEEFormViewModel)
-//                case .lbmForm:
-//                    LeanBodyMassForm()
-//                        .environmentObject(viewModel.macroTDEEFormViewModel)
         }
     }
     

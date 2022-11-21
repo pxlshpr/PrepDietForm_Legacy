@@ -242,21 +242,21 @@ extension NutrientForm {
     //MARK: - Forms
     
     var weightForm: some View {
-        MacroWeightForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
+        NutrientWeightForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
             goalSet.setBodyProfile(bodyProfile)
         }, didTapClose: {
-            goalSet.resetMacroTDEEFormViewModel()
+            goalSet.resetNutrientTDEEFormViewModel()
         })
-        .environmentObject(goalSet.macroTDEEFormViewModel)
+        .environmentObject(goalSet.nutrientTDEEFormViewModel)
     }
     
     var leanMassForm: some View {
-        MacroLeanBodyMassForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
+        NutrientLeanBodyMassForm(existingProfile: goalSet.bodyProfile, didTapSave: { bodyProfile in
             goalSet.setBodyProfile(bodyProfile)
         }, didTapClose: {
-            goalSet.resetMacroTDEEFormViewModel()
+            goalSet.resetNutrientTDEEFormViewModel()
         })
-        .environmentObject(goalSet.macroTDEEFormViewModel)
+        .environmentObject(goalSet.nutrientTDEEFormViewModel)
     }
     
     var bodyMassSection: some View {

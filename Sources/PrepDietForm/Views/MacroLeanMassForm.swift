@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 
-public struct MacroLeanBodyMassForm: View {
+public struct NutrientLeanBodyMassForm: View {
 
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
@@ -96,7 +96,7 @@ public struct MacroLeanBodyMassForm: View {
     }
 }
 
-extension MacroLeanBodyMassForm {
+extension NutrientLeanBodyMassForm {
     var canBeSaved:Bool {
         /// If we have an existing profile—return false if the parameters are exactly the same
         if let existingProfile {

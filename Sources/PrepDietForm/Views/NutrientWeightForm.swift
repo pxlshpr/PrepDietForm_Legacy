@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 
-public struct MacroWeightForm: View {
+public struct NutrientWeightForm: View {
 
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
@@ -99,7 +99,7 @@ public struct MacroWeightForm: View {
     }
 }
 
-extension MacroWeightForm {
+extension NutrientWeightForm {
     var canBeSaved:Bool {
         /// If we have an existing profile—return false if the parameters are exactly the same
         if let existingProfile {
