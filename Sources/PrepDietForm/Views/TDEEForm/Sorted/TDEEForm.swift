@@ -19,6 +19,9 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
+    
+    @State var showingSaveButton: Bool = false
+    
     init(
         existingProfile: BodyProfile? = nil,
         userUnits: UserUnits,
@@ -59,7 +62,7 @@ struct TDEEForm: View {
         NavigationStack(path: $viewModel.path) {
             ZStack {
                 form
-                buttonsLayer
+                buttonLayer
             }
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Maintenance Calories")
@@ -68,9 +71,16 @@ struct TDEEForm: View {
             .toolbar { leadingContent }
             .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
             .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
+            .onChange(of: canBeSaved, perform: canBeSavedChanged)
             .navigationDestination(for: Route.self, destination: navigationDestination)
             .interactiveDismissDisabled(viewModel.isEditing)
             .task { await initialTask() }
+        }
+    }
+    
+    func canBeSavedChanged(to newValue: Bool) {
+        withAnimation {
+            showingSaveButton = newValue
         }
     }
     

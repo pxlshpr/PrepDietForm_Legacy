@@ -6,6 +6,8 @@ public struct MacroLeanBodyMassForm: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: TDEEForm.ViewModel
     
+    @State var showingSaveButton: Bool = false
+    
     let didTapSave: (BodyProfile) -> ()
     let didTapClose: () -> ()
 
@@ -25,11 +27,18 @@ public struct MacroLeanBodyMassForm: View {
         NavigationView {
             ZStack {
                 form
-                buttonsLayer
+                buttonLayer
             }
             .toolbar { leadingContent }
         }
         .interactiveDismissDisabled(canBeSaved)
+        .onChange(of: canBeSaved, perform: canBeSavedChanged)
+    }
+    
+    func canBeSavedChanged(to newValue: Bool) {
+        withAnimation {
+            showingSaveButton = newValue
+        }
     }
     
     var form: some View {
@@ -51,26 +60,24 @@ public struct MacroLeanBodyMassForm: View {
     
     @ViewBuilder
     var safeAreaInset: some View {
-        if canBeSaved {
-            //TODO: Programmatically get this inset (67516AA6)
+        if showingSaveButton {
             Spacer()
                 .frame(height: 100)
         }
     }
 
     @ViewBuilder
-    var buttonsLayer: some View {
-        if canBeSaved {
+    var buttonLayer: some View {
+        if showingSaveButton {
             VStack {
                 Spacer()
-                saveButtons
+                saveButton
             }
-            .edgesIgnoringSafeArea(.bottom)
             .transition(.move(edge: .bottom))
         }
     }
 
-    var saveButtons: some View {
+    var saveButton: some View {
         var saveButton: some View {
             FormPrimaryButton(title: "Save") {
                 didTapSave(viewModel.bodyProfile)
@@ -84,7 +91,6 @@ public struct MacroLeanBodyMassForm: View {
                 saveButton
                     .padding(.vertical)
             }
-            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
             .padding(.bottom, 30)
         }
         .background(.thinMaterial)

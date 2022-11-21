@@ -20,7 +20,7 @@ extension TDEEForm {
                     .foregroundColor(Color(.tertiaryLabel))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
-                    .padding(.vertical)
+//                    .padding(.vertical)
             }
             
             return Group {
@@ -30,6 +30,7 @@ extension TDEEForm {
                     empty
                 }
             }
+            .frame(height: 60)
         }
         
         var header: some View {

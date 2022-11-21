@@ -15,7 +15,7 @@ extension TDEEForm {
     
     @ViewBuilder
     var safeAreaInset: some View {
-        if canBeSaved {
+        if showingSaveButton {
             //TODO: Programmatically get this inset (67516AA6)
             Spacer()
                 .frame(height: 100)
@@ -23,18 +23,17 @@ extension TDEEForm {
     }
 
     @ViewBuilder
-    var buttonsLayer: some View {
-        if canBeSaved {
+    var buttonLayer: some View {
+        if showingSaveButton {
             VStack {
                 Spacer()
-                saveButtons
+                saveButton
             }
-            .edgesIgnoringSafeArea(.bottom)
             .transition(.move(edge: .bottom))
         }
     }
 
-    var saveButtons: some View {
+    var saveButton: some View {
         var saveButton: some View {
             FormPrimaryButton(title: "Save") {
                 didTapSave(viewModel.bodyProfile)
@@ -49,10 +48,11 @@ extension TDEEForm {
                     .padding(.vertical)
             }
             /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
-            .padding(.bottom, 30)
+//            .padding(.bottom, 30)
         }
         .background(.thinMaterial)
     }
+    
     var viewContents: some View {
         Group {
             promptSection

@@ -390,21 +390,26 @@ extension MacroForm {
                 }
             }
         } label: {
-            if pickedDietMacroGoalType == .percentageOfEnergy, goalSet.energyGoal?.isDynamic == true {
-                PickerLabel(
-                    pickedDietMacroGoalType.pickerDescription,
-                    systemImage: "flame.fill",
-                    imageColor: Color(hex: "F3DED7"),
-                    backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
-                    backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
-                    foregroundColor: .white,
-                    imageScale: .small
-                )
+            if pickedDietMacroGoalType == .percentageOfEnergy {
+                if goalSet.energyGoal?.isDynamic == true {
+                    PickerLabel(
+                        pickedDietMacroGoalType.pickerDescription,
+                        systemImage: "flame.fill",
+                        imageColor: Color(hex: "F3DED7"),
+                        backgroundGradientTop: Color(hex: AppleHealthTopColorHex),
+                        backgroundGradientBottom: Color(hex: AppleHealthBottomColorHex),
+                        foregroundColor: .white,
+                        imageScale: .small
+                    )
+                } else {
+                    PickerLabel(
+                        pickedDietMacroGoalType.pickerDescription,
+                        systemImage: "flame.fill"
+                    )
+                }
+
             } else {
-                PickerLabel(
-                    pickedDietMacroGoalType.pickerDescription,
-                    systemImage: "flame.fill"
-                )
+                PickerLabel(pickedDietMacroGoalType.pickerDescription)
             }
         }
         .animation(.none, value: pickedDietMacroGoalType)
