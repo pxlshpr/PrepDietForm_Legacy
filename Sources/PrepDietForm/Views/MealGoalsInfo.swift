@@ -9,7 +9,7 @@ struct MealTypesInfo: View {
 
     var body: some View {
         FormStyledScrollView {
-            FormStyledSection(header: Text("What are they?")) {
+            FormStyledSection {
                 VStack(alignment: .leading) {
                     Text("Meal Types are similar to Diets, in that they have their own sets of goals, but apply to a single meal as opposed to the entire day.")
                         .fixedSize(horizontal: false, vertical: true)
@@ -90,7 +90,7 @@ struct MealGoalsInfo: View {
     var body: some View {
         NavigationView {
             FormStyledScrollView {
-                FormStyledSection(header: Text("Summary")) {
+                FormStyledSection {
                     VStack(alignment: .leading) {
                         Text("Meal Subgoals are equally distributed goals of your remaining diet goal for each nutrient, after subtracting food totals from *planned* meals and goals of any **Meal Types** you may have chosen.")
                             .fixedSize(horizontal: false, vertical: true)
@@ -137,7 +137,7 @@ struct MealGoalsInfo: View {
 
     var details: some View {
         Group {
-            FormStyledSection(header: Text("What are they?")) {
+            FormStyledSection(header: Text("How do they work?")) {
                 VStack(alignment: .leading) {
                     Text("When you select a diet, all of its goals are distributed across your *unplanned* meals for the day.")
                         .fixedSize(horizontal: false, vertical: true)
