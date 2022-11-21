@@ -35,7 +35,8 @@ extension GoalSetForm {
             NutrientForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
         } else {
-            Color.blue
+            NutrientForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+                .environmentObject(viewModel)
         }
     }
     

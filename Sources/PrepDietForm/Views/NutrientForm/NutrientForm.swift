@@ -39,9 +39,6 @@ struct NutrientForm: View {
         
         self.didTapDelete = didTapDelete
     }
-}
-
-extension NutrientForm {
     
     var body: some View {
         FormStyledScrollView {
@@ -452,10 +449,7 @@ extension NutrientForm {
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietNutrientGoal.allCases, id: \.self) {
-                    if !goalSet.shouldDisable($0) {
-                        Text($0.menuDescription)
-                            .tag($0)
-                    }
+                    Text($0.menuDescription).tag($0)
                 }
             }
         } label: {
@@ -643,17 +637,6 @@ func equivalentValueText(_ string: String) -> some View {
         .foregroundColor(.secondary)
 }
 
-
-extension GoalSetForm.ViewModel {
-    func shouldDisable(_ type: DietNutrientGoal) -> Bool {
-        if type == .percentageOfEnergy {
-            guard self.energyGoal != nil else {
-                return true
-            }
-        }
-        return false
-    }
-}
 
 extension BodyProfile {
     static func mock(
