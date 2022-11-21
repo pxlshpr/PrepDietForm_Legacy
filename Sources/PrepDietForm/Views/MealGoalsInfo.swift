@@ -40,7 +40,7 @@ struct MealGoalsInfo: View {
     var body: some View {
         NavigationView {
             FormStyledScrollView {
-                FormStyledSection(header: Text("What is it?")) {
+                FormStyledSection(header: Text("What are they?")) {
                     VStack(alignment: .leading) {
                         Text("When you select a diet, its goals are *equally* distributed amongst your un-planned meals for the day.")
                             .fixedSize(horizontal: false, vertical: true)
@@ -50,9 +50,9 @@ struct MealGoalsInfo: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                FormStyledSection(header: Text("Why disable it?")) {
+                FormStyledSection(header: Text("Why disable them?")) {
                     VStack(alignment: .leading) {
-                        Text("This can be disabled for micronutrient goals that you do not plan on spreading out across your meals.")
+                        Text("These can be disabled for micronutrient goals that you do not plan on spreading out across your meals.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
                         Text("For example, you may decide to disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
