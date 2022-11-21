@@ -259,7 +259,7 @@ public class GoalViewModel: ObservableObject {
             case .gramsPerBodyMass:
                 return bodyMassIsSyncedWithHealth
             case .percentageOfEnergy:
-                return energyIsSyncedWithHealth
+                return energyGoalIsSyncedWithHealth
             default:
                 return false
             }
