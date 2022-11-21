@@ -40,48 +40,10 @@ struct MealTypesInfo: View {
 }
 struct MealGoalsInfo: View {
     
+    @State var showingDetails: Bool = false
     var body: some View {
         NavigationView {
             FormStyledScrollView {
-                FormStyledSection(header: Text("What are they?")) {
-                    VStack(alignment: .leading) {
-                        Text("When you select a diet, all of its goals are distributed across your *unplanned* meals for the day.")
-                            .fixedSize(horizontal: false, vertical: true)
-                        Divider().opacity(0)
-                        Text("This creates **subgoals** for each meal that you can use as guidelines to aid you in spreading your nutrients out evenly when prepping foods.")
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                FormStyledSection(header: Text("Disabling for Micronutrients")) {
-                    VStack(alignment: .leading) {
-                        Text("This subgoal creation can be disabled for micronutrient goals of your choosing.")
-                            .fixedSize(horizontal: false, vertical: true)
-                        Divider().opacity(0)
-                        Text("For example, you could disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                FormStyledSection(header: mealTypesHeader) {
-                    VStack(alignment: .leading) {
-                        Text("If you have **Meal Types** assigned to any meals, their goals will be used *instead of* the generated **subgoals**.")
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                FormStyledSection(header: Text("Planning meals")) {
-                    VStack(alignment: .leading) {
-                        Text("Once a meal has been planned by prepping foods for it, any remaining subgoals will adjust to what's left of your diet's goal.")
-                            .fixedSize(horizontal: false, vertical: true)
-                        Divider().opacity(0)
-                        Text("Keep in mind that these subgoals only serve as guidelines, and do not appear after you've prepped food for a meal, unlike the goals of **Meal Types** do.")
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(.secondary)
-                        Divider().opacity(0)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
                 FormStyledSection(header: Text("Summary")) {
                     VStack(alignment: .leading) {
                         Text("Meal Subgoals are equally distributed goals of your remaining diet goal for each nutrient, after subtracting food totals from *planned* meals and goals of any **Meal Types** you may have chosen.")
@@ -89,9 +51,69 @@ struct MealGoalsInfo: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                
+                if showingDetails {
+                    details
+                        .transition(.move(edge: .bottom))
+                } else {
+                    FormStyledSection {
+                        Button {
+                            withAnimation {
+                                showingDetails = true
+                            }
+                        } label: {
+                            Text("Tell me more")
+                        }
+                        .transition(.scale)
+                    }
+                }
             }
             .navigationTitle("Meal Subgoals")
 //            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    var details: some View {
+        Group {
+            FormStyledSection(header: Text("What are they?")) {
+                VStack(alignment: .leading) {
+                    Text("When you select a diet, all of its goals are distributed across your *unplanned* meals for the day.")
+                        .fixedSize(horizontal: false, vertical: true)
+                    Divider().opacity(0)
+                    Text("This creates **subgoals** for each meal that you can use as guidelines to aid you in spreading your nutrients out evenly when prepping foods.")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            FormStyledSection(header: Text("Disabling for Micronutrients")) {
+                VStack(alignment: .leading) {
+                    Text("This subgoal creation can be disabled for micronutrient goals of your choosing.")
+                        .fixedSize(horizontal: false, vertical: true)
+                    Divider().opacity(0)
+                    Text("For example, you could disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            FormStyledSection(header: mealTypesHeader) {
+                VStack(alignment: .leading) {
+                    Text("If you have **Meal Types** assigned to any meals, their goals will be used *instead of* the generated **subgoals**.")
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            FormStyledSection(header: Text("Planning meals")) {
+                VStack(alignment: .leading) {
+                    Text("Once a meal has been planned by prepping foods for it, any remaining subgoals will adjust to what's left of your diet's goal.")
+                        .fixedSize(horizontal: false, vertical: true)
+                    Divider().opacity(0)
+                    Text("Keep in mind that these subgoals only serve as guidelines, and do not appear after you've prepped food for a meal, unlike the goals of **Meal Types** do.")
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(.secondary)
+                    Divider().opacity(0)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
     }
     
@@ -282,7 +304,7 @@ public struct DietPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.sugarGoal.id
+            , presentedGoalId: Self.sugarGoal.id
         )
     }
 }
