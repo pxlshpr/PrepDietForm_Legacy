@@ -228,7 +228,7 @@ extension EnergyForm {
                 showingTDEEForm = true
             } label: {
                 if let profile = viewModel.bodyProfile, let formattedTDEE = profile.formattedTDEEWithUnit {
-                    if profile.parameters.updatesWithHealthApp {
+                    if profile.parameters.hasDynamicTDEE {
                         PickerLabel(
                             formattedTDEE,
                             systemImage: "flame.fill",

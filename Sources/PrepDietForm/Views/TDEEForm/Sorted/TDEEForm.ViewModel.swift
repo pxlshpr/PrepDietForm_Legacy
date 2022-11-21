@@ -1395,7 +1395,7 @@ extension TDEEForm {
             self.existingProfile = existingProfile
                         
             if let existingProfile, existingProfile.hasTDEE {
-                if existingProfile.parameters.updatesWithHealthApp {
+                if existingProfile.parameters.hasDynamicTDEE {
                     detents = [.medium, .large]
                     presentationDetent = .medium
                 } else {
