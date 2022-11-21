@@ -3,6 +3,8 @@ import SwiftUISugar
 import PrepDataTypes
 import SwiftHaptics
 
+let EqualSymbol = "equal.square"
+
 struct GoalCell: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var goal: GoalViewModel
@@ -189,7 +191,7 @@ struct GoalCell: View {
         } else {
             HStack {
                 if showingEquivalentValues, goal.type.showsEquivalentValues {
-                    Image(systemName: "equal.square")
+                    Image(systemName: EqualSymbol)
                         .foregroundColor(Color(.tertiaryLabel))
                         .transition(.asymmetric(
                             insertion: .move(edge: .leading),
@@ -247,7 +249,7 @@ struct GoalCell: View {
 
 struct GoalSetForm_Previews: PreviewProvider {
     static var previews: some View {
-        GoalSetFormPreview()
+        DietPreview()
     }
 }
 
@@ -348,7 +350,7 @@ struct MacroFormPreview: View {
 }
 
 //MARK: - GoalSet Form Preview
-public struct GoalSetFormPreview: View {
+public struct DietPreview: View {
     
     static let energyGoal = Goal(
         type: .energy(.fromMaintenance(.kcal, .surplus)),
@@ -372,25 +374,12 @@ public struct GoalSetFormPreview: View {
         upperBound: 2.5
     )
 
-    static let carbGoal = Goal(
-        type: .macro(.gramsPerWorkoutDuration(.min), .carb),
-        lowerBound: 0.5
-    )
-
-    static let bodyProfile = BodyProfile.mock(
-        restingEnergy: 2000,
-        activeEnergy: 1000,
-        weight: 98,
-        lbm: 65
-    )
-    
     static let goalSet = GoalSet(
         name: "Cutting",
-        emoji: "⤵️",
+        emoji: "🫃🏽",
         goals: [
             energyGoal,
             proteinGoal,
-            carbGoal,
             fatGoalPerEnergy,
         ],
         isMealProfile: false
@@ -402,8 +391,58 @@ public struct GoalSetFormPreview: View {
         GoalSetForm(
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
-            bodyProfile: Self.bodyProfile
+            bodyProfile: BodyProfile.mockBodyProfile
 //            , presentedGoalId: Self.fatGoal.id
         )
     }
+}
+
+public struct MealTypePreview: View {
+    
+    static let energyGoal = Goal(
+        type: .energy(.fixed(.kcal)),
+        lowerBound: 250,
+        upperBound: 350
+    )
+    
+    static let proteinGoal = Goal(
+        type: .macro(.fixed, .protein),
+        lowerBound: 20
+    )
+
+    static let carbGoal = Goal(
+        type: .macro(.gramsPerWorkoutDuration(.min), .carb),
+        lowerBound: 0.5
+    )
+
+    static let goalSet = GoalSet(
+        name: "Pre-workout",
+        emoji: "🏋🏽‍♂️",
+        goals: [
+            energyGoal,
+            proteinGoal,
+            carbGoal,
+        ],
+        isMealProfile: true
+    )
+    
+    public init() { }
+    
+    public var body: some View {
+        GoalSetForm(
+            isMealProfile: true,
+            existingGoalSet: Self.goalSet,
+            bodyProfile: BodyProfile.mockBodyProfile
+//            , presentedGoalId: Self.fatGoal.id
+        )
+    }
+}
+
+extension BodyProfile {
+    static let mockBodyProfile = BodyProfile.mock(
+        restingEnergy: 2000,
+        activeEnergy: 1000,
+        weight: 98,
+        lbm: 65
+    )
 }
