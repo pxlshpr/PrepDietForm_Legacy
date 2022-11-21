@@ -20,7 +20,7 @@ struct MealTypesInfo: View {
                 details
                     .transition(.move(edge: .bottom))
             } else {
-                FormStyledSection {
+                FormStyledSection(verticalPadding: 0) {
                     Button {
                         Haptics.feedback(style: .soft)
                         withAnimation {
@@ -29,6 +29,7 @@ struct MealTypesInfo: View {
                     } label: {
                         Text("Tell me more")
                             .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
                     }
                     .contentShape(Rectangle())
                     .transition(.scale)
@@ -87,7 +88,7 @@ struct MealGoalsInfo: View {
                     details
                         .transition(.move(edge: .bottom))
                 } else {
-                    FormStyledSection {
+                    FormStyledSection(verticalPadding: 0) {
                         Button {
                             Haptics.feedback(style: .soft)
                             withAnimation {
@@ -96,6 +97,7 @@ struct MealGoalsInfo: View {
                         } label: {
                             Text("Tell me more")
                                 .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
                         }
                         .contentShape(Rectangle())
                         .transition(.scale)
@@ -338,7 +340,7 @@ public struct DietPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.sugarGoal.id
+            , presentedGoalId: Self.sugarGoal.id
         )
     }
 }
