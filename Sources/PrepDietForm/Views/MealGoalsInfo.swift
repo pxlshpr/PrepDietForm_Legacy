@@ -9,16 +9,14 @@ struct MealTypesInfo: View {
                     Text("Meal Types are similar to Diets, in that they have their own set of goals, but apply to a single meal as opposed to the entire day.")
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             FormStyledSection(header: Text("Why use them?")) {
                 VStack(alignment: .leading) {
                     Text("They are useful for meals you might have specific goals for.")
                         .fixedSize(horizontal: false, vertical: true)
                     Divider().opacity(0)
-                    Text("Meals automatically get assigned equally distributed goals from your diet.")
-                        .fixedSize(horizontal: false, vertical: true)
-                    Divider().opacity(0)
-                    Text("But there may be instances where you would like to override them with your own custom goals.")
+                    Text("Since meals automatically get assigned equally distributed goals from your diet, there may be instances where you would like to override them with your own custom goals.")
                         .fixedSize(horizontal: false, vertical: true)
                     Divider().padding(.vertical)
                     Text("For example, you could have a **\"Pre-Workout\"** Meal Type, and set a carbohyrate goal for it.")
@@ -29,6 +27,7 @@ struct MealTypesInfo: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(Color(.secondaryLabel))
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .navigationTitle("Meal Types")
@@ -49,6 +48,7 @@ struct MealGoalsInfo: View {
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 FormStyledSection(header: Text("Why disable them?")) {
                     VStack(alignment: .leading) {
@@ -58,6 +58,7 @@ struct MealGoalsInfo: View {
                         Text("For example, you may decide to disable this for your magnesium goal if you plan on taking a supplement for it and completing your goal in one go.")
                             .foregroundColor(.secondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 FormStyledSection(header: mealTypesHeader) {
                     VStack(alignment: .leading) {
@@ -68,6 +69,7 @@ struct MealGoalsInfo: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 FormStyledSection(header: Text("Planned meals")) {
                     VStack(alignment: .leading) {
@@ -78,6 +80,7 @@ struct MealGoalsInfo: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .navigationTitle("Meal Goals")
