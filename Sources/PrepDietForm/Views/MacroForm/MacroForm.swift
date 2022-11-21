@@ -572,7 +572,7 @@ extension BodyProfile {
         restingEnergySource: RestingEnergySourceOption = .userEntered,
         restingEnergyFormula: RestingEnergyFormula? = nil,
         activeEnergy: Double? = nil,
-        activeEnergySoruce: ActiveEnergySourceOption = .userEntered,
+        activeEnergySource: ActiveEnergySourceOption = .userEntered,
         weight: Double? = nil,
         lbm: Double? = nil
     ) -> BodyProfile {
@@ -586,6 +586,7 @@ extension BodyProfile {
                 restingEnergySource: restingEnergySource,
                 restingEnergyFormula: restingEnergyFormula,
                 activeEnergy: activeEnergy,
+                activeEnergySource: activeEnergySource,
                 lbm: lbm,
                 lbmSource: .userEntered,
                 weight: weight,
