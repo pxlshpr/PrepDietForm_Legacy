@@ -179,7 +179,7 @@ struct NutrientForm: View {
 //                    systemImage: "rectangle.on.rectangle\(supportsMealSplitting ? "" : ".slash")"
 //                )
                 HStack {
-                    Text("Create meal subgoals")
+                    Text("Generate Meal Subgoals")
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }

@@ -41,11 +41,10 @@ struct MealGoalsInfo: View {
             FormStyledScrollView {
                 FormStyledSection(header: Text("What are they?")) {
                     VStack(alignment: .leading) {
-                        Text("When you select a diet, all of its goals are *equally* distributed across your **unplanned** meals for the day.")
+                        Text("When you select a diet, all of its goals are equally distributed across your *unplanned* meals for the day.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
-                        Text("This creates subgoals for each meal that you can use as a guideline when prepping foods.")
-                            .foregroundColor(.secondary)
+                        Text("This creates **subgoals** for each meal that you can use as guidelines to aid you in spreading your nutrients out evenly when prepping foods.")
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,17 +61,17 @@ struct MealGoalsInfo: View {
                 }
                 FormStyledSection(header: mealTypesHeader) {
                     VStack(alignment: .leading) {
-                        Text("If you have **Meal Types** assigned to any meals, their goals will be used *instead of* these subgoals.")
+                        Text("If you have **Meal Types** assigned to any meals, their goals will be used *instead of* the generated **subgoals**.")
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 FormStyledSection(header: Text("Planned meals")) {
                     VStack(alignment: .leading) {
-                        Text("Once a meal has been planned by prepping foods for it, the subgoals for any remaining **unplanned** meals will adjust to what's left of your diet's goal.")
+                        Text("Once a meal has been planned by prepping foods for it, the subgoals for any remaining *unplanned* meals will adjust to what's left of your diet's goal.")
                             .fixedSize(horizontal: false, vertical: true)
                         Divider().opacity(0)
-                        Text("In other words, these subgoals will always be an equal distribution of your remaining diet goal for each nutrient—after *subtracting* values from **planned** meals and goals of **Meal Types** you may have chosen.")
+                        Text("In other words, these subgoals will always be an equal distribution of your remaining diet goal for each nutrient—after subtracting values from *planned* meals and goals of **Meal Types** you may have chosen.")
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
                     }
