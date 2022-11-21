@@ -5,6 +5,8 @@ import PrepDataTypes
 
 struct MacroForm: View {
     
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var goalSet: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     
@@ -20,7 +22,9 @@ struct MacroForm: View {
     
     @State var shouldResignFocus = false
     
-    init(goal: GoalViewModel) {
+    let didTapDelete: (GoalViewModel) -> ()
+
+    init(goal: GoalViewModel, didTapDelete: @escaping ((GoalViewModel) -> ())) {
         self.goal = goal
         let pickedMealMacroGoalType = MealMacroTypeOption(goalViewModel: goal) ?? .fixed
         let pickedDietMacroGoalType = DietMacroTypeOption(goalViewModel: goal) ?? .fixed
@@ -32,6 +36,8 @@ struct MacroForm: View {
         _pickedBodyMassType = State(initialValue: bodyMassType)
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
         _pickedWorkoutDurationUnit = State(initialValue: workoutDurationUnit)
+        
+        self.didTapDelete = didTapDelete
     }
 }
 
@@ -51,6 +57,8 @@ extension MacroForm {
         .navigationTitle("\(goal.macro?.description ?? "Macro")")
         .navigationBarTitleDisplayMode(.large)
         .toolbar { trailingContent }
+        .toolbar { bottomContents }
+        .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
         .onDisappear(perform: goal.validateMacro)
@@ -143,18 +151,58 @@ extension MacroForm {
     
     //MARK: - Decorator Views
     
-    var trailingContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if isDynamic {
-                Text("Dynamic")
-                    .font(.footnote)
-                    .textCase(.uppercase)
-                    .foregroundColor(Color(.tertiaryLabel))
-                appleHealthBolt
-            }
+    var bottomContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            deleteButton
+            Spacer()
         }
     }
 
+    var keyboardContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            deleteButton
+            Spacer()
+            doneButton
+        }
+    }
+
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            dynamicIndicator
+//            deleteButton
+        }
+    }
+    
+    var doneButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "checkmark")
+        }
+    }
+    
+    @ViewBuilder
+    var dynamicIndicator: some View {
+        if isDynamic {
+            appleHealthBolt
+            Text("Dynamic")
+                .font(.footnote)
+                .textCase(.uppercase)
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+    }
+    
+    var deleteButton: some View {
+        Button(role: .destructive) {
+            didTapDelete(goal)
+        } label: {
+            Image(systemName: "trash")
+//            Image(systemName: "minus.circle")
+//            Text("Delete")
+//            Text("Remove Goal")
+                .foregroundColor(.red)
+        }
+    }
     var unitsFooter: some View {
         var component: String {
             switch macroGoalType {

@@ -29,13 +29,20 @@ extension GoalSetForm {
     @ViewBuilder
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
-            EnergyForm(goal: goal)
-                .environmentObject(viewModel)
+            EnergyForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+            .environmentObject(viewModel)
         } else if goal.type.isMacro {
-            MacroForm(goal: goal)
+            MacroForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
         } else {
             Color.blue
+        }
+    }
+    
+    func didTapDeleteOnGoal(_ goal: GoalViewModel) {
+        viewModel.path = []
+        withAnimation {
+            viewModel.goals.removeAll(where: { $0.id == goal.id })
         }
     }
     

@@ -5,6 +5,8 @@ import PrepDataTypes
 
 struct EnergyForm: View {
     
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var viewModel: GoalSetForm.ViewModel
     @ObservedObject var goal: GoalViewModel
     @State var pickedMealEnergyGoalType: MealEnergyTypeOption
@@ -16,7 +18,9 @@ struct EnergyForm: View {
     @State var refreshBool = false
     @State var shouldResignFocus = false
     
-    init(goal: GoalViewModel) {
+    let didTapDelete: (GoalViewModel) -> ()
+    
+    init(goal: GoalViewModel, didTapDelete: @escaping ((GoalViewModel) -> ())) {
         self.goal = goal
         //TODO: This isn't being updated after creating it and going back to the GoalSetForm
         // We may need to use a binding to the goal here instead and have bindings on the `GoalViewModel` that set and return the picker options (like MealEnergyGoalTypePickerOption). That would also make things cleaner and move it to the view model.
@@ -26,5 +30,7 @@ struct EnergyForm: View {
         _pickedMealEnergyGoalType = State(initialValue: mealEnergyGoalType)
         _pickedDietEnergyGoalType = State(initialValue: dietEnergyGoalType)
         _pickedDelta = State(initialValue: delta)
+        
+        self.didTapDelete = didTapDelete
     }
 }
