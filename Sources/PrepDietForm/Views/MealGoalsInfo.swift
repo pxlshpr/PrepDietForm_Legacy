@@ -79,7 +79,7 @@ struct MealGoalsInfo: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .navigationTitle("Meal Goals")
+            .navigationTitle("Meal Subgoals")
 //            .navigationBarTitleDisplayMode(.inline)
         }
     }

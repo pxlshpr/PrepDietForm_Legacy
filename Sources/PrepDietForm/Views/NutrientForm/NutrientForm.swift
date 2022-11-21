@@ -202,7 +202,7 @@ struct NutrientForm: View {
         
         var header: some View {
             HStack {
-                Text("Meal Goals")
+                Text("Meal Subgoals")
                 Spacer()
                 Button {
                     showingMealGoalsInfo = true
