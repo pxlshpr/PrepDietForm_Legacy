@@ -172,6 +172,7 @@ public struct GoalSetForm: View {
 
     var emojiButton: some View {
         Button {
+            Haptics.feedback(style: .soft)
             showingEmojiPicker = true
         } label: {
             Text(viewModel.emoji)

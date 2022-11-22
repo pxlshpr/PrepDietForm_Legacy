@@ -74,6 +74,7 @@ extension EnergyGoalForm {
     
     var deleteButton: some View {
         Button(role: .destructive) {
+            Haptics.warningFeedback()
             didTapDelete(goal)
         } label: {
             Text("Delete")
@@ -135,6 +136,7 @@ extension EnergyGoalForm {
         if shouldShowEnergyDeltaElements {
             Button {
                 shouldResignFocus.toggle()
+                Haptics.feedback(style: .soft)
                 showingTDEEForm = true
             } label: {
                 if let profile = viewModel.bodyProfile, let formattedTDEE = profile.formattedTDEEWithUnit {

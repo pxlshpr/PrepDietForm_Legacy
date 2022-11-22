@@ -30,7 +30,7 @@ extension GoalSetForm {
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
             EnergyGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
-            .environmentObject(viewModel)
+                .environmentObject(viewModel)
         } else if goal.type.isMacro {
             NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
@@ -51,7 +51,7 @@ extension GoalSetForm {
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             HStack {
-//                calculatedButton
+                //                calculatedButton
                 addButton
             }
         }
@@ -73,7 +73,7 @@ extension GoalSetForm {
     var addButton: some View {
         if !viewModel.goals.isEmpty {
             Button {
-                showingNutrientsPicker = true
+                presentNutrientsPicker()
             } label: {
                 Image(systemName: "plus")
             }
@@ -86,7 +86,7 @@ extension GoalSetForm {
             emptyPrompt
         }
     }
-
+    
     var emptyPrompt: some View {
         VStack {
             Text("You haven't added any goals yet")
@@ -94,8 +94,7 @@ extension GoalSetForm {
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.tertiaryLabel))
             Button {
-                Haptics.feedback(style: .soft)
-                showingNutrientsPicker = true
+                presentNutrientsPicker()
             } label: {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -122,21 +121,8 @@ extension GoalSetForm {
         .padding(.bottom, 10)
     }
     
-    var addNutrientsButton: some View {
-        Button {
-            showingNutrientsPicker = true
-        } label: {
-            Label("Add Nutrients", systemImage: "plus.circle.fill")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.accentColor)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 13)
-                .padding(.top, 13)
-                .background(Color(.secondarySystemGroupedBackground))
-                .cornerRadius(10)
-                .padding(.bottom, 10)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.borderless)
+    func presentNutrientsPicker() {
+        Haptics.feedback(style: .soft)
+        showingNutrientsPicker = true
     }
 }

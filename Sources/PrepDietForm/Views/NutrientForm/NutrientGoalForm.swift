@@ -217,6 +217,7 @@ struct NutrientGoalForm: View {
     
     var deleteButton: some View {
         Button(role: .destructive) {
+            Haptics.warningFeedback()
             didTapDelete(goal)
         } label: {
             Text("Delete")
@@ -351,6 +352,7 @@ struct NutrientGoalForm: View {
     @ViewBuilder
     var bodyMassButton: some View {
         Button {
+            Haptics.feedback(style: .soft)
             shouldResignFocus.toggle()
             switch pickedBodyMassType {
             case .weight:
