@@ -667,9 +667,18 @@ extension GoalViewModel {
         )
     }
     
+    var energyGoalForCalculation: Goal? {
+        switch type {
+        case .energy:
+            return nil
+        default:
+            return goalSet.energyGoal?.goal
+        }
+    }
+    
     var equivalentLowerBound: Double? {
         goal.equivalentLowerBound(
-            energyGoal: goalSet.energyGoal?.goal,
+            energyGoal: energyGoalForCalculation,
             bodyProfile: goalSet.bodyProfile,
             userUnits: goalSet.userUnits
         )
@@ -697,7 +706,7 @@ extension GoalViewModel {
     
     var equivalentUpperBound: Double? {
         goal.equivalentUpperBound(
-            energyGoal: goalSet.energyGoal?.goal,
+            energyGoal: energyGoalForCalculation,
             bodyProfile: goalSet.bodyProfile,
             userUnits: goalSet.userUnits
         )

@@ -43,6 +43,14 @@ extension Goal {
         userUnits: UserUnits
     ) -> Double? {
         
+        guard !type.isEnergy else {
+            return calculateEnergyValue(
+                from: lowerBound,
+                deficitBound: largerBound ?? lowerBound,
+                tdee: bodyProfile?.tdeeInUnit
+            )
+        }
+        
         let energyValue = energyGoalLowerOrUpper(
             energyGoal: energyGoal,
             bodyProfile: bodyProfile,
@@ -50,12 +58,6 @@ extension Goal {
         )
         
         switch type {
-        case .energy:
-            return calculateEnergyValue(
-                from: lowerBound,
-                deficitBound: largerBound ?? lowerBound,
-                tdee: bodyProfile?.tdeeInUnit
-            )
         case .macro:
             return calculateMacroValue(
                 from: trueLowerBound,
@@ -71,6 +73,8 @@ extension Goal {
                 bodyProfile: bodyProfile,
                 userUnits: userUnits
             )
+        default:
+            return nil
         }
     }
     
@@ -80,6 +84,14 @@ extension Goal {
         userUnits: UserUnits
     ) -> Double? {
         
+        guard !type.isEnergy else {
+            return calculateEnergyValue(
+                from: upperBound,
+                deficitBound: smallerBound ?? upperBound,
+                tdee: bodyProfile?.tdeeInUnit
+            )
+        }
+        
         let energyValue = energyGoalUpperOrLower(
             energyGoal: energyGoal,
             bodyProfile: bodyProfile,
@@ -87,12 +99,6 @@ extension Goal {
         )
 
         switch type {
-        case .energy:
-            return calculateEnergyValue(
-                from: upperBound,
-                deficitBound: smallerBound ?? upperBound,
-                tdee: bodyProfile?.tdeeInUnit
-            )
         case .macro:
             return calculateMacroValue(
                 from: trueUpperBound,
@@ -107,6 +113,8 @@ extension Goal {
                 bodyProfile: bodyProfile,
                 userUnits: userUnits
             )
+        default:
+            return nil
         }
     }
 }
