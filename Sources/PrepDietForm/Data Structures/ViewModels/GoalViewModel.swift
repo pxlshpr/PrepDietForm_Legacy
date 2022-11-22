@@ -4,7 +4,7 @@ import Combine
 
 public class GoalViewModel: ObservableObject {
     
-    var goalSet: GoalSetForm.ViewModel
+    var goalSet: GoalSetViewModel
     
     let isForMeal: Bool
     
@@ -16,7 +16,7 @@ public class GoalViewModel: ObservableObject {
     var anyCancellable: AnyCancellable? = nil
         
     public init(
-        goalSet: GoalSetForm.ViewModel,
+        goalSet: GoalSetViewModel,
         isForMeal: Bool = false,
         id: UUID = UUID(),
         type: GoalType,
@@ -594,6 +594,7 @@ extension GoalViewModel {
         }
     }
         
+    //TODO: Replace
     var equivalentLowerBound: Double? {
         switch type {
         case .energy(let energyGoalType):

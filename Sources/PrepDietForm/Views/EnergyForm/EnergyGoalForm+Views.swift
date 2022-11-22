@@ -332,11 +332,11 @@ struct MacroForm_Previews: PreviewProvider {
 
 struct EnergyFormPreview: View {
     
-    @StateObject var viewModel: GoalSetForm.ViewModel
+    @StateObject var viewModel: GoalSetViewModel
     @StateObject var goalViewModel: GoalViewModel
     
     init() {
-        let goalSetViewModel = GoalSetForm.ViewModel(
+        let goalSetViewModel = GoalSetViewModel(
             userUnits:.standard,
             isMealProfile: false,
             existingGoalSet: nil,
@@ -372,11 +372,11 @@ struct EnergyFormPreview: View {
 
 struct MacroFormPreview: View {
     
-    @StateObject var goalSet: GoalSetForm.ViewModel
+    @StateObject var goalSet: GoalSetViewModel
     @StateObject var goal: GoalViewModel
     
     init() {
-        let goalSet = GoalSetForm.ViewModel(
+        let goalSet = GoalSetViewModel(
             userUnits: .standard,
             isMealProfile: false,
             existingGoalSet: GoalSet(

@@ -1,67 +1,40 @@
 import SwiftUI
 import PrepDataTypes
 
-extension Array where Element == Goal {
-    func goalViewModels(goalSet: GoalSetForm.ViewModel, isForMeal: Bool) -> [GoalViewModel] {
-        map {
-            GoalViewModel(
-                goalSet: goalSet,
-                isForMeal: isForMeal,
-                id: $0.id,
-                type: $0.type,
-                lowerBound: $0.lowerBound,
-                upperBound: $0.upperBound
-            )
-        }
-    }
-}
-
-struct UserUnits {
-    let energy: EnergyUnit
-    let weight: WeightUnit
-    let height: HeightUnit
+public class GoalSetViewModel: ObservableObject {
     
-    static var standard: UserUnits {
-        UserUnits(energy: .kcal, weight: .kg, height: .cm)
-    }
-}
+    @Published var emoji: String
+    @Published var name: String
+    @Published var isMealProfile = false
+    @Published var goals: [GoalViewModel] = []
+    
+    @Published var bodyProfile: BodyProfile?
+    
+    @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
+    
+    @Published var path: [GoalSetFormRoute] = []
+    
+    let userUnits: UserUnits
 
-extension GoalSetForm {
-    public class ViewModel: ObservableObject {
+    let existingGoalSet: GoalSet?
+    
+    init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
+        self.userUnits = userUnits
+        self.isMealProfile = isMealProfile
+        self.bodyProfile = bodyProfile
+        self.existingGoalSet = existing
+        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
+        self.name = existing?.name ?? ""
+        self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
+        self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
         
-        @Published var emoji: String
-        @Published var name: String
-        @Published var isMealProfile = false
-        @Published var goals: [GoalViewModel] = []
-        
-        @Published var bodyProfile: BodyProfile?
-        
-        @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
-        
-        @Published var path: [Route] = []
-        
-        let userUnits: UserUnits
-
-        let existingGoalSet: GoalSet?
-        
-        init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
-            self.userUnits = userUnits
-            self.isMealProfile = isMealProfile
-            self.bodyProfile = bodyProfile
-            self.existingGoalSet = existing
-            self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
-            self.name = existing?.name ?? ""
-            self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-            self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
-            
-            if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
-                self.path = [.goal(goalViewModel)]
-            }
+        if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
+            self.path = [.goal(goalViewModel)]
         }
     }
 }
 
-extension GoalSetForm.ViewModel {
+extension GoalSetViewModel {
     
     func resetNutrientTDEEFormViewModel() {
         setNutrientTDEEFormViewModel(with: bodyProfile)
@@ -72,7 +45,7 @@ extension GoalSetForm.ViewModel {
     }
     
     func setBodyProfile(_ bodyProfile: BodyProfile) {
-        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetForm.ViewModel (or at least the relevant fields for weight and lbm)
+        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetViewModel (or at least the relevant fields for weight and lbm)
         self.bodyProfile = bodyProfile
         setNutrientTDEEFormViewModel(with: bodyProfile)
     }

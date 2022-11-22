@@ -2,15 +2,15 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
+public enum GoalSetFormRoute: Hashable {
+    case goal(GoalViewModel)
+}
+
 public struct GoalSetForm: View {
-    
-    enum Route: Hashable {
-        case goal(GoalViewModel)
-    }
-    
+        
     @Environment(\.dismiss) var dismiss
     
-    @StateObject var viewModel: ViewModel
+    @StateObject var viewModel: GoalSetViewModel
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
     
@@ -20,7 +20,7 @@ public struct GoalSetForm: View {
     @FocusState var isFocused: Bool
     
     public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
-        let viewModel = ViewModel(
+        let viewModel = GoalSetViewModel(
             userUnits: .standard,
             isMealProfile: isMealProfile,
             existingGoalSet: existingGoalSet,
@@ -42,7 +42,7 @@ public struct GoalSetForm: View {
             .toolbar { leadingContent }
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
-            .navigationDestination(for: Route.self, destination: navigationDestination)
+            .navigationDestination(for: GoalSetFormRoute.self, destination: navigationDestination)
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
         }
@@ -55,7 +55,7 @@ public struct GoalSetForm: View {
     }
     
     @ViewBuilder
-    func navigationDestination(for route: Route) -> some View {
+    func navigationDestination(for route: GoalSetFormRoute) -> some View {
         switch route {
         case .goal(let goalViewModel):
             goalForm(for: goalViewModel)
