@@ -24,11 +24,8 @@ struct NutrientGoalForm: View {
     
     @State var showingLeanMassForm: Bool = false
     @State var showingWeightForm: Bool = false
-    @State var showingMealGoalsInfo: Bool = false
     
     @State var shouldResignFocus = false
-    
-    @State var supportsMealSplitting: Bool
     
     let didTapDelete: (GoalViewModel) -> ()
 
@@ -49,7 +46,6 @@ struct NutrientGoalForm: View {
         _pickedBodyMassUnit = State(initialValue: bodyMassUnit)
         _pickedWorkoutDurationUnit = State(initialValue: workoutDurationUnit)
      
-        _supportsMealSplitting = State(initialValue: goal.defaultSupportsMealSplitting)
         self.didTapDelete = didTapDelete
     }
     
@@ -63,7 +59,6 @@ struct NutrientGoalForm: View {
             unitSection
             bodyMassSection
             equivalentSection
-            mealSplittingSection
         }
         .navigationTitle(goal.description)
         .navigationBarTitleDisplayMode(.large)
@@ -72,7 +67,6 @@ struct NutrientGoalForm: View {
         .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
-        .sheet(isPresented: $showingMealGoalsInfo) { mealGoalsInfo }
         .onDisappear(perform: goal.validateNutrient)
         .scrollDismissesKeyboard(.interactively)
     }
@@ -158,73 +152,6 @@ struct NutrientGoalForm: View {
                     placeholder: "Optional",
                     shouldResignFocus: $shouldResignFocus
                 )
-            }
-        }
-    }
-    
-    var mealSplittingSection: some View {
-        let binding = Binding<Bool>(
-            get: { supportsMealSplitting },
-            set: { newValue in
-                Haptics.feedback(style: .rigid)
-                withAnimation {
-                    supportsMealSplitting = newValue
-                }
-            }
-        )
-        
-        var toggle: some View {
-            Toggle(isOn: binding) {
-//                Label(
-//                    "\(supportsMealSplitting ? "Split" : "Do not split") across meals",
-//                    systemImage: "rectangle.on.rectangle\(supportsMealSplitting ? "" : ".slash")"
-//                )
-                HStack {
-                    Text("Generate Meal Subgoals")
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-//            .toggleStyle(.button)
-        }
- 
-        @ViewBuilder
-        var footer: some View {
-            VStack(alignment: .leading, spacing: 10) {
-                if supportsMealSplitting {
-//                    Text("This goal will be automatically split across meals for the day.")
-//                    Text("This is ideal for nutrients like sugar, which you may want to be spread out across your meals for the day so that you don't spike your blood sugar drastically.")
-                    Text("This is ideal for nutrients like sugar, which you may want to be spread out across your meals for the day so that you don't spike your blood sugar drastically.")
-                } else {
-//                    Text("This goal will not be automatically split across meals for the day.")
-                    Text("Having this disabled is ideal for vitamin and mineral goals, which you might use supplements for, and not want to spread out across your meals.")
-                }
-            }
-        }
-        
-        var header: some View {
-            HStack {
-                Text("Meal Subgoals")
-                Spacer()
-                Button {
-                    showingMealGoalsInfo = true
-                } label: {
-                    HStack {
-                        Text("Learn More")
-                            .textCase(.none)
-                        Image(systemName: "info.circle")
-                    }
-                    .foregroundColor(.accentColor)
-                }
-            }
-        }
-        return Group {
-            if goal.type.isMicro, !goal.isForMeal {
-                FormStyledSection(header: header, footer: footer) {
-                    HStack {
-                        toggle
-                        Spacer()
-                    }
-                }
             }
         }
     }
@@ -350,10 +277,6 @@ struct NutrientGoalForm: View {
             goalSet.resetNutrientTDEEFormViewModel()
         })
         .environmentObject(goalSet.nutrientTDEEFormViewModel)
-    }
-
-    var mealGoalsInfo: some View {
-        MealGoalsInfo(isPresented: $showingMealGoalsInfo)
     }
 
     //MARK: - Convenience

@@ -7,9 +7,7 @@ public enum GoalType: Hashable, Codable {
     
     case macro(NutrientGoalType, Macro)
     
-    /// The bool at the end indicates whether the micronutrient is ignored for meal-wise splits.
-    /// This is useful for things like vitamins and minerals which we may not want to create automatic meal-split goals for unless the user explicitly specifies so.
-    case micro(NutrientGoalType, NutrientType, NutrientUnit, Bool)
+    case micro(NutrientGoalType, NutrientType, NutrientUnit)
     
     /// A hash value that is independent of the associated values
     var identifyingHashValue: String {
@@ -18,7 +16,7 @@ public enum GoalType: Hashable, Codable {
             return "energy"
         case .macro(_, let macro):
             return "macro_\(macro.rawValue)"
-        case .micro(_, let nutrientType, _, _):
+        case .micro(_, let nutrientType, _):
             return "macro_\(nutrientType.rawValue)"
         }
     }
@@ -46,7 +44,7 @@ public enum GoalType: Hashable, Codable {
     
     var nutrientType: NutrientType? {
         switch self {
-        case .micro(_, let nutrientType, _, _):
+        case .micro(_, let nutrientType, _):
             return nutrientType
         default:
             return nil
@@ -70,7 +68,7 @@ public enum GoalType: Hashable, Codable {
             return "Energy"
         case .macro(_, let macro):
             return macro.description
-        case .micro(_, let nutrientType, _, _):
+        case .micro(_, let nutrientType, _):
             return nutrientType.description
         }
     }
@@ -92,7 +90,7 @@ public enum GoalType: Hashable, Codable {
             return type.description
         case .macro(let type, _):
             return type.description(nutrientUnit: .g)
-        case .micro(let type, _, let nutrientUnit, _):
+        case .micro(let type, _, let nutrientUnit):
             return type.description(nutrientUnit: nutrientUnit)
         }
     }
@@ -113,7 +111,7 @@ public enum GoalType: Hashable, Codable {
             default:
                 return true
             }
-        case .micro(let microGoalType, _, _, _):
+        case .micro(let microGoalType, _, _):
             switch microGoalType {
             case .fixed:
                 return false
@@ -129,7 +127,7 @@ public enum GoalType: Hashable, Codable {
             return type.accessoryDescription
         case .macro(let type, _):
             return type.accessoryDescription
-        case .micro(let type, _, _, _):
+        case .micro(let type, _, _):
             return type.accessoryDescription
         }
     }
@@ -140,7 +138,7 @@ public enum GoalType: Hashable, Codable {
             return type.accessorySystemImage
         case .macro(let type, _):
             return type.accessorySystemImage
-        case .micro(let type, _, _, _):
+        case .micro(let type, _, _):
             return type.accessorySystemImage
         }
     }

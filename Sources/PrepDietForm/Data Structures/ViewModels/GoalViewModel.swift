@@ -72,7 +72,7 @@ public class GoalViewModel: ObservableObject {
             default:
                 break
             }
-        case .micro(let type, _, _, _):
+        case .micro(let type, _, _):
             switch type {
             case .fixed:
                 return false
@@ -107,7 +107,7 @@ public class GoalViewModel: ObservableObject {
             switch type {
             case .macro(let type, _):
                 return type
-            case .micro(let type, _, _, _):
+            case .micro(let type, _, _):
                 return type
             default:
                 return nil
@@ -118,8 +118,8 @@ public class GoalViewModel: ObservableObject {
             switch type {
             case .macro(_, let macro):
                 self.type = .macro(newValue, macro)
-            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
-                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
+            case .micro(_, let nutrientType, let nutrientUnit):
+                self.type = .micro(newValue, nutrientType, nutrientUnit)
             default:
                 break
             }
@@ -203,8 +203,8 @@ public class GoalViewModel: ObservableObject {
 //        set {
 //            guard let newValue else { return }
 //            switch type {
-//            case .micro(_, let nutrientType, let nutrientUnit, let supportsMealSplitting):
-//                self.type = .micro(newValue, nutrientType, nutrientUnit, supportsMealSplitting)
+//            case .micro(_, let nutrientType, let nutrientUnit):
+//                self.type = .micro(newValue, nutrientType, nutrientUnit)
 //            default:
 //                break
 //            }
@@ -213,37 +213,17 @@ public class GoalViewModel: ObservableObject {
     
     var microNutrientType: NutrientType? {
         switch type {
-        case .micro(_, let nutrientType, _, _):
+        case .micro(_, let nutrientType, _):
             return nutrientType
         default:
             return nil
         }
     }
     
-    var microSupportsMealSplitting: Bool? {
-        get {
-            switch type {
-            case .micro(_, _, _, let supportsMealSplitting):
-                return supportsMealSplitting
-            default:
-                return nil
-            }
-        }
-        set {
-            guard let newValue else { return }
-            switch type {
-            case .micro(let microGoalType, let nutrientType, let nutrientUnit, _):
-                self.type = .micro(microGoalType, nutrientType, nutrientUnit, newValue)
-            default:
-                break
-            }
-        }
-    }
-    
     var microNutrientUnit: NutrientUnit? {
         get {
             switch type {
-            case .micro(_, _, let nutrientUnit, _):
+            case .micro(_, _, let nutrientUnit):
                 return nutrientUnit
             default:
                 return nil
@@ -252,8 +232,8 @@ public class GoalViewModel: ObservableObject {
         set {
             guard let newValue else { return }
             switch type {
-            case .micro(let microGoalType, let nutrientType, _, let supportsMealSplitting):
-                self.type = .micro(microGoalType, nutrientType, newValue, supportsMealSplitting)
+            case .micro(let microGoalType, let nutrientType, _):
+                self.type = .micro(microGoalType, nutrientType, newValue)
             default:
                 break
             }
@@ -264,19 +244,10 @@ public class GoalViewModel: ObservableObject {
         switch type {
         case .macro:
             return .g
-        case .micro(_, let nutrientType, _, _):
+        case .micro(_, let nutrientType, _):
             return nutrientType.units.first
         default:
             return nil
-        }
-    }
-    
-    var defaultSupportsMealSplitting: Bool {
-        switch type {
-        case .energy, .macro:
-            return true
-        case .micro(_, let nutrientType, _, _):
-            return nutrientType.group?.supportsMealSplitting ?? false
         }
     }
     
@@ -325,7 +296,7 @@ public class GoalViewModel: ObservableObject {
             return energyIsSyncedWithHealth
         case .macro(let type, _):
             return nutrientGoalTypeIsDynamic(type)
-        case .micro(let type, _, _, _):
+        case .micro(let type, _, _):
             return nutrientGoalTypeIsDynamic(type)
         }
     }
@@ -598,7 +569,7 @@ extension GoalViewModel {
             default:
                 return NutrientUnit.g.shortDescription
             }
-        case .micro(let type, _, let nutrientUnit, _):
+        case .micro(let type, _, let nutrientUnit):
             switch type {
             case .quantityPerWorkoutDuration:
                 return type.description(nutrientUnit: nutrientUnit)
@@ -666,7 +637,7 @@ extension GoalViewModel {
                 energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
             )
             
-        case .micro(let nutrientGoalType, let nutrientType, _, _):
+        case .micro(let nutrientGoalType, let nutrientType, _):
             guard let trueLowerBound else  {
                 return nil
             }
@@ -737,7 +708,7 @@ extension GoalViewModel {
                 macro: macro,
                 energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
             )
-        case .micro(let nutrientGoalType, let nutrientType, _, _):
+        case .micro(let nutrientGoalType, let nutrientType, _):
             guard let trueUpperBound else {
                 return nil
             }
@@ -859,15 +830,4 @@ extension NutrientType {
         }
     }
 
-}
-
-extension NutrientTypeGroup {
-    var supportsMealSplitting: Bool {
-        switch self {
-        case .minerals, .vitamins:
-            return false
-        default:
-            return true
-        }
-    }
 }
