@@ -1,6 +1,6 @@
 import Foundation
 
-extension EnergyForm {
+extension EnergyGoalForm {
 
     func appeared() {
         pickedMealEnergyGoalType = MealEnergyTypeOption(goalViewModel: goal) ?? .fixed

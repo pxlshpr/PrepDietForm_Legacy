@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 
-extension EnergyForm {
+extension EnergyGoalForm {
     
     @ViewBuilder
     var typePicker: some View {

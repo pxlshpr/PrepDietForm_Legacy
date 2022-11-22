@@ -259,7 +259,7 @@ struct EnergyFormPreview: View {
     
     var body: some View {
         NavigationView {
-            EnergyForm(goal: goalViewModel, didTapDelete: { _ in
+            EnergyGoalForm(goal: goalViewModel, didTapDelete: { _ in
                 
             })
                 .environmentObject(viewModel)
@@ -303,7 +303,7 @@ struct MacroFormPreview: View {
     
     var body: some View {
         NavigationView {
-            NutrientForm(goal: goal, didTapDelete: { _ in
+            NutrientGoalForm(goal: goal, didTapDelete: { _ in
                 
             })
                 .environmentObject(goalSet)

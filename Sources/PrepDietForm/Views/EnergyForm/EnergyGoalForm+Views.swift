@@ -2,130 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
-extension EnergyForm {
-    
-    var lowerBoundSection: some View {
-        let binding = Binding<Double?>(
-            get: {
-                return goal.lowerBound
-            },
-            set: { newValue in
-                withAnimation {
-                    goal.lowerBound = newValue
-                }
-            }
-        )
-        
-        var header: some View {
-            Text(goal.haveBothBounds ? "From" : "At least")
-        }
-        return FormStyledSection(header: header) {
-            HStack {
-                DoubleTextField(
-                    double: binding,
-                    placeholder: "Optional",
-                    shouldResignFocus: $shouldResignFocus
-                )
-            }
-        }
-    }
-    
-    var upperBoundSection: some View {
-        let binding = Binding<Double?>(
-            get: { goal.upperBound },
-            set: { newValue in
-                withAnimation {
-                    goal.upperBound = newValue
-                }
-            }
-        )
-
-        var header: some View {
-            Text(goal.haveBothBounds ? "To" : "At most")
-        }
-        return FormStyledSection(header: header) {
-            HStack {
-                DoubleTextField(
-                    double: binding,
-                    placeholder: "Optional",
-                    shouldResignFocus: $shouldResignFocus
-                )
-            }
-        }
-    }
-    
-    var middleSection: some View {
-        VStack(spacing: 7) {
-            Text("")
-            if goal.lowerBound != nil, goal.upperBound == nil {
-                Button {
-                    Haptics.feedback(style: .rigid)
-                    goal.upperBound = goal.lowerBound
-                    goal.lowerBound = nil
-                } label: {
-//                    Image(systemName: "arrowshape.right.fill")
-                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
-                        .foregroundColor(.accentColor)
-                }
-            } else if goal.upperBound != nil, goal.lowerBound == nil {
-                Button {
-                    Haptics.feedback(style: .rigid)
-                    goal.lowerBound = goal.upperBound
-                    goal.upperBound = nil
-                } label: {
-//                    Image(systemName: "arrowshape.left.fill")
-                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
-                        .foregroundColor(.accentColor)
-                }
-            }
-//            else if goal.upperBound != nil, goal.lowerBound != nil {
-//                Text("to")
-//                    .font(.system(size: 17))
-//                    .foregroundColor(Color(.tertiaryLabel))
-//            }
-        }
-        .padding(.top, 10)
-        .frame(width: 16, height: 20)
-    }
-    
-    var unitView: some View {
-        HStack {
-            Text(goal.energyGoalType?.description ?? "")
-                .foregroundColor(Color(.tertiaryLabel))
-            if let difference = goal.energyGoalDelta {
-                Spacer()
-                Text(difference.description)
-                    .foregroundColor(Color(.quaternaryLabel))
-            }
-        }
-    }
-    
-    @ViewBuilder
-    var footer: some View {
-        EmptyView()
-    }
-    
-    var equivalentSection: some View {
-        @ViewBuilder
-        var header: some View {
-            if isDynamic {
-                Text("Currently Equals")
-            } else {
-                Text("Equals")
-            }
-        }
-        
-        return Group {
-            if goal.haveEquivalentValues {
-                FormStyledSection(header: header) {
-                    goal.equivalentTextHStack
-                }
-            }
-        }
-    }
-}
-
-extension EnergyForm {
+extension EnergyGoalForm {
     var body: some View {
         FormStyledScrollView {
             HStack(spacing: 0) {
@@ -153,16 +30,17 @@ extension EnergyForm {
     
     var bottomContents: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            deleteButton
+            doneButton
             Spacer()
+            deleteButton
         }
     }
 
     var keyboardContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            deleteButton
-            Spacer()
             doneButton
+            Spacer()
+            deleteButton
         }
     }
 
@@ -290,6 +168,129 @@ extension EnergyForm {
                         prefixColor: Color.white.opacity(0.75),
                         imageScale: .small
                     )
+                }
+            }
+        }
+    }
+}
+
+extension EnergyGoalForm {
+    
+    var lowerBoundSection: some View {
+        let binding = Binding<Double?>(
+            get: {
+                return goal.lowerBound
+            },
+            set: { newValue in
+                withAnimation {
+                    goal.lowerBound = newValue
+                }
+            }
+        )
+        
+        var header: some View {
+            Text(goal.haveBothBounds ? "From" : "At least")
+        }
+        return FormStyledSection(header: header) {
+            HStack {
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
+            }
+        }
+    }
+    
+    var upperBoundSection: some View {
+        let binding = Binding<Double?>(
+            get: { goal.upperBound },
+            set: { newValue in
+                withAnimation {
+                    goal.upperBound = newValue
+                }
+            }
+        )
+
+        var header: some View {
+            Text(goal.haveBothBounds ? "To" : "At most")
+        }
+        return FormStyledSection(header: header) {
+            HStack {
+                DoubleTextField(
+                    double: binding,
+                    placeholder: "Optional",
+                    shouldResignFocus: $shouldResignFocus
+                )
+            }
+        }
+    }
+    
+    var middleSection: some View {
+        VStack(spacing: 7) {
+            Text("")
+            if goal.lowerBound != nil, goal.upperBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.upperBound = goal.lowerBound
+                    goal.lowerBound = nil
+                } label: {
+//                    Image(systemName: "arrowshape.right.fill")
+                    Image(systemName: "rectangle.righthalf.inset.filled.arrow.right")
+                        .foregroundColor(.accentColor)
+                }
+            } else if goal.upperBound != nil, goal.lowerBound == nil {
+                Button {
+                    Haptics.feedback(style: .rigid)
+                    goal.lowerBound = goal.upperBound
+                    goal.upperBound = nil
+                } label: {
+//                    Image(systemName: "arrowshape.left.fill")
+                    Image(systemName: "rectangle.lefthalf.inset.filled.arrow.left")
+                        .foregroundColor(.accentColor)
+                }
+            }
+//            else if goal.upperBound != nil, goal.lowerBound != nil {
+//                Text("to")
+//                    .font(.system(size: 17))
+//                    .foregroundColor(Color(.tertiaryLabel))
+//            }
+        }
+        .padding(.top, 10)
+        .frame(width: 16, height: 20)
+    }
+    
+    var unitView: some View {
+        HStack {
+            Text(goal.energyGoalType?.description ?? "")
+                .foregroundColor(Color(.tertiaryLabel))
+            if let difference = goal.energyGoalDelta {
+                Spacer()
+                Text(difference.description)
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var footer: some View {
+        EmptyView()
+    }
+    
+    var equivalentSection: some View {
+        @ViewBuilder
+        var header: some View {
+            if isDynamic {
+                Text("Currently Equals")
+            } else {
+                Text("Equals")
+            }
+        }
+        
+        return Group {
+            if goal.haveEquivalentValues {
+                FormStyledSection(header: header) {
+                    goal.equivalentTextHStack
                 }
             }
         }

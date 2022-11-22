@@ -3,7 +3,7 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-struct NutrientForm: View {
+struct NutrientGoalForm: View {
     
     @Environment(\.dismiss) var dismiss
     
@@ -74,6 +74,7 @@ struct NutrientForm: View {
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
         .sheet(isPresented: $showingMealGoalsInfo) { mealGoalsInfo }
         .onDisappear(perform: goal.validateNutrient)
+        .scrollDismissesKeyboard(.interactively)
     }
     
     //MARK: - Sections
@@ -249,16 +250,17 @@ struct NutrientForm: View {
     
     var bottomContents: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            deleteButton
+            doneButton
             Spacer()
+            deleteButton
         }
     }
 
     var keyboardContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            deleteButton
-            Spacer()
             doneButton
+            Spacer()
+            deleteButton
         }
     }
 

@@ -29,13 +29,13 @@ extension GoalSetForm {
     @ViewBuilder
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
-            EnergyForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+            EnergyGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
             .environmentObject(viewModel)
         } else if goal.type.isMacro {
-            NutrientForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+            NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
         } else {
-            NutrientForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
+            NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(viewModel)
         }
     }

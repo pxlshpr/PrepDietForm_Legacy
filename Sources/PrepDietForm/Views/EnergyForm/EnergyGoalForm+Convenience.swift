@@ -1,7 +1,7 @@
 import Foundation
 import PrepDataTypes
 
-extension EnergyForm {
+extension EnergyGoalForm {
     
     var energyUnit: EnergyUnit {
         goal.energyUnit ?? .kcal

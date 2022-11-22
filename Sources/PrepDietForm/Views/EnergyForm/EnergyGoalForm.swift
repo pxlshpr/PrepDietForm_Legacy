@@ -3,7 +3,7 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-struct EnergyForm: View {
+struct EnergyGoalForm: View {
     
     @Environment(\.dismiss) var dismiss
     
