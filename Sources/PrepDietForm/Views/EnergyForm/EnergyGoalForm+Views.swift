@@ -415,8 +415,8 @@ public struct DietPreview: View {
     
     static let energyGoal = Goal(
         type: .energy(.fromMaintenance(.kcal, .deficit))
-//        , lowerBound: 500
-//        , upperBound: 750
+        , lowerBound: 500
+        , upperBound: 750
     )
     
     static let fatGoalPerBodyMass = Goal(
@@ -465,7 +465,7 @@ public struct DietPreview: View {
             isMealProfile: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-            , presentedGoalId: Self.energyGoal.id
+//            , presentedGoalId: Self.energyGoal.id
         )
     }
 }

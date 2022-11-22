@@ -38,7 +38,7 @@ enum DietNutrientGoal: CaseIterable {
         case .fixed, .quantityPerBodyMass, .quantityPerEnergy:
             return "\(nutrientUnit.shortDescription)"
         case .percentageOfEnergy:
-            return "\(nutrientUnit.shortDescription) of energy"
+            return "% of energy"
         }
     }
 }
