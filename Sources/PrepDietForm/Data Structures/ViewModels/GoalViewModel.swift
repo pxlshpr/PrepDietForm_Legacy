@@ -593,74 +593,49 @@ extension GoalViewModel {
             }
         }
     }
-        
+    
+    var largerBound: Double? {
+        if let upperBound {
+            if let lowerBound {
+                return upperBound > lowerBound ? upperBound : lowerBound
+            } else {
+                return upperBound
+            }
+        } else {
+            return lowerBound
+        }
+    }
+    
+    var smallerBound: Double? {
+        if let upperBound {
+            if let lowerBound {
+                return upperBound < lowerBound ? upperBound : lowerBound
+            } else {
+                return upperBound
+            }
+        } else {
+            return lowerBound
+        }
+    }
+    
     //TODO: Replace
     var equivalentLowerBound: Double? {
         switch type {
-        case .energy(let energyGoalType):
-            switch energyGoalType {
-                
-            case .fromMaintenance(let energyUnit, let delta):
-                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound > lowerBound {
-                            return tdee - upperBound
-                        } else {
-                            return tdee - lowerBound
-                        }
-                    } else {
-                        guard let lowerBound else { return nil }
-                        return tdee - lowerBound
-                    }
-                case .surplus:
-                    guard let lowerBound else { return nil }
-                    return tdee + lowerBound
-                }
-                
-            case .percentFromMaintenance(let delta):
-                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound > lowerBound {
-                            return tdee - ((upperBound/100) * tdee)
-                        } else {
-                            return tdee - ((lowerBound/100) * tdee)
-                        }
-                    } else {
-                        guard let lowerBound else { return nil }
-                        return tdee - ((lowerBound/100) * tdee)
-                    }
-                case .surplus:
-                    guard let lowerBound else { return nil }
-                    return tdee + ((lowerBound/100) * tdee)
-                }
-                
-            case .fixed:
-                return lowerBound
-            }
-        
-        case .macro(let nutrientGoalType, let macro):
-            guard let trueLowerBound else  {
-                return nil
-            }
+        case .energy:
+            return energyValue(
+                from: lowerBound,
+                deficitBound: largerBound ?? lowerBound,
+                tdee: goalSet.bodyProfile?.tdeeInUnit
+            )
+        case .macro:
             return macroValue(
                 from: trueLowerBound,
-                for: nutrientGoalType,
-                macro: macro,
                 energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
             )
             
-        case .micro(let nutrientGoalType, let nutrientType, _):
-            guard let trueLowerBound else  {
-                return nil
-            }
+        case .micro:
             return microValue(
                 from: trueLowerBound,
-                for: nutrientGoalType,
-                nutrientType: nutrientType,
                 energy: goalSet.energyGoal?.equivalentLowerBound ?? goalSet.energyGoal?.equivalentUpperBound
             )
         }
@@ -668,70 +643,20 @@ extension GoalViewModel {
     
     var equivalentUpperBound: Double? {
         switch type {
-        case .energy(let energyGoalType):
-            switch energyGoalType {
-                
-            case .fromMaintenance(let energyUnit, let delta):
-                guard let tdee = goalSet.bodyProfile?.tdee(in: energyUnit) else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound < lowerBound {
-                            return tdee - upperBound
-                        } else {
-                            return tdee - lowerBound
-                        }
-                    } else {
-                        guard let upperBound else { return nil }
-                        return tdee - upperBound
-                    }
-                case .surplus:
-                    guard let upperBound else { return nil }
-                    return tdee + upperBound
-                }
-                
-                //TODO: Handle this
-            case .percentFromMaintenance(let delta):
-                guard let tdee = goalSet.bodyProfile?.tdeeInUnit else { return nil }
-                switch delta {
-                case .deficit:
-                    if let upperBound, let lowerBound {
-                        if upperBound < lowerBound {
-                            return tdee - ((upperBound/100) * tdee)
-                        } else {
-                            return tdee - ((lowerBound/100) * tdee)
-                        }
-                    } else {
-                        guard let upperBound else { return nil }
-                        return tdee - ((upperBound/100) * tdee)
-                    }
-                case .surplus:
-                    guard let upperBound else { return nil }
-                    return tdee + ((upperBound/100) * tdee)
-                }
-
-            case .fixed:
-                return upperBound
-            }
-            
-        case .macro(let nutrientGoalType, let macro):
-            guard let trueUpperBound else {
-                return nil
-            }
+        case .energy:
+            return energyValue(
+                from: upperBound,
+                deficitBound: smallerBound ?? upperBound,
+                tdee: goalSet.bodyProfile?.tdeeInUnit
+            )
+        case .macro:
             return macroValue(
                 from: trueUpperBound,
-                for: nutrientGoalType,
-                macro: macro,
                 energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
             )
-        case .micro(let nutrientGoalType, let nutrientType, _):
-            guard let trueUpperBound else {
-                return nil
-            }
+        case .micro:
             return microValue(
                 from: trueUpperBound,
-                for: nutrientGoalType,
-                nutrientType: nutrientType,
                 energy: goalSet.energyGoal?.equivalentUpperBound ?? goalSet.energyGoal?.equivalentLowerBound
             )
         }
@@ -766,42 +691,83 @@ extension GoalViewModel {
         return (value * goalEnergyKcal) / perEnergyKcal
     }
     
-    func macroValue(from value: Double, for nutrientGoalType: NutrientGoalType, macro: Macro, energy: Double?) -> Double? {
-        switch nutrientGoalType {
-        case .quantityPerBodyMass(let bodyMass, let weightUnit):
-            return calculatedQuantityForBodyMass(bodyMass, value: value, in: weightUnit)
-            
-        case .percentageOfEnergy:
-            guard let energyInKcal = calculatedEnergyInKcal(from: energy) else { return nil }
-            return macro.grams(equallingPercent: value, of: energyInKcal)
+    
+    func energyValue(from value: Double?, deficitBound: Double?, tdee: Double?) -> Double? {
+        guard let value, let energyGoalType else { return nil }
         
-        case .quantityPerEnergy(let energyValue, let energyUnit):
-            guard let goalEnergyKcal = calculatedEnergyInKcal(from: energy) else { return nil }
-            let perEnergyKcal = energyUnit == .kcal ? energyValue : EnergyUnit.convertToKilocalories(fromKilojules: energyValue)
-            return calculatedQuantityPerEnergy(value: value, perEnergyKcal: perEnergyKcal, from: goalEnergyKcal)
+        guard !energyGoalType.isFixed else {
+            return value
+        }
+        
+        guard let deficitBound, let tdee else { return nil }
+        
+        switch energyGoalType {
+        case .fromMaintenance(_, let delta):
+            switch delta {
+            case .deficit:
+                return tdee - deficitBound
+            case .surplus:
+                return tdee + value
+            }
+            
+        case .percentFromMaintenance(let delta):
+            switch delta {
+            case .deficit:
+                return tdee - ((deficitBound/100) * tdee)
+            case .surplus:
+                return tdee + ((value/100) * tdee)
+            }
+            
         default:
             return nil
         }
     }
     
-    /// Returns this in grams
-    func microValue(from value: Double, for nutrientGoalType: NutrientGoalType, nutrientType: NutrientType, energy: Double?) -> Double? {
+    func nutrientValue(from value: Double?, energy: Double?) -> Double? {
+        guard let value, let nutrientGoalType else { return nil }
+        
         switch nutrientGoalType {
+            
         case .quantityPerBodyMass(let bodyMass, let weightUnit):
             return calculatedQuantityForBodyMass(bodyMass, value: value, in: weightUnit)
             
-        case .percentageOfEnergy:
-            guard let energyInKcal = calculatedEnergyInKcal(from: energy) else { return nil }
-            return nutrientType.grams(equallingPercent: value, of: energyInKcal)
-        
         case .quantityPerEnergy(let energyValue, let energyUnit):
             guard let goalEnergyKcal = calculatedEnergyInKcal(from: energy) else { return nil }
             let perEnergyKcal = energyUnit == .kcal ? energyValue : EnergyUnit.convertToKilocalories(fromKilojules: energyValue)
             return calculatedQuantityPerEnergy(value: value, perEnergyKcal: perEnergyKcal, from: goalEnergyKcal)
-
+            
         default:
             return nil
         }
+    }
+    
+    func macroValue(from value: Double?, energy: Double?) -> Double? {
+        
+        guard let nutrientGoalType, nutrientGoalType.isPercentageOfEnergy else {
+            return nutrientValue(from: value, energy: energy)
+        }
+        
+        guard let macro,
+              let value,
+              let energyInKcal = calculatedEnergyInKcal(from: energy)
+        else { return nil }
+        
+        return macro.grams(equallingPercent: value, of: energyInKcal)
+    }
+    
+    /// Returns this in grams
+    func microValue(from value: Double?, energy: Double?) -> Double? {
+        
+        guard let nutrientGoalType, nutrientGoalType.isPercentageOfEnergy else {
+            return nutrientValue(from: value, energy: energy)
+        }
+
+        guard let microNutrientType,
+              let value,
+              let energyInKcal = calculatedEnergyInKcal(from: energy)
+        else { return nil }
+        
+        return microNutrientType.grams(equallingPercent: value, of: energyInKcal)
     }
     
     //MARK: Helpers

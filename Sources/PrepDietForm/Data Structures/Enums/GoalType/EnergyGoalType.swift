@@ -27,6 +27,15 @@ extension EnergyGoalType {
 
 public extension EnergyGoalType {
     
+    var isFixed: Bool {
+        switch self {
+        case .fixed:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var description: String {
         switch self {
         case .fixed(let energyUnit):

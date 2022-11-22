@@ -67,7 +67,7 @@ extension NutrientGoalType {
         }
     }
     
-    var isPercent: Bool {
+    var isPercentageOfEnergy: Bool {
         switch self {
         case .percentageOfEnergy:
             return true
