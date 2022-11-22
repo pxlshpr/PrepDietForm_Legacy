@@ -37,7 +37,7 @@ extension EnergyGoalForm {
 
     var keyboardContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            doneButton
+//            doneButton
             Spacer()
             deleteButton
         }
