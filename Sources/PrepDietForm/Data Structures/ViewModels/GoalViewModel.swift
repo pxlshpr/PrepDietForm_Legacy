@@ -84,24 +84,11 @@ public class GoalViewModel: ObservableObject {
     }
     
     var energyGoalDelta: EnergyGoalType.Delta? {
-        get {
-            switch type {
-            case .energy(let type):
-                return type.delta
-            default:
-                return nil
-            }
-        }
-        set {
-            switch type {
-            case .energy(let type):
-                //TODO: Set the type here
-                var new = type
-                new.delta = newValue
-                self.type = .energy(new)
-            default:
-                break
-            }
+        switch type {
+        case .energy(let type):
+            return type.delta
+        default:
+            return nil
         }
     }
     

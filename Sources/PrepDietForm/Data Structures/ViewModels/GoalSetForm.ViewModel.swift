@@ -81,7 +81,7 @@ extension GoalSetForm.ViewModel {
         if pickedEnergy, !goals.containsEnergy {
             goals.append(GoalViewModel(
                 goalSet: self,
-                isForMeal: isMealProfile, type: .energy(.fixed(.kcal))
+                isForMeal: isMealProfile, type: .energy(.fixed(userUnits.energy))
             ))
         }
         for macro in pickedMacros {

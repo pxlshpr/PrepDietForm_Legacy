@@ -70,36 +70,13 @@ public extension EnergyGoalType {
     }
     
     var delta: Delta? {
-        get {
-            switch self {
-            case .fromMaintenance(_, let energyDelta):
-                return energyDelta
-            case .percentFromMaintenance(let energyDelta):
-                return energyDelta
-            default:
-                return nil
-            }
-        }
-        set {
-            switch self {
-            case .fromMaintenance(let energyUnit, _):
-                guard let newValue else {
-                    /// set it to fixed if we've assigned `nil`
-                    self = .fixed(energyUnit)
-                    return
-                }
-                self = .fromMaintenance(energyUnit, newValue)
-            case .percentFromMaintenance(_):
-                guard let newValue else {
-                    //TODO: Use the user's default unit here
-                    /// set it to fixed with the user's default unit if we've assigned `nil`
-                    self = .fixed(.kcal)
-                    return
-                }
-                self = .percentFromMaintenance(newValue)
-            default:
-                break
-            }
+        switch self {
+        case .fromMaintenance(_, let energyDelta):
+            return energyDelta
+        case .percentFromMaintenance(let energyDelta):
+            return energyDelta
+        default:
+            return nil
         }
     }
 }

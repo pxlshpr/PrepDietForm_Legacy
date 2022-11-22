@@ -13,20 +13,25 @@ extension EnergyGoalForm {
     }
     
     var mealTypePicker: some View {
-        Menu {
-            Picker(selection: $pickedMealEnergyGoalType, label: EmptyView()) {
-                ForEach(MealEnergyTypeOption.allCases, id: \.self) {
-                    Text($0.description(userEnergyUnit: .kcal)).tag($0)
-                }
-            }
-        } label: {
-            PickerLabel(pickedMealEnergyGoalType.description(userEnergyUnit: .kcal))
-                .animation(.none, value: pickedMealEnergyGoalType)
-        }
-        .contentShape(Rectangle())
-        .simultaneousGesture(TapGesture().onEnded {
-            Haptics.feedback(style: .soft)
-        })
+        PickerLabel(
+            pickedMealEnergyGoalType.description(userEnergyUnit: viewModel.userUnits.energy),
+            systemImage: nil
+        )
+            .animation(.none, value: pickedMealEnergyGoalType)
+//        Menu {
+//            Picker(selection: $pickedMealEnergyGoalType, label: EmptyView()) {
+//                ForEach(MealEnergyTypeOption.allCases, id: \.self) {
+//                    Text($0.description(userEnergyUnit: .kcal)).tag($0)
+//                }
+//            }
+//        } label: {
+//            PickerLabel(pickedMealEnergyGoalType.description(userEnergyUnit: .kcal))
+//                .animation(.none, value: pickedMealEnergyGoalType)
+//        }
+//        .contentShape(Rectangle())
+//        .simultaneousGesture(TapGesture().onEnded {
+//            Haptics.feedback(style: .soft)
+//        })
     }
     
     var dietTypePicker: some View {
@@ -42,11 +47,11 @@ extension EnergyGoalForm {
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
                 ForEach(DietEnergyTypeOption.allCases, id: \.self) {
-                    Text($0.description(userEnergyUnit: .kcal)).tag($0)
+                    Text($0.description(userEnergyUnit: viewModel.userUnits.energy)).tag($0)
                 }
             }
         } label: {
-            PickerLabel(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: .kcal))
+            PickerLabel(pickedDietEnergyGoalType.shortDescription(userEnergyUnit: viewModel.userUnits.energy))
                 .animation(.none, value: pickedDietEnergyGoalType)
         }
         .contentShape(Rectangle())
