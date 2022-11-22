@@ -265,7 +265,7 @@ extension TDEEForm {
                             )
                         } else {
                             MeasurementLabel(
-                                label: "set profile",
+                                label: "set body profile",
                                 valueString: "",
                                 useHealthAppData: false
                             )

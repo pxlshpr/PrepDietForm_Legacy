@@ -41,7 +41,8 @@ struct ProfileForm: View {
                 HeightSection()
             }
         }
-        .navigationTitle(viewModel.restingEnergyFormula.menuDescription + " Formula")
+//        .navigationTitle(viewModel.restingEnergyFormula.menuDescription + " Formula")
+        .navigationTitle("Body Profile")
         .toolbar { trailingContent }
     }
 }
