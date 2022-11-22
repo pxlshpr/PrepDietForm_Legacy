@@ -30,7 +30,6 @@ extension EnergyGoalForm {
     
     var bottomContents: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            doneButton
             Spacer()
             deleteButton
         }
@@ -47,7 +46,6 @@ extension EnergyGoalForm {
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             dynamicIndicator
-//            deleteButton
         }
     }
     
@@ -55,7 +53,7 @@ extension EnergyGoalForm {
         Button {
             dismiss()
         } label: {
-            Image(systemName: "checkmark")
+            Text("Done")
         }
     }
     
@@ -74,10 +72,7 @@ extension EnergyGoalForm {
         Button(role: .destructive) {
             didTapDelete(goal)
         } label: {
-            Image(systemName: "trash")
-//            Image(systemName: "minus.circle")
-//            Text("Delete")
-//            Text("Remove Goal")
+            Text("Delete")
                 .foregroundColor(.red)
         }
     }

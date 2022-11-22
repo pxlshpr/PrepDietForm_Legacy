@@ -250,7 +250,6 @@ struct NutrientGoalForm: View {
     
     var bottomContents: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            doneButton
             Spacer()
             deleteButton
         }
@@ -267,7 +266,6 @@ struct NutrientGoalForm: View {
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             dynamicIndicator
-//            deleteButton
         }
     }
     
@@ -275,7 +273,7 @@ struct NutrientGoalForm: View {
         Button {
             dismiss()
         } label: {
-            Image(systemName: "checkmark")
+            Text("Done")
         }
     }
     
@@ -294,10 +292,7 @@ struct NutrientGoalForm: View {
         Button(role: .destructive) {
             didTapDelete(goal)
         } label: {
-            Image(systemName: "trash")
-//            Image(systemName: "minus.circle")
-//            Text("Delete")
-//            Text("Remove Goal")
+            Text("Delete")
                 .foregroundColor(.red)
         }
     }
