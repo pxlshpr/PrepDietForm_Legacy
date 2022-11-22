@@ -36,6 +36,32 @@ extension Array where Element == Goal {
 }
 
 extension Goal {
+    func equivalentUnitString(userUnits: UserUnits) -> String? {
+        switch type {
+        case .energy(let type):
+            switch type {
+            default:
+                return userUnits.energy.shortDescription
+            }
+        case .macro(let type, _):
+            switch type {
+            case .quantityPerWorkoutDuration:
+                return type.description(nutrientUnit: .g)
+            default:
+                return NutrientUnit.g.shortDescription
+            }
+        case .micro(let type, _, let nutrientUnit):
+            switch type {
+            case .quantityPerWorkoutDuration:
+                return type.description(nutrientUnit: nutrientUnit)
+            default:
+                return nutrientUnit.shortDescription
+            }
+        }
+    }
+}
+
+extension Goal {
     
     func equivalentLowerBound(
         energyGoal: Goal?,

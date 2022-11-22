@@ -571,27 +571,28 @@ import PrepDataTypes
 extension GoalViewModel {
     
     var equivalentUnitString: String? {
-        switch type {
-        case .energy(let type):
-            switch type {
-            default:
-                return goalSet.userUnits.energy.shortDescription
-            }
-        case .macro(let type, _):
-            switch type {
-            case .quantityPerWorkoutDuration:
-                return type.description(nutrientUnit: .g)
-            default:
-                return NutrientUnit.g.shortDescription
-            }
-        case .micro(let type, _, let nutrientUnit):
-            switch type {
-            case .quantityPerWorkoutDuration:
-                return type.description(nutrientUnit: nutrientUnit)
-            default:
-                return nutrientUnit.shortDescription
-            }
-        }
+        goal.equivalentUnitString(userUnits: goalSet.userUnits)
+//        switch type {
+//        case .energy(let type):
+//            switch type {
+//            default:
+//                return goalSet.userUnits.energy.shortDescription
+//            }
+//        case .macro(let type, _):
+//            switch type {
+//            case .quantityPerWorkoutDuration:
+//                return type.description(nutrientUnit: .g)
+//            default:
+//                return NutrientUnit.g.shortDescription
+//            }
+//        case .micro(let type, _, let nutrientUnit):
+//            switch type {
+//            case .quantityPerWorkoutDuration:
+//                return type.description(nutrientUnit: nutrientUnit)
+//            default:
+//                return nutrientUnit.shortDescription
+//            }
+//        }
     }
     
     //MARK: Bounds Helpers
