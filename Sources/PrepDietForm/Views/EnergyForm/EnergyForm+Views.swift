@@ -249,7 +249,7 @@ extension EnergyForm {
     
     var tdeeForm: some View {
         TDEEForm(existingProfile: viewModel.bodyProfile, userUnits: .standard) { profile in
-            viewModel.setBodyProfile(profile)            
+            viewModel.setBodyProfile(profile)
         }
     }
     

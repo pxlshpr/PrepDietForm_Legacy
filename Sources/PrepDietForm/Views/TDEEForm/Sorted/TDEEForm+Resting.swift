@@ -230,8 +230,11 @@ extension TDEEForm {
                 }
                 .fixedSize(horizontal: true, vertical: true)
                 if viewModel.restingEnergyFormula.usesLeanBodyMass {
-                    Button {
-                        viewModel.path.append(.leanBodyMassForm)
+//                    Button {
+//                        viewModel.path.append(.leanBodyMassForm)
+                    NavigationLink {
+                        LeanBodyMassForm()
+                            .environmentObject(viewModel)
                     } label: {
                         MeasurementLabel(
                             label: viewModel.hasLeanBodyMass ? "lean body mass" : "set lean body mass",
@@ -240,8 +243,11 @@ extension TDEEForm {
                         )
                     }
                 } else {
-                    Button {
-                        viewModel.path.append(.profileForm)
+//                    Button {
+//                        viewModel.path.append(.profileForm)
+                    NavigationLink {
+                        ProfileForm()
+                            .environmentObject(viewModel)
                     } label: {
                         if viewModel.hasProfile,
                            let age = viewModel.age,

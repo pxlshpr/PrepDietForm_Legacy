@@ -59,7 +59,8 @@ struct TDEEForm: View {
     }
     
     var navigationView: some View {
-        NavigationStack(path: $viewModel.path) {
+//        NavigationStack(path: $viewModel.path) {
+        NavigationView {
             ZStack {
                 form
                 buttonLayer
@@ -72,7 +73,7 @@ struct TDEEForm: View {
             .onChange(of: viewModel.restingEnergySource, perform: restingEnergySourceChanged)
             .onChange(of: viewModel.activeEnergySource, perform: activeEnergySourceChanged)
             .onChange(of: canBeSaved, perform: canBeSavedChanged)
-            .navigationDestination(for: Route.self, destination: navigationDestination)
+//            .navigationDestination(for: TDEEFormRoute.self, destination: navigationDestinationForm)
             .interactiveDismissDisabled(viewModel.isEditing && canBeSaved)
             .task { await initialTask() }
         }
@@ -81,6 +82,20 @@ struct TDEEForm: View {
     func canBeSavedChanged(to newValue: Bool) {
         withAnimation {
             showingSaveButton = newValue
+        }
+    }
+    
+    func navigationDestinationForm(for route: TDEEFormRoute) -> some View {
+        print("We getting: \(route)")
+        return Group {
+            switch route {
+            case .profileForm:
+                ProfileForm()
+                    .environmentObject(viewModel)
+            case .leanBodyMassForm:
+                LeanBodyMassForm()
+                    .environmentObject(viewModel)
+            }
         }
     }
     

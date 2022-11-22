@@ -4,13 +4,13 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
+enum TDEEFormRoute: Hashable {
+    case leanBodyMassForm
+    case profileForm
+}
+
 extension TDEEForm {
     
-    enum Route: Hashable {
-        case leanBodyMassForm
-        case profileForm
-    }
-
     func initialTask() async {
 //        guard let restingEnergy = await HealthKitManager.shared.getLatestRestingEnergy() else {
 //            return
@@ -261,18 +261,6 @@ struct LeftAlignedFlowLayout: Layout {
 }
 
 extension TDEEForm {
-    
-    @ViewBuilder
-    func navigationDestination(for route: Route) -> some View {
-        switch route {
-        case .profileForm:
-            ProfileForm()
-                .environmentObject(viewModel)
-        case .leanBodyMassForm:
-            LeanBodyMassForm()
-                .environmentObject(viewModel)
-        }
-    }
     
     var activeEnergyHealthAppPeriodLink: some View {
         Button {

@@ -1324,7 +1324,7 @@ extension TDEEForm {
         let userWeightUnit: WeightUnit
         let userHeightUnit: HeightUnit
 
-        @Published var path: [Route] = []
+        @Published var path: [TDEEFormRoute] = []
         @Published var isEditing = false
 
         @Published var presentationDetent: PresentationDetent
