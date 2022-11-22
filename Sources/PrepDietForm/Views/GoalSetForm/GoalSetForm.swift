@@ -15,7 +15,7 @@ public struct GoalSetForm: View {
     @State var showingEmojiPicker = false
     
     @State var showingEquivalentValuesToggle: Bool
-    @State var showingEquivalentValues = false
+    @State var showingEquivalentValues = true
 
     @FocusState var isFocused: Bool
     

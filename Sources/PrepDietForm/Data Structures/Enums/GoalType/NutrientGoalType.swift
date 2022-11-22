@@ -94,6 +94,15 @@ extension NutrientGoalType {
         }
     }
     
+    var dependsOnEnergy: Bool {
+        switch self {
+        case .percentageOfEnergy, .quantityPerEnergy:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var isQuantityPerBodyMass: Bool {
         switch self {
         case .quantityPerBodyMass:

@@ -14,7 +14,7 @@ public class GoalViewModel: ObservableObject {
     @Published var upperBound: Double?
     
     var anyCancellable: AnyCancellable? = nil
-    
+        
     public init(
         goalSet: GoalSetForm.ViewModel,
         isForMeal: Bool = false,
@@ -31,7 +31,9 @@ public class GoalViewModel: ObservableObject {
         self.upperBound = upperBound
         
         anyCancellable = goalSet.objectWillChange.sink { [weak self] (_) in
-            self?.objectWillChange.send()
+            withAnimation {
+                self?.objectWillChange.send()
+            }
         }
     }
     
@@ -252,6 +254,9 @@ public class GoalViewModel: ObservableObject {
     }
     
     //MARK: - Common
+    var isEmpty: Bool {
+        !hasOneBound
+    }
     
     var workoutDurationUnit: WorkoutDurationUnit? {
         guard let nutrientGoalType else { return nil }

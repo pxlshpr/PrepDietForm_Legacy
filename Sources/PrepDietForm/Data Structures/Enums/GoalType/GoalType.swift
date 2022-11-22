@@ -27,6 +27,21 @@ public enum GoalType: Hashable, Codable {
     var isMicro: Bool {
         nutrientType != nil
     }
+    
+    var dependsOnEnergy: Bool {
+        nutrientGoalType?.dependsOnEnergy ?? false
+    }
+    
+    var nutrientGoalType: NutrientGoalType? {
+        switch self {
+        case .macro(let nutrientGoalType, _):
+            return nutrientGoalType
+        case .micro(let nutrientGoalType, _, _):
+            return nutrientGoalType
+        default:
+            return nil
+        }
+    }
 
     var isEnergy: Bool {
         switch self {
