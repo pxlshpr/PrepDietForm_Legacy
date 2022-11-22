@@ -368,6 +368,16 @@ public class GoalViewModel: ObservableObject {
         return nil
     }
     
+    var placeholderTextColor: Color? {
+        guard let nutrientGoalType else { return nil }
+        switch nutrientGoalType {
+        case .quantityPerWorkoutDuration:
+            return Color(.secondaryLabel)
+        default:
+            return nil
+        }
+    }
+    
     var nutrientPlaceholderText: String? {
         guard let nutrientGoalType else { return nil }
         switch nutrientGoalType {

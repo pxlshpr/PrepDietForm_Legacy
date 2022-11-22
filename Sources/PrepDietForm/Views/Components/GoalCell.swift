@@ -143,6 +143,11 @@ struct GoalCell: View {
         
         return placeholderText
     }
+    
+    var placeholderTextColor: Color {
+        goal.placeholderTextColor ?? Color(.quaternaryLabel)
+    }
+    
     @ViewBuilder
     var bottomRowTexts: some View {
         if goal.type.showsEquivalentValues && showingEquivalentValues {
@@ -164,7 +169,7 @@ struct GoalCell: View {
     var texts: some View {
         if let placeholderText {
             Text(placeholderText)
-                .foregroundColor(Color(.quaternaryLabel))
+                .foregroundColor(placeholderTextColor)
                 .font(.system(size: 20, weight: .medium, design: .rounded))
         } else {
             HStack {
@@ -195,7 +200,7 @@ struct GoalCell: View {
     var equivalentTexts: some View {
         if let placeholderText {
             Text(placeholderText)
-                .foregroundColor(Color(.quaternaryLabel))
+                .foregroundColor(placeholderTextColor)
                 .font(.system(size: 20, weight: .medium, design: .rounded))
         } else {
             HStack {
