@@ -6,11 +6,55 @@ public enum GoalSetFormRoute: Hashable {
     case goal(GoalViewModel)
 }
 
+//extension GoalSetForm {
+//    public class ViewModel: ObservableObject {
+//        @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
+//        @Published var path: [GoalSetFormRoute] = []
+//        let existingGoalSet: GoalSet?
+//
+//        init(
+//            userUnits: UserUnits,
+//            bodyProfile: BodyProfile?,
+//            presentedGoalId: UUID? = nil,
+//            existingGoalSet: GoalSet?
+//        ) {
+//            self.existingGoalSet = existingGoalSet
+//
+//            self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(
+//                existingProfile: bodyProfile,
+//                userUnits: userUnits
+//            )
+//
+//            self.path = []
+//            //TODO: Bring this back
+////            if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
+////                self.path = [.goal(goalViewModel)]
+////            }
+//        }
+//    }
+//
+//    func resetNutrientTDEEFormViewModel() {
+//        setNutrientTDEEFormViewModel(with: bodyProfile)
+//    }
+//
+//    func setNutrientTDEEFormViewModel(with bodyProfile: BodyProfile?) {
+//        nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
+//    }
+//
+//    func setBodyProfile(_ bodyProfile: BodyProfile) {
+//        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetViewModel (or at least the relevant fields for weight and lbm)
+//        self.bodyProfile = bodyProfile
+//        setNutrientTDEEFormViewModel(with: bodyProfile)
+//    }
+//}
+
 public struct GoalSetForm: View {
         
     @Environment(\.dismiss) var dismiss
     
-    @StateObject var viewModel: GoalSetViewModel
+    @StateObject var goalSetViewModel: GoalSetViewModel
+//    @StateObject var viewModel: ViewModel
+    
     @State var showingNutrientsPicker: Bool = false
     @State var showingEmojiPicker = false
     
@@ -19,21 +63,35 @@ public struct GoalSetForm: View {
 
     @FocusState var isFocused: Bool
     
-    public init(isMealProfile: Bool, existingGoalSet: GoalSet? = nil, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
-        let viewModel = GoalSetViewModel(
+    //TODO: Use user's units here
+    public init(
+        isMealProfile: Bool,
+        existingGoalSet: GoalSet? = nil,
+        bodyProfile: BodyProfile? = nil,
+        presentedGoalId: UUID? = nil
+    ) {
+        let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
             isMealProfile: isMealProfile,
             existingGoalSet: existingGoalSet,
             bodyProfile: bodyProfile,
             presentedGoalId: presentedGoalId
         )
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _goalSetViewModel = StateObject(wrappedValue: goalSetViewModel)
         
-        _showingEquivalentValuesToggle = State(initialValue: viewModel.containsGoalWithEquivalentValues)
+        _showingEquivalentValuesToggle = State(initialValue: goalSetViewModel.containsGoalWithEquivalentValues)
+        
+//        let viewModel = ViewModel(
+//            userUnits: .standard,
+//            bodyProfile: bodyProfile,
+//            presentedGoalId: presentedGoalId,
+//            existingGoalSet: existingGoalSet
+//        )
+//        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
-        NavigationStack(path: $viewModel.path) {
+        NavigationStack(path: $goalSetViewModel.path) {
             content
             .background(Color(.systemGroupedBackground))
             .navigationTitle(title)
@@ -44,7 +102,7 @@ public struct GoalSetForm: View {
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
             .navigationDestination(for: GoalSetFormRoute.self, destination: navigationDestination)
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: viewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
+            .onChange(of: goalSetViewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
         }
     }
     
@@ -63,8 +121,8 @@ public struct GoalSetForm: View {
     }
     
     var title: String {
-        let typeName = viewModel.isMealProfile ? "Meal Type": "Diet"
-        return viewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
+        let typeName = goalSetViewModel.isMealProfile ? "Meal Type": "Diet"
+        return goalSetViewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
     }
     
     var content: some View {
@@ -88,7 +146,7 @@ public struct GoalSetForm: View {
     
     @ViewBuilder
     var energyCell: some View {
-        if let energy = viewModel.energyGoal {
+        if let energy = goalSetViewModel.energyGoal {
             cell(for: energy)
         }
     }
@@ -101,7 +159,7 @@ public struct GoalSetForm: View {
 //        }
         Button {
             isFocused = false
-            viewModel.path.append(.goal(goalViewModel))
+            goalSetViewModel.path.append(.goal(goalViewModel))
         } label: {
             GoalCell(
                 goal: goalViewModel,
@@ -112,10 +170,10 @@ public struct GoalSetForm: View {
         
     @ViewBuilder
     var macroCells: some View {
-        if !viewModel.macroGoals.isEmpty {
+        if !goalSetViewModel.macroGoals.isEmpty {
             Group {
                 subtitleCell("Macros")
-                ForEach(viewModel.macroGoals, id: \.self) {
+                ForEach(goalSetViewModel.macroGoals, id: \.self) {
                     cell(for: $0)
                 }
             }
@@ -124,10 +182,10 @@ public struct GoalSetForm: View {
     
     @ViewBuilder
     var microCells: some View {
-        if !viewModel.microGoals.isEmpty {
+        if !goalSetViewModel.microGoals.isEmpty {
             Group {
                 subtitleCell("Micronutrients")
-                ForEach(viewModel.microGoals, id: \.self) {
+                ForEach(goalSetViewModel.microGoals, id: \.self) {
                     cell(for: $0)
                 }
             }
@@ -151,7 +209,7 @@ public struct GoalSetForm: View {
     
     @ViewBuilder
     var dynamicInfoContent: some View {
-        if viewModel.containsDynamicGoal {
+        if goalSetViewModel.containsDynamicGoal {
             HStack(alignment: .firstTextBaseline) {
                 appleHealthBolt
                     .imageScale(.small)
@@ -175,14 +233,14 @@ public struct GoalSetForm: View {
             Haptics.feedback(style: .soft)
             showingEmojiPicker = true
         } label: {
-            Text(viewModel.emoji)
+            Text(goalSetViewModel.emoji)
                 .font(.system(size: 50))
         }
     }
     
     @ViewBuilder
     var nameTextField: some View {
-        TextField("Enter a Name", text: $viewModel.name)
+        TextField("Enter a Name", text: $goalSetViewModel.name)
             .font(.title3)
             .multilineTextAlignment(.leading)
             .focused($isFocused)

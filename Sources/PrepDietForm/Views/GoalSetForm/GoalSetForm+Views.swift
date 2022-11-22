@@ -8,11 +8,11 @@ extension GoalSetForm {
     var nutrientsPicker: some View {
         NutrientsPicker(
             supportsEnergyAndMacros: true,
-            shouldShowEnergy: !viewModel.goals.containsEnergy,
+            shouldShowEnergy: !goalSetViewModel.goalViewModels.containsEnergy,
             shouldShowMacro: shouldShowMacro,
             hasUnusedMicros: hasUnusedMicros,
             hasMicronutrient: hasMicronutrient,
-            didAddNutrients: viewModel.didAddNutrients
+            didAddNutrients: goalSetViewModel.didAddNutrients
         )
     }
     
@@ -22,7 +22,7 @@ extension GoalSetForm {
             includeCancelButton: true) { emoji in
                 Haptics.successFeedback()
                 showingEmojiPicker = false
-                viewModel.emoji = emoji
+                goalSetViewModel.emoji = emoji
             }
     }
     
@@ -30,20 +30,20 @@ extension GoalSetForm {
     func goalForm(for goal: GoalViewModel) -> some View {
         if goal.type.isEnergy {
             EnergyGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
-                .environmentObject(viewModel)
+                .environmentObject(goalSetViewModel)
         } else if goal.type.isMacro {
             NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
-                .environmentObject(viewModel)
+                .environmentObject(goalSetViewModel)
         } else {
             NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
-                .environmentObject(viewModel)
+                .environmentObject(goalSetViewModel)
         }
     }
     
     func didTapDeleteOnGoal(_ goal: GoalViewModel) {
-        viewModel.path = []
+        goalSetViewModel.path = []
         withAnimation {
-            viewModel.goals.removeAll(where: { $0.id == goal.id })
+            goalSetViewModel.goalViewModels.removeAll(where: { $0.id == goal.id })
         }
     }
     
@@ -71,7 +71,7 @@ extension GoalSetForm {
     
     @ViewBuilder
     var addButton: some View {
-        if !viewModel.goals.isEmpty {
+        if !goalSetViewModel.goalViewModels.isEmpty {
             Button {
                 presentNutrientsPicker()
             } label: {
@@ -82,7 +82,7 @@ extension GoalSetForm {
     
     @ViewBuilder
     var emptyContent: some View {
-        if viewModel.goals.isEmpty {
+        if goalSetViewModel.goalViewModels.isEmpty {
             emptyPrompt
         }
     }

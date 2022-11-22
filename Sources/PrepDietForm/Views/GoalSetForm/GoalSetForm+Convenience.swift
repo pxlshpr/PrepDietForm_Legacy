@@ -3,7 +3,7 @@ import PrepDataTypes
 
 extension GoalSetForm {
     func shouldShowMacro(_ macro: Macro) -> Bool {
-        !viewModel.containsMacro(macro)
+        !goalSetViewModel.containsMacro(macro)
     }
     
     func hasUnusedMicros(in group: NutrientTypeGroup, matching searchString: String) -> Bool {
@@ -17,6 +17,6 @@ extension GoalSetForm {
     }
     
     func hasMicronutrient(_ nutrientType: NutrientType) -> Bool {
-        viewModel.containsMicro(nutrientType)
+        goalSetViewModel.containsMicro(nutrientType)
     }
 }

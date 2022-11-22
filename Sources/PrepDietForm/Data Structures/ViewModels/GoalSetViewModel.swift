@@ -3,32 +3,41 @@ import PrepDataTypes
 
 public class GoalSetViewModel: ObservableObject {
     
-    @Published var emoji: String
     @Published var name: String
+    @Published var emoji: String
+    @Published var goalViewModels: [GoalViewModel] = []
     @Published var isMealProfile = false
-    @Published var goals: [GoalViewModel] = []
     
+    /// Used to calculate equivalent values
+    let userUnits: UserUnits
     @Published var bodyProfile: BodyProfile?
     
     @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
-    
     @Published var path: [GoalSetFormRoute] = []
-    
-    let userUnits: UserUnits
-
     let existingGoalSet: GoalSet?
     
-    init(userUnits: UserUnits, isMealProfile: Bool, existingGoalSet existing: GoalSet?, bodyProfile: BodyProfile? = nil, presentedGoalId: UUID? = nil) {
-        self.userUnits = userUnits
-        self.isMealProfile = isMealProfile
-        self.bodyProfile = bodyProfile
-        self.existingGoalSet = existing
-        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
+    init(
+        userUnits: UserUnits,
+        isMealProfile: Bool,
+        existingGoalSet existing: GoalSet?,
+        bodyProfile: BodyProfile? = nil,
+        presentedGoalId: UUID? = nil
+    ) {
         self.name = existing?.name ?? ""
+        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
+        self.isMealProfile = isMealProfile
+
+        self.userUnits = userUnits
+        self.bodyProfile = bodyProfile
+
+        self.existingGoalSet = existing
+
+
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-        self.goals = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
-        
-        if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
+
+        self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
+
+        if let presentedGoalId, let goalViewModel = goalViewModels.first(where: { $0.id == presentedGoalId }) {
             self.path = [.goal(goalViewModel)]
         }
     }
@@ -51,15 +60,15 @@ extension GoalSetViewModel {
     }
     
     func didAddNutrients(pickedEnergy: Bool, pickedMacros: [Macro], pickedMicros: [NutrientType]) {
-        if pickedEnergy, !goals.containsEnergy {
-            goals.append(GoalViewModel(
+        if pickedEnergy, !goalViewModels.containsEnergy {
+            goalViewModels.append(GoalViewModel(
                 goalSet: self,
                 isForMeal: isMealProfile, type: .energy(.fixed(userUnits.energy))
             ))
         }
         for macro in pickedMacros {
-            if !goals.containsMacro(macro) {
-                goals.append(GoalViewModel(
+            if !goalViewModels.containsMacro(macro) {
+                goalViewModels.append(GoalViewModel(
                     goalSet: self,
                     isForMeal: isMealProfile,
                     type: .macro(.fixed, macro)
@@ -67,8 +76,8 @@ extension GoalSetViewModel {
             }
         }
         for nutrientType in pickedMicros {
-            if !goals.containsMicro(nutrientType) {
-                goals.append(GoalViewModel(
+            if !goalViewModels.containsMicro(nutrientType) {
+                goalViewModels.append(GoalViewModel(
                     goalSet: self,
                     isForMeal: isMealProfile,
                     type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
@@ -80,19 +89,19 @@ extension GoalSetViewModel {
     //MARK: - Convenience
     
     var containsGoalWithEquivalentValues: Bool {
-        goals.contains(where: { $0.type.showsEquivalentValues })
+        goalViewModels.contains(where: { $0.type.showsEquivalentValues })
     }
     
     func containsMacro(_ macro: Macro) -> Bool {
-        goals.containsMacro(macro)
+        goalViewModels.containsMacro(macro)
     }
     
     func containsMicro(_ micro: NutrientType) -> Bool {
-        goals.containsMicro(micro)
+        goalViewModels.containsMicro(micro)
     }
     
     var containsDynamicGoal: Bool {
-        goals.contains(where: { $0.isDynamic })
+        goalViewModels.contains(where: { $0.isDynamic })
     }
     
     var hasTDEE: Bool {
@@ -108,20 +117,20 @@ extension GoalSetViewModel {
 
     var energyGoal: GoalViewModel? {
         get {
-            goals.first(where: { $0.type.isEnergy })
+            goalViewModels.first(where: { $0.type.isEnergy })
         }
         set {
             guard let newValue else {
                 //TODO: maybe use this to remove it by setting it to nil?
                 return
             }
-            self.goals.update(with: newValue)
+            self.goalViewModels.update(with: newValue)
         }
     }
     
     var macroGoals: [GoalViewModel] {
         get {
-            goals
+            goalViewModels
                 .filter({ $0.type.isMacro })
                 .sorted(by: {
                     ($0.type.macro?.sortOrder ?? 0) < ($1.type.macro?.sortOrder ?? 0)
@@ -131,7 +140,7 @@ extension GoalSetViewModel {
     
     var microGoals: [GoalViewModel] {
         get {
-            goals
+            goalViewModels
                 .filter({ $0.type.isMicro })
                 .sorted(by: {
                     ($0.type.nutrientType?.rawValue ?? 0) < ($1.type.nutrientType?.rawValue ?? 0)
