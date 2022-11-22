@@ -3,6 +3,7 @@ import PrepDataTypes
 
 public class GoalSetViewModel: ObservableObject {
     
+    let id = UUID()
     @Published var name: String
     @Published var emoji: String
     @Published var goalViewModels: [GoalViewModel] = []
@@ -44,6 +45,20 @@ public class GoalSetViewModel: ObservableObject {
 }
 
 extension GoalSetViewModel {
+    
+    var goalSet: GoalSet {
+        GoalSet(
+            id: id,
+            name: name,
+            emoji: emoji,
+            goals: goalViewModels.map { $0.goal },
+            isMealProfile: isMealProfile,
+            isPreset: false,
+            syncStatus: .notSynced,
+            updatedAt: Date().timeIntervalSince1970,
+            deletedAt: nil
+        )
+    }
     
     func resetNutrientTDEEFormViewModel() {
         setNutrientTDEEFormViewModel(with: bodyProfile)
