@@ -138,7 +138,7 @@ public struct GoalSetForm: View {
                 energyCell
                 macroCells
                 microCells
-                dynamicInfoContent
+                footerInfoContent
             }
             .padding(.horizontal, 20)
         }
@@ -242,24 +242,46 @@ public struct GoalSetForm: View {
         .padding(.bottom, 10)
     }
     
-    @ViewBuilder
-    var dynamicInfoContent: some View {
-        if goalSetViewModel.containsDynamicGoal {
-            HStack(alignment: .firstTextBaseline) {
-                appleHealthBolt
-                    .imageScale(.small)
-                Text("These are dynamic goals and will automatically update when new data is synced from the Health App.")
+    var footerInfoContent: some View {
+        
+        var dynamicGoalsString: String {
+            let prefix = goalSetViewModel.dynamicGoalsCount == 1 ? "This is a dynamic goal" : "These are dynamic goals"
+            return "\(prefix) and will automatically update when new data is synced from the Health App."
+        }
+        
+        var containsFooterContent: Bool {
+            goalSetViewModel.containsDynamicGoal || goalSetViewModel.containsImplicitGoal
+        }
+
+        return Group {
+            if containsFooterContent {
+                VStack(alignment: .leading) {
+                    if goalSetViewModel.containsDynamicGoal {
+                        HStack(alignment: .firstTextBaseline) {
+                            appleHealthBolt
+                                .imageScale(.small)
+                            Text(dynamicGoalsString)
+                        }
+                    }
+                    if let implicitGoalName = goalSetViewModel.implicitGoalName {
+                        HStack(alignment: .firstTextBaseline) {
+                            Image(systemName: "sparkles")
+                                .imageScale(.small)
+                            Text("Your \(implicitGoalName.lowercased()) goal has been automatically generated based on your other goals. You can still create a different goal to use instead of this.")
+                        }
+                    }
+                }
+                .font(.footnote)
+                .foregroundColor(Color(.secondaryLabel))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.primary)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 13)
+                .padding(.top, 13)
+                .background(Color(.secondarySystemGroupedBackground).opacity(0))
+                .cornerRadius(10)
+                .padding(.bottom, 10)
             }
-            .font(.footnote)
-            .foregroundColor(Color(.secondaryLabel))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(.primary)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 13)
-            .padding(.top, 13)
-            .background(Color(.secondarySystemGroupedBackground).opacity(0))
-            .cornerRadius(10)
-            .padding(.bottom, 10)
         }
     }
 

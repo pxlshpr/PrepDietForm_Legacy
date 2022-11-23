@@ -125,6 +125,18 @@ public class GoalSetViewModel: ObservableObject {
         goalViewModels.contains(where: { $0.isDynamic })
     }
     
+    var dynamicGoalsCount: Int {
+        goalViewModels.filter({ $0.isDynamic }).count
+    }
+    
+    var containsImplicitGoal: Bool {
+        !implicitGoals.isEmpty
+    }
+    
+    var implicitGoalName: String? {
+        implicitGoals.first?.description
+    }
+    
     var hasTDEE: Bool {
         bodyProfile?.hasTDEE ?? false
     }
