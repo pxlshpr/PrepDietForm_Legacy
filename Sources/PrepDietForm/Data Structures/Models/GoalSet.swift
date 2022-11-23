@@ -40,9 +40,6 @@ public struct GoalSet: Identifiable, Hashable, Codable {
 }
 
 extension GoalSet {
-    var energyGoal: Goal? {
-        goals.first(where: { $0.type.isEnergy })
-    }
     
     /// Creates an auto energy goal if we have goals for all 3 macros
     func autoEnergyGoal(with params: GoalCalcParams) -> Goal? {
@@ -55,6 +52,7 @@ extension GoalSet {
         )
     }
     
+    var energyGoal: Goal? { goals.first(where: { $0.type.isEnergy }) }
     var carbGoal: Goal? { goals.first(where: { $0.type.macro == .carb }) }
     var fatGoal: Goal? { goals.first(where: { $0.type.macro == .fat }) }
     var proteinGoal: Goal? { goals.first(where: { $0.type.macro == .protein }) }
@@ -108,6 +106,7 @@ func calculateMissingGoal(
         
         return goal
     }
+    
     return nil
 }
 
