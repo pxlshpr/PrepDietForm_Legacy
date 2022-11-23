@@ -75,15 +75,16 @@ extension GoalSetViewModel {
     }
     
     func didAddNutrients(pickedEnergy: Bool, pickedMacros: [Macro], pickedMicros: [NutrientType]) {
+        var newGoalViewModels: [GoalViewModel] = []
         if pickedEnergy, !goalViewModels.containsEnergy {
-            goalViewModels.append(GoalViewModel(
+            newGoalViewModels.append(GoalViewModel(
                 goalSet: self,
                 isForMeal: isMealProfile, type: .energy(.fixed(userUnits.energy))
             ))
         }
         for macro in pickedMacros {
             if !goalViewModels.containsMacro(macro) {
-                goalViewModels.append(GoalViewModel(
+                newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
                     isForMeal: isMealProfile,
                     type: .macro(.fixed, macro)
@@ -92,11 +93,17 @@ extension GoalSetViewModel {
         }
         for nutrientType in pickedMicros {
             if !goalViewModels.containsMicro(nutrientType) {
-                goalViewModels.append(GoalViewModel(
+                newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
                     isForMeal: isMealProfile,
                     type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
                 ))
+            }
+        }
+        goalViewModels.append(contentsOf: newGoalViewModels)
+        if newGoalViewModels.count == 1, let singleGoalViewModel = newGoalViewModels.first {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.path.append(.goal(singleGoalViewModel))
             }
         }
     }

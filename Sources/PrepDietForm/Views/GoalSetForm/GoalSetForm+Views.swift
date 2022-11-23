@@ -19,7 +19,7 @@ extension GoalSetForm {
             supportsEnergyAndMacros: true,
             shouldShowEnergy: shouldShowEnergyInPicker,
             shouldShowMacro: shouldShowMacroInPicker,
-            shouldDisableLastMacroOrEnergy: true,
+//            shouldDisableLastMacroOrEnergy: true,
             hasUnusedMicros: hasUnusedMicros,
             hasMicronutrient: hasMicronutrient,
             didAddNutrients: goalSetViewModel.didAddNutrients
