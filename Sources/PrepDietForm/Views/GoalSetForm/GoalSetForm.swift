@@ -146,14 +146,38 @@ public struct GoalSetForm: View {
     
     @ViewBuilder
     var energyCell: some View {
-        if let energy = goalSetViewModel.energyGoal {
-            cell(for: energy)
-//        } else if let autoEnergy = goalSetViewModel.implicitEnergyGoalViewModel {
-//            cell(for: autoEnergy, isButton: false)
+        if let goal = goalSetViewModel.energyGoal {
+            cell(for: goal)
         } else if let index = goalSetViewModel.implicitEnergyGoalIndex {
             cell(for: goalSetViewModel.implicitGoals[index], isButton: false)
         }
     }
+
+    @ViewBuilder
+    var carbCell: some View {
+        if let goal = goalSetViewModel.carbGoal {
+            cell(for: goal)
+        } else if let index = goalSetViewModel.implicitMacroGoalIndex(for: .carb) {
+            cell(for: goalSetViewModel.implicitGoals[index], isButton: false)
+        }
+    }
+    @ViewBuilder
+    var fatCell: some View {
+        if let goal = goalSetViewModel.fatGoal {
+            cell(for: goal)
+        } else if let index = goalSetViewModel.implicitMacroGoalIndex(for: .fat) {
+            cell(for: goalSetViewModel.implicitGoals[index], isButton: false)
+        }
+    }
+    @ViewBuilder
+    var proteinCell: some View {
+        if let goal = goalSetViewModel.proteinGoal {
+            cell(for: goal)
+        } else if let index = goalSetViewModel.implicitMacroGoalIndex(for: .protein) {
+            cell(for: goalSetViewModel.implicitGoals[index], isButton: false)
+        }
+    }
+
     
     func cell(for goalViewModel: GoalViewModel, isButton: Bool = true) -> some View {
         var label: some View {
@@ -181,9 +205,12 @@ public struct GoalSetForm: View {
         if !goalSetViewModel.macroGoals.isEmpty {
             Group {
                 subtitleCell("Macros")
-                ForEach(goalSetViewModel.macroGoals, id: \.self) {
-                    cell(for: $0)
-                }
+                carbCell
+                fatCell
+                proteinCell
+//                ForEach(goalSetViewModel.macroGoals, id: \.self) {
+//                    cell(for: $0)
+//                }
             }
         }
     }

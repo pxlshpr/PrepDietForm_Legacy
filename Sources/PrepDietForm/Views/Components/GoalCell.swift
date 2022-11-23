@@ -94,6 +94,10 @@ struct GoalCell: View {
             }
             .foregroundColor(Color(.secondaryLabel))
             .font(.caption)
+            .transition(.asymmetric(
+                insertion: .move(edge: .top).combined(with: .opacity),
+                removal: .move(edge: .top).combined(with: .opacity))
+            )
         }
     }
     
@@ -182,15 +186,24 @@ struct GoalCell: View {
     var bottomRowTexts: some View {
         if goal.type.showsEquivalentValues && showingEquivalentValues {
             equivalentTexts
+//                .transition(.asymmetric(
+//                    insertion: .move(edge: .leading),
+//                    removal: .scale.combined(with: .opacity).combined(with: .move(edge: .bottom))
+//                ))
                 .transition(.asymmetric(
-                    insertion: .move(edge: .leading),
-                    removal: .scale.combined(with: .opacity).combined(with: .move(edge: .bottom))
+                    insertion: .move(edge: .bottom).combined(with: .opacity),
+                    removal: .move(edge: .bottom).combined(with: .opacity)
                 ))
+
         } else {
             texts
+//                .transition(.asymmetric(
+//                    insertion: .move(edge: .leading),
+//                    removal: .scale.combined(with: .opacity).combined(with: .move(edge: .bottom))
+//                ))
                 .transition(.asymmetric(
-                    insertion: .move(edge: .leading),
-                    removal: .scale.combined(with: .opacity).combined(with: .move(edge: .bottom))
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .move(edge: .top).combined(with: .opacity)
                 ))
         }
     }

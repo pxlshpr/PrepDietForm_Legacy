@@ -41,17 +41,19 @@ public struct GoalSet: Identifiable, Hashable, Codable {
 
 extension GoalSet {
     
-    /// Creates an auto energy goal if we have goals for all 3 macros
-    func autoEnergyGoal(with params: GoalCalcParams) -> Goal? {
-        calculateMissingGoal(
-            energy: nil,
-            carb: carbGoal,
-            fat: fatGoal,
-            protein: proteinGoal,
-            with: params
-        )
+    func implicitEnergyGoal(with params: GoalCalcParams) -> Goal? {
+        calculateMissingGoal(energy: nil, carb: carbGoal, fat: fatGoal, protein: proteinGoal, with: params)
     }
-    
+    func implicitCarbGoal(with params: GoalCalcParams) -> Goal? {
+        calculateMissingGoal(energy: energyGoal, carb: nil, fat: fatGoal, protein: proteinGoal, with: params)
+    }
+    func implicitFatGoal(with params: GoalCalcParams) -> Goal? {
+        calculateMissingGoal(energy: energyGoal, carb: carbGoal, fat: nil, protein: proteinGoal, with: params)
+    }
+    func implicitProteinGoal(with params: GoalCalcParams) -> Goal? {
+        calculateMissingGoal(energy: energyGoal, carb: carbGoal, fat: fatGoal, protein: nil, with: params)
+    }
+
     var energyGoal: Goal? { goals.first(where: { $0.type.isEnergy }) }
     var carbGoal: Goal? { goals.first(where: { $0.type.macro == .carb }) }
     var fatGoal: Goal? { goals.first(where: { $0.type.macro == .fat }) }
@@ -71,8 +73,8 @@ func calculateMissingGoal(
     protein: Goal?,
     with params: GoalCalcParams
 ) -> Goal? {
+    
     if energy == nil {
-        /// Calculate energy
         guard let carb, let fat, let protein else { return nil }
         guard let carbLower = carb.lowerOrUpper(with: params),
               let carbUpper = carb.upperOrLower(with: params),
@@ -85,33 +87,125 @@ func calculateMissingGoal(
         let lower = calculateEnergy(c: carbLower, f: fatLower, p: proteinLower)
         let upper = calculateEnergy(c: carbUpper, f: fatUpper, p: proteinUpper)
 
-        var pickedLower: Double? = lower
-        var pickedUpper: Double? = upper
-        /// If we've got only one value (implying that none of the macros have both bounds)
-        if lower.rounded(toPlaces: 2) == upper.rounded(toPlaces: 2) {
-            /// Keep the side that's prevalent amongst the macros
-            if [carb, fat, protein].isPredominantlyLowerBounded {
-                pickedUpper = nil
-            } else {
-                pickedLower = nil
-            }
-            
-        }
-        
-        let goal = Goal(
-            type: .energy(.fixed(params.userUnits.energy)),
-            lowerBound: pickedLower,
-            upperBound: pickedUpper
+        return createAutoGoal(
+            lower: lower,
+            upper: upper,
+            existingGoals: [carb, fat, protein],
+            params: params,
+            type: .energy(.fixed(params.userUnits.energy))
         )
+    }
+    
+    if carb == nil {
+        guard let energy, let fat, let protein else { return nil }
+        guard let energyLower = energy.lowerOrUpper(with: params),
+              let energyUpper = energy.upperOrLower(with: params),
+              let fatLower = fat.lowerOrUpper(with: params),
+              let fatUpper = fat.upperOrLower(with: params),
+              let proteinLower = protein.lowerOrUpper(with: params),
+              let proteinUpper = protein.upperOrLower(with: params)
+        else { return nil }
         
-        return goal
+        /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
+        /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
+        let lower = calculateCarb(e: energyLower, f: fatUpper, p: proteinUpper)
+        let upper = calculateCarb(e: energyUpper, f: fatLower, p: proteinLower)
+
+        return createAutoGoal(
+            lower: lower,
+            upper: upper,
+            existingGoals: [energy, fat, protein],
+            params: params,
+            type: .macro(.fixed, .carb)
+        )
+    }
+    
+    if fat == nil {
+        guard let energy, let carb, let protein else { return nil }
+        guard let energyLower = energy.lowerOrUpper(with: params),
+              let energyUpper = energy.upperOrLower(with: params),
+              let carbLower = carb.lowerOrUpper(with: params),
+              let carbUpper = carb.upperOrLower(with: params),
+              let proteinLower = protein.lowerOrUpper(with: params),
+              let proteinUpper = protein.upperOrLower(with: params)
+        else { return nil }
+        
+        /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
+        /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
+        let lower = calculateFat(e: energyLower, c: carbUpper, p: proteinUpper)
+        let upper = calculateFat(e: energyUpper, c: carbLower, p: proteinLower)
+
+        return createAutoGoal(
+            lower: lower,
+            upper: upper,
+            existingGoals: [energy, carb, protein],
+            params: params,
+            type: .macro(.fixed, .fat)
+        )
+    }
+    
+    if protein == nil {
+        guard let energy, let fat, let carb else { return nil }
+        guard let energyLower = energy.lowerOrUpper(with: params),
+              let energyUpper = energy.upperOrLower(with: params),
+              let fatLower = fat.lowerOrUpper(with: params),
+              let fatUpper = fat.upperOrLower(with: params),
+              let carbLower = carb.lowerOrUpper(with: params),
+              let carbUpper = carb.upperOrLower(with: params)
+        else { return nil }
+        
+        /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
+        /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
+        let lower = calculateProtein(e: energyLower, f: fatUpper, c: carbUpper)
+        let upper = calculateProtein(e: energyUpper, f: fatLower, c: carbLower)
+
+        return createAutoGoal(
+            lower: lower,
+            upper: upper,
+            existingGoals: [energy, fat, carb],
+            params: params,
+            type: .macro(.fixed, .protein)
+        )
     }
     
     return nil
 }
 
+func createAutoGoal(
+    lower: Double,
+    upper: Double,
+    existingGoals: [Goal],
+    params: GoalCalcParams,
+    type: GoalType
+) -> Goal {
+    var pickedLower: Double? = lower
+    var pickedUpper: Double? = upper
+    /// If we've got only one value (implying that none of the macros have both bounds)
+    if lower.rounded(toPlaces: 2) == upper.rounded(toPlaces: 2) {
+        /// Keep the side that's prevalent amongst the macros
+        if existingGoals.isPredominantlyLowerBounded {
+            pickedUpper = nil
+        } else {
+            pickedLower = nil
+        }
+    }
+    
+    return Goal(type: type, lowerBound: pickedLower, upperBound: pickedUpper)
+}
+
 func calculateEnergy(c: Double, f: Double, p: Double) -> Double {
     (c * KcalsPerGramOfCarb) + (f * KcalsPerGramOfFat) + (p * KcalsPerGramOfProtein)
+}
+
+func calculateCarb(e: Double, f: Double, p: Double) -> Double {
+    (e - ((f * KcalsPerGramOfFat) + (p * KcalsPerGramOfProtein))) / KcalsPerGramOfCarb
+}
+
+func calculateFat(e: Double, c: Double, p: Double) -> Double {
+    (e - ((c * KcalsPerGramOfCarb) + (p * KcalsPerGramOfProtein))) / KcalsPerGramOfFat
+}
+func calculateProtein(e: Double, f: Double, c: Double) -> Double {
+    (e - ((f * KcalsPerGramOfFat) + (c * KcalsPerGramOfCarb))) / KcalsPerGramOfProtein
 }
 
 extension Goal {
@@ -307,12 +401,12 @@ public struct DietPreview: View {
         name: "Cutting",
         emoji: "🫃🏽",
         goals: [
-//            energyGoal,
-//            proteinGoalPerBodyMass,
-            proteinGoalFixed,
-//            fatGoalPerEnergy,
+            energyGoal,
+            proteinGoalPerBodyMass,
+//            proteinGoalFixed,
+            fatGoalPerEnergy,
 //            fatGoalPerBodyMass,
-            fatGoalFixed,
+//            fatGoalFixed,
             carbGoalFixed,
 //            magnesiumGoal,
 //            sugarGoal
