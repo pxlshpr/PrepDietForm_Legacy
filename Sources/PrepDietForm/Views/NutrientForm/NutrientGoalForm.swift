@@ -67,8 +67,13 @@ struct NutrientGoalForm: View {
         .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
-        .onDisappear(perform: goal.validateNutrient)
+        .onDisappear(perform: disappeared)
         .scrollDismissesKeyboard(.interactively)
+    }
+    
+    func disappeared() {
+        goal.validateNutrient()
+        goalSet.createImplicitGoals()
     }
     
     //MARK: - Sections

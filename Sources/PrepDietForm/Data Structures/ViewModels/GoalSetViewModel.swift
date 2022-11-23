@@ -37,14 +37,13 @@ public class GoalSetViewModel: ObservableObject {
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
 
         self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
+        
+        self.createImplicitGoals()
 
         if let presentedGoalId, let goalViewModel = goalViewModels.first(where: { $0.id == presentedGoalId }) {
             self.path = [.goal(goalViewModel)]
         }
     }
-}
-
-extension GoalSetViewModel {
     
     var goalSet: GoalSet {
         GoalSet(
@@ -158,12 +157,50 @@ extension GoalSetViewModel {
         )
     }
     
-    var autoEnergyGoalViewModel: GoalViewModel? {
+    @Published var implicitGoals: [GoalViewModel] = []
+
+    var implicitEnergyGoalIndex: Int? {
+        implicitGoals.firstIndex(where: { $0.type == implicitEnergyType })
+    }
+    
+    var implicitEnergyType: GoalType {
+        .energy(.fixed(userUnits.energy))
+    }
+    
+    func createImplicitGoals() {
+        withAnimation {
+            setOrReplaceImplicitGoal(
+                self.energyGoal == nil ? self.getImplicitEnergyGoalViewModel : nil,
+                for: implicitEnergyType
+            )
+        }
+    }
+    
+    func setOrReplaceImplicitGoal(_ goalViewModel: GoalViewModel?, for type: GoalType) {
+        /// If we got passed nil, remove the implicit goal
+        guard let goalViewModel else {
+            implicitGoals.removeAll(where: { $0.type == type })
+            return
+        }
+        
+        
+        if let index = implicitGoals.firstIndex(where: { $0.type == type }) {
+            /// If it exists, simply update the bounds
+            implicitGoals[index].lowerBound = goalViewModel.lowerBound
+            implicitGoals[index].upperBound = goalViewModel.upperBound
+        } else {
+            /// Otherwise append it
+            implicitGoals.append(goalViewModel)
+        }
+
+    }
+    
+    var getImplicitEnergyGoalViewModel: GoalViewModel? {
         if let goal = goalSet.autoEnergyGoal(with: goalCalcParams(includeEnergyGoal: false)) {
             return GoalViewModel(
                 goalSet: self,
                 isForMeal: self.isMealProfile,
-                id: goal.id,
+                id: UUID(), //goal.id,
                 type: goal.type,
                 lowerBound: goal.lowerBound,
                 upperBound: goal.upperBound,

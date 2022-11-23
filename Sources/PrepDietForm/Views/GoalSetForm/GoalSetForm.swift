@@ -148,8 +148,10 @@ public struct GoalSetForm: View {
     var energyCell: some View {
         if let energy = goalSetViewModel.energyGoal {
             cell(for: energy)
-        } else if let autoEnergy = goalSetViewModel.autoEnergyGoalViewModel {
-            cell(for: autoEnergy, isButton: false)
+//        } else if let autoEnergy = goalSetViewModel.implicitEnergyGoalViewModel {
+//            cell(for: autoEnergy, isButton: false)
+        } else if let index = goalSetViewModel.implicitEnergyGoalIndex {
+            cell(for: goalSetViewModel.implicitGoals[index], isButton: false)
         }
     }
     

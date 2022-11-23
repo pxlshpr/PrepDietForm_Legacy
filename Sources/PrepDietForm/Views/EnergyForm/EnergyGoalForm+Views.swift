@@ -30,6 +30,7 @@ extension EnergyGoalForm {
     
     func disappeared() {
         goal.validateEnergy()
+        viewModel.createImplicitGoals()
     }
     
     var bottomContents: some ToolbarContent {

@@ -541,6 +541,10 @@ extension GoalViewModel {
         validateLowerBoundLowerThanUpper()
         validateBoundsNotEqual()
     }
+
+    var debugDescription: String {
+        "\(description): \(lowerBound?.cleanAmount ?? "nil") \(upperBound?.cleanAmount ?? "nil")"
+    }
     
     var description: String {
         switch type {
