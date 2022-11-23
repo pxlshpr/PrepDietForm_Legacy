@@ -5,11 +5,21 @@ import SwiftHaptics
 import EmojiPicker
 
 extension GoalSetForm {
+    
+    var shouldShowEnergyInPicker: Bool {
+        !goalSetViewModel.goalViewModels.containsEnergy
+    }
+    
+    func shouldShowMacroInPicker(_ macro: Macro) -> Bool {
+        !goalSetViewModel.containsMacro(macro)
+    }
+
     var nutrientsPicker: some View {
         NutrientsPicker(
             supportsEnergyAndMacros: true,
-            shouldShowEnergy: !goalSetViewModel.goalViewModels.containsEnergy,
-            shouldShowMacro: shouldShowMacro,
+            shouldShowEnergy: shouldShowEnergyInPicker,
+            shouldShowMacro: shouldShowMacroInPicker,
+            shouldDisableLastMacroOrEnergy: true,
             hasUnusedMicros: hasUnusedMicros,
             hasMicronutrient: hasMicronutrient,
             didAddNutrients: goalSetViewModel.didAddNutrients

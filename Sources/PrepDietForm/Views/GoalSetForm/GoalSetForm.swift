@@ -148,23 +148,29 @@ public struct GoalSetForm: View {
     var energyCell: some View {
         if let energy = goalSetViewModel.energyGoal {
             cell(for: energy)
+        } else if let autoEnergy = goalSetViewModel.autoEnergyGoalViewModel {
+            cell(for: autoEnergy, isButton: false)
         }
     }
     
-    func cell(for goalViewModel: GoalViewModel) -> some View {
-//        NavigationLink {
-//            goalForm(for: goal)
-//        } label: {
-//            GoalCell(goal: goal, showingEquivalentValues: $showingEquivalentValues)
-//        }
-        Button {
-            isFocused = false
-            goalSetViewModel.path.append(.goal(goalViewModel))
-        } label: {
+    func cell(for goalViewModel: GoalViewModel, isButton: Bool = true) -> some View {
+        var label: some View {
             GoalCell(
                 goal: goalViewModel,
                 showingEquivalentValues: $showingEquivalentValues
             )
+        }
+        return Group {
+            if isButton {
+                Button {
+                    isFocused = false
+                    goalSetViewModel.path.append(.goal(goalViewModel))
+                } label: {
+                    label
+                }
+            } else {
+                label
+            }
         }
     }
         

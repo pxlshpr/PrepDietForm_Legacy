@@ -2,10 +2,6 @@ import SwiftUI
 import PrepDataTypes
 
 extension GoalSetForm {
-    func shouldShowMacro(_ macro: Macro) -> Bool {
-        !goalSetViewModel.containsMacro(macro)
-    }
-    
     func hasUnusedMicros(in group: NutrientTypeGroup, matching searchString: String) -> Bool {
         group.nutrients.contains(where: {
             if searchString.isEmpty {
