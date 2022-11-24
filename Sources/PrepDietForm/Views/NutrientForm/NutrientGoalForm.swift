@@ -305,14 +305,14 @@ struct NutrientGoalForm: View {
     }
 
     var bodyMassFormattedWithUnit: String {
-        guard let params = goalSet.bodyProfile?.parameters else { return "" }
+        guard let bodyProfile = goalSet.bodyProfile else { return "" }
         switch pickedBodyMassType {
         case .weight:
-            guard let weight = params.weight else { return "" }
-            return weight.rounded(toPlaces: 1).cleanAmount + " \(params.weightUnit.shortDescription)"
+            guard let weight = bodyProfile.weight else { return "" }
+            return weight.rounded(toPlaces: 1).cleanAmount + " \(bodyProfile.weightUnit.shortDescription)"
         case .leanMass:
-            guard let lbm = params.lbm else { return "" }
-            return lbm.rounded(toPlaces: 1).cleanAmount + " \(params.weightUnit.shortDescription)"
+            guard let lbm = bodyProfile.lbm else { return "" }
+            return lbm.rounded(toPlaces: 1).cleanAmount + " \(bodyProfile.weightUnit.shortDescription)"
         }
     }
     
@@ -660,23 +660,18 @@ extension BodyProfile {
         lbm: Double? = nil
     ) -> BodyProfile {
         BodyProfile(
-            id: UUID(),
-            parameters: Parameters(
-                energyUnit: .kcal,
-                weightUnit: .kg,
-                heightUnit: .cm,
-                restingEnergy: restingEnergy,
-                restingEnergySource: restingEnergySource,
-                restingEnergyFormula: restingEnergyFormula,
-                activeEnergy: activeEnergy,
-                activeEnergySource: activeEnergySource,
-                lbm: lbm,
-                lbmSource: .userEntered,
-                weight: weight,
-                weightSource: .userEntered
-            ),
-            syncStatus: .notSynced,
-            updatedAt: Date().timeIntervalSince1970
+            energyUnit: .kcal,
+            weightUnit: .kg,
+            heightUnit: .cm,
+            restingEnergy: restingEnergy,
+            restingEnergySource: restingEnergySource,
+            restingEnergyFormula: restingEnergyFormula,
+            activeEnergy: activeEnergy,
+            activeEnergySource: activeEnergySource,
+            lbm: lbm,
+            lbmSource: .userEntered,
+            weight: weight,
+            weightSource: .userEntered
         )
     }
 }

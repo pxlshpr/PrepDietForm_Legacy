@@ -426,10 +426,13 @@ struct EnergyFormPreview: View {
             isForMeal: false,
             existingGoalSet: nil,
             bodyProfile: BodyProfile(
-                id: UUID(),
-                parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
-                syncStatus: .notSynced,
-                updatedAt: Date().timeIntervalSince1970
+                energyUnit: .kcal,
+                weightUnit: .kg,
+                heightUnit: .cm,
+                restingEnergy: 2000,
+                restingEnergySource: .userEntered,
+                activeEnergy: 1100,
+                activeEnergySource: .userEntered
             )
         )
         let goalViewModel = GoalViewModel(

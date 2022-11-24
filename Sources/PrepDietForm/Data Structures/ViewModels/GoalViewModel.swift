@@ -329,16 +329,16 @@ public class GoalViewModel: ObservableObject {
     }
     
     var bodyMassIsSyncedWithHealth: Bool {
-        guard let params = goalSet.bodyProfile?.parameters,
+        guard let bodyProfile = goalSet.bodyProfile,
               let nutrientGoalType, nutrientGoalType.isQuantityPerBodyMass,
               let bodyMassType
         else { return false }
         
         switch bodyMassType {
         case .weight:
-            return params.weightUpdatesWithHealth == true
+            return bodyProfile.weightUpdatesWithHealth == true
         case .leanMass:
-            return params.lbmUpdatesWithHealth == true
+            return bodyProfile.lbmUpdatesWithHealth == true
         }
     }
     

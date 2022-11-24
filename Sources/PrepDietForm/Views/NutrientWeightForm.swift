@@ -103,7 +103,7 @@ extension NutrientWeightForm {
     var canBeSaved:Bool {
         /// If we have an existing profile—return false if the parameters are exactly the same
         if let existingProfile {
-            guard existingProfile.parameters != viewModel.bodyProfile.parameters else {
+            guard existingProfile != viewModel.bodyProfile else {
                 return false
             }
         }
@@ -113,12 +113,6 @@ extension NutrientWeightForm {
 }
 
 extension BodyProfile {
-    var hasWeight: Bool {
-        parameters.hasWeight
-    }
-}
-
-extension BodyProfile.Parameters {
     var hasWeight: Bool {
         weight != nil && weightSource != nil
     }

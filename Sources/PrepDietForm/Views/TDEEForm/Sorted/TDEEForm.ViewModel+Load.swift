@@ -3,53 +3,52 @@ import Foundation
 extension TDEEForm.ViewModel {
     func load(_ profile: BodyProfile) {
         
-        let params = profile.parameters
-        self.restingEnergySource = params.restingEnergySource
-        self.restingEnergyFormula = params.restingEnergyFormula ?? .katchMcardle
-        self.restingEnergy = params.restingEnergy
-        self.restingEnergyTextFieldString = params.restingEnergy?.cleanAmount ?? ""
-        self.restingEnergyPeriod = params.restingEnergyPeriod ?? .average
-        self.restingEnergyIntervalValue = params.restingEnergyIntervalValue ?? 1
-        self.restingEnergyInterval = params.restingEnergyInterval ?? .week
+        self.restingEnergySource = profile.restingEnergySource
+        self.restingEnergyFormula = profile.restingEnergyFormula ?? .katchMcardle
+        self.restingEnergy = profile.restingEnergy
+        self.restingEnergyTextFieldString = profile.restingEnergy?.cleanAmount ?? ""
+        self.restingEnergyPeriod = profile.restingEnergyPeriod ?? .average
+        self.restingEnergyIntervalValue = profile.restingEnergyIntervalValue ?? 1
+        self.restingEnergyInterval = profile.restingEnergyInterval ?? .week
 
-        self.activeEnergySource = params.activeEnergySource
-        self.activeEnergyActivityLevel = params.activeEnergyActivityLevel ?? .moderatelyActive
-        self.activeEnergy = params.activeEnergy
-        self.activeEnergyTextFieldString = params.activeEnergy?.cleanAmount ?? ""
-        self.activeEnergyPeriod = params.activeEnergyPeriod ?? .previousDay
-        self.activeEnergyIntervalValue = params.activeEnergyIntervalValue ?? 1
-        self.activeEnergyInterval = params.activeEnergyInterval ?? .day
+        self.activeEnergySource = profile.activeEnergySource
+        self.activeEnergyActivityLevel = profile.activeEnergyActivityLevel ?? .moderatelyActive
+        self.activeEnergy = profile.activeEnergy
+        self.activeEnergyTextFieldString = profile.activeEnergy?.cleanAmount ?? ""
+        self.activeEnergyPeriod = profile.activeEnergyPeriod ?? .previousDay
+        self.activeEnergyIntervalValue = profile.activeEnergyIntervalValue ?? 1
+        self.activeEnergyInterval = profile.activeEnergyInterval ?? .day
 
-        self.lbmSource = params.lbmSource
-        self.lbmFormula = params.lbmFormula ?? .boer
-        self.lbmDate = params.lbmDate
+        self.lbmSource = profile.lbmSource
+        self.lbmFormula = profile.lbmFormula ?? .boer
+        self.lbmDate = profile.lbmDate
         
         if self.lbmSource == .fatPercentage {
-            self.lbm = params.fatPercentage
+            self.lbm = profile.fatPercentage
         } else {
-            self.lbm = params.lbm
+            self.lbm = profile.lbm
         }
         self.lbmTextFieldString = self.lbm?.cleanAmount ?? ""
         
-        self.weightSource = params.weightSource
-        self.weight = params.weight
-        self.weightTextFieldString = params.weight?.cleanAmount ?? ""
-        self.weightDate = params.weightDate
+        self.weightSource = profile.weightSource
+        self.weight = profile.weight
+        self.weightTextFieldString = profile.weight?.cleanAmount ?? ""
+        self.weightDate = profile.weightDate
 
-        self.heightSource = params.heightSource
-        self.height = params.height
-        self.heightTextFieldString = params.height?.cleanAmount ?? ""
-        self.heightDate = params.heightDate
+        self.heightSource = profile.heightSource
+        self.height = profile.height
+        self.heightTextFieldString = profile.height?.cleanAmount ?? ""
+        self.heightDate = profile.heightDate
 
-        self.sexSource = params.sexSource
-        if let sexIsFemale = params.sexIsFemale {
+        self.sexSource = profile.sexSource
+        if let sexIsFemale = profile.sexIsFemale {
             self.sex = sexIsFemale ? .female : .male
         }
 
-        self.ageSource = params.ageSource
-        self.dob = params.dob
-        self.age = params.age
-        if let age = params.age {
+        self.ageSource = profile.ageSource
+        self.dob = profile.dob
+        self.age = profile.age
+        if let age = profile.age {
             self.ageTextFieldString = "\(age)"
         }
 

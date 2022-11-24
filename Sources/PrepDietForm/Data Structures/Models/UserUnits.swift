@@ -2,17 +2,17 @@ import Foundation
 import PrepDataTypes
 
 struct UserUnits: Hashable, Codable {
-    let energyUnit: EnergyUnit
-    let weightUnit: WeightUnit
-    let heightUnit: HeightUnit
-    let explicitVolumeUnits: UserExplicitVolumeUnits
+    let energy: EnergyUnit
+    let weight: WeightUnit
+    let height: HeightUnit
+    let volume: UserExplicitVolumeUnits
     
     static var standard: UserUnits {
         UserUnits(
-            energyUnit: .kcal,
-            weightUnit: .kg,
-            heightUnit: .cm,
-            explicitVolumeUnits: .defaultUnits
+            energy: .kcal,
+            weight: .kg,
+            height: .cm,
+            volume: .defaultUnits
         )
     }
 }

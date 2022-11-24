@@ -47,7 +47,7 @@ extension Goal {
         case .energy(let type):
             switch type {
             default:
-                return userUnits.energyUnit.shortDescription
+                return userUnits.energy.shortDescription
             }
         case .macro(let type, _):
             switch type {
@@ -355,7 +355,7 @@ extension Goal {
         orUserUnits userUnits: UserUnits
     ) -> Double? {
         guard let energy else { return nil }
-        let energyUnit = bodyProfile?.parameters.energyUnit ?? userUnits.energyUnit
+        let energyUnit = bodyProfile?.energyUnit ?? userUnits.energy
         return energyUnit == .kcal ? energy : energy * KcalsPerKilojule
     }
 

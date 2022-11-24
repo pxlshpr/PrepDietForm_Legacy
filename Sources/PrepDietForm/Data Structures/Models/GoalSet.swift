@@ -79,7 +79,7 @@ extension EnergyUnit {
     func minimumValueForAutoGoals(params: GoalCalcParams) -> Double {
         /// Default to male in the case not being passed a value to err on the side of larger values
         /// (as we would rather suggest larger values than is required to a female than smaller values for a male's energy)
-        let sexIsFemale = params.bodyProfile?.parameters.sexIsFemale ?? false
+        let sexIsFemale = params.bodyProfile?.sexIsFemale ?? false
         switch self {
         case .kcal:
             return sexIsFemale ? 1200 : 1500
@@ -93,7 +93,7 @@ extension Goal {
     func minimumLowerBoundForAutoGoal(with params: GoalCalcParams) -> Double? {
         switch self.type {
         case .energy:
-            return params.userUnits.energyUnit.minimumValueForAutoGoals(params: params)
+            return params.userUnits.energy.minimumValueForAutoGoals(params: params)
         case .macro(_, let macro):
             return macro.minimumValueForAutoGoals
         default:
@@ -128,7 +128,7 @@ func calculateMissingGoal(
         var upper = calculateEnergy(c: carbUpper, f: fatUpper, p: proteinUpper)
 
         /// Now make sure the values are the minimum we would recommend for AutoGoals
-        let min = params.userUnits.energyUnit.minimumValueForAutoGoals(params: params)
+        let min = params.userUnits.energy.minimumValueForAutoGoals(params: params)
         lower = max(lower, min)
         upper = max(upper, min)
         
@@ -137,7 +137,7 @@ func calculateMissingGoal(
             upper: upper,
             existingGoals: [carb, fat, protein],
             params: params,
-            type: .energy(.fixed(params.userUnits.energyUnit))
+            type: .energy(.fixed(params.userUnits.energy))
         )
     }
     

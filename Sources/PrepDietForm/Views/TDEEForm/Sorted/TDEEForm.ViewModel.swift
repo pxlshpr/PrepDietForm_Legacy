@@ -1227,7 +1227,7 @@ extension TDEEForm.ViewModel {
         guard isEditing, bodyProfile.hasTDEE else { return false }
         if let existingProfile {
             /// We're only checking the parameters as the `updatedAt` flag, `syncStatus` might differ.
-            return existingProfile.parameters != bodyProfile.parameters
+            return existingProfile != bodyProfile
         }
         return true
     }
@@ -1273,7 +1273,7 @@ extension TDEEForm.ViewModel {
         var weightDate: Date? { weightSource == .healthApp ? self.weightDate : nil }
         var heightDate: Date? { heightSource == .healthApp ? self.heightDate : nil }
         
-        let parameters = BodyProfile.Parameters(
+        return BodyProfile(
             energyUnit: userEnergyUnit,
             weightUnit: userWeightUnit,
             heightUnit: userHeightUnit,
@@ -1305,13 +1305,6 @@ extension TDEEForm.ViewModel {
             age: age,
             dob: dob,
             ageSource: ageSource
-        )
-        
-        return BodyProfile(
-            id: existingProfile?.id ?? UUID(),
-            parameters: parameters,
-            syncStatus: .notSynced,
-            updatedAt: Date().timeIntervalSince1970
         )
     }
 }
@@ -1390,14 +1383,14 @@ extension TDEEForm {
             existingProfile: BodyProfile?,
             userUnits: UserUnits
         ) {
-            self.userEnergyUnit = userUnits.energyUnit
-            self.userWeightUnit = userUnits.weightUnit
-            self.userHeightUnit = userUnits.heightUnit
+            self.userEnergyUnit = userUnits.energy
+            self.userWeightUnit = userUnits.weight
+            self.userHeightUnit = userUnits.height
             
             self.existingProfile = existingProfile
                         
             if let existingProfile, existingProfile.hasTDEE {
-                if existingProfile.parameters.hasDynamicTDEE {
+                if existingProfile.hasDynamicTDEE {
                     detents = [.medium, .large]
                     presentationDetent = .medium
                 } else {

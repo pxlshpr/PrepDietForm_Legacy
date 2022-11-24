@@ -4,62 +4,94 @@ import HealthKit
 
 public struct BodyProfile: Hashable, Codable {
     
-    public let id: UUID
-    
-    public var parameters: Parameters
-    
-    public var syncStatus: SyncStatus
-    public var updatedAt: Double
-    
+    let energyUnit: EnergyUnit
+    let weightUnit: WeightUnit
+    let heightUnit: HeightUnit
+
+    var restingEnergy: Double?
+    var restingEnergySource: RestingEnergySourceOption?
+    var restingEnergyFormula: RestingEnergyFormula?
+    var restingEnergyPeriod: HealthPeriodOption?
+    var restingEnergyIntervalValue: Int?
+    var restingEnergyInterval: HealthAppInterval?
+
+    var activeEnergy: Double?
+    var activeEnergySource: ActiveEnergySourceOption?
+    var activeEnergyActivityLevel: ActivityLevel?
+    var activeEnergyPeriod: HealthPeriodOption?
+    var activeEnergyIntervalValue: Int?
+    var activeEnergyInterval: HealthAppInterval?
+
+    var fatPercentage: Double?
+
+    var lbm: Double?
+    var lbmSource: LeanBodyMassSourceOption?
+    var lbmFormula: LeanBodyMassFormula?
+    var lbmDate: Date?
+
+    var weight: Double?
+    var weightSource: MeasurementSourceOption?
+    var weightDate: Date?
+
+    var height: Double?
+    var heightSource: MeasurementSourceOption?
+    var heightDate: Date?
+
+    var sexIsFemale: Bool?
+    var sexSource: MeasurementSourceOption?
+
+    var age: Int?
+    var dob: DateComponents?
+    var ageSource: MeasurementSourceOption?
 }
+
+//extension BodyProfile {
+//
+//    public struct Parameters: Hashable, Codable {
+//
+//        let energyUnit: EnergyUnit
+//        let weightUnit: WeightUnit
+//        let heightUnit: HeightUnit
+//
+//        var restingEnergy: Double?
+//        var restingEnergySource: RestingEnergySourceOption?
+//        var restingEnergyFormula: RestingEnergyFormula?
+//        var restingEnergyPeriod: HealthPeriodOption?
+//        var restingEnergyIntervalValue: Int?
+//        var restingEnergyInterval: HealthAppInterval?
+//
+//        var activeEnergy: Double?
+//        var activeEnergySource: ActiveEnergySourceOption?
+//        var activeEnergyActivityLevel: ActivityLevel?
+//        var activeEnergyPeriod: HealthPeriodOption?
+//        var activeEnergyIntervalValue: Int?
+//        var activeEnergyInterval: HealthAppInterval?
+//
+//        var fatPercentage: Double?
+//
+//        var lbm: Double?
+//        var lbmSource: LeanBodyMassSourceOption?
+//        var lbmFormula: LeanBodyMassFormula?
+//        var lbmDate: Date?
+//
+//        var weight: Double?
+//        var weightSource: MeasurementSourceOption?
+//        var weightDate: Date?
+//
+//        var height: Double?
+//        var heightSource: MeasurementSourceOption?
+//        var heightDate: Date?
+//
+//        var sexIsFemale: Bool?
+//        var sexSource: MeasurementSourceOption?
+//
+//        var age: Int?
+//        var dob: DateComponents?
+//        var ageSource: MeasurementSourceOption?
+//    }
+//}
 
 extension BodyProfile {
-    
-    public struct Parameters: Hashable, Codable {
-        
-        let energyUnit: EnergyUnit
-        let weightUnit: WeightUnit
-        let heightUnit: HeightUnit
-
-        var restingEnergy: Double?
-        var restingEnergySource: RestingEnergySourceOption?
-        var restingEnergyFormula: RestingEnergyFormula?
-        var restingEnergyPeriod: HealthPeriodOption?
-        var restingEnergyIntervalValue: Int?
-        var restingEnergyInterval: HealthAppInterval?
-
-        var activeEnergy: Double?
-        var activeEnergySource: ActiveEnergySourceOption?
-        var activeEnergyActivityLevel: ActivityLevel?
-        var activeEnergyPeriod: HealthPeriodOption?
-        var activeEnergyIntervalValue: Int?
-        var activeEnergyInterval: HealthAppInterval?
-
-        var fatPercentage: Double?
-
-        var lbm: Double?
-        var lbmSource: LeanBodyMassSourceOption?
-        var lbmFormula: LeanBodyMassFormula?
-        var lbmDate: Date?
-
-        var weight: Double?
-        var weightSource: MeasurementSourceOption?
-        var weightDate: Date?
-
-        var height: Double?
-        var heightSource: MeasurementSourceOption?
-        var heightDate: Date?
-
-        var sexIsFemale: Bool?
-        var sexSource: MeasurementSourceOption?
-
-        var age: Int?
-        var dob: DateComponents?
-        var ageSource: MeasurementSourceOption?
-    }
-}
-
-extension BodyProfile.Parameters {
     var updatesWithHealthApp: Bool {
         return restingEnergySource == .healthApp
         || activeEnergySource == .healthApp
@@ -75,28 +107,28 @@ extension BodyProfile {
     }
     
     var tdeeInUnit: Double? {
-        parameters.tdee
+        tdee
     }
     var formattedTDEEWithUnit: String? {
         guard let tdeeInUnit else { return nil }
-        return "\(tdeeInUnit.formattedEnergy) \(parameters.energyUnit.shortDescription)"
+        return "\(tdeeInUnit.formattedEnergy) \(energyUnit.shortDescription)"
     }
     
-    func tdee(in energyUnit: EnergyUnit) -> Double? {
-        parameters.tdee(in: energyUnit)
-    }
-    
-    func weight(in other: WeightUnit) -> Double? {
-        parameters.weight(in: other)
-    }
-    
-    func lbm(in other: WeightUnit) -> Double? {
-        parameters.lbm(in: other)
-    }
+//    func tdee(in energyUnit: EnergyUnit) -> Double? {
+//        tdee(in: energyUnit)
+//    }
+//    
+//    func weight(in other: WeightUnit) -> Double? {
+//        weight(in: other)
+//    }
+//    
+//    func lbm(in other: WeightUnit) -> Double? {
+//        lbm(in: other)
+//    }
 
-    var hasDynamicTDEE: Bool {
-        parameters.hasDynamicTDEE
-    }
+//    var hasDynamicTDEE: Bool {
+//        hasDynamicTDEE
+//    }
 }
 
 extension WeightUnit {
@@ -106,7 +138,7 @@ extension WeightUnit {
     }
 }
 
-extension BodyProfile.Parameters {
+extension BodyProfile {
     
     var hasDynamicRestingEnergy: Bool {
         switch restingEnergySource {

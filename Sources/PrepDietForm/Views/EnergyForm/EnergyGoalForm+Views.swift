@@ -120,7 +120,7 @@ extension EnergyGoalForm {
                 showingTDEEForm = true
             } label: {
                 if let profile = viewModel.bodyProfile, let formattedTDEE = profile.formattedTDEEWithUnit {
-                    if profile.parameters.hasDynamicTDEE {
+                    if profile.hasDynamicTDEE {
                         PickerLabel(
                             formattedTDEE,
                             systemImage: "flame.fill",

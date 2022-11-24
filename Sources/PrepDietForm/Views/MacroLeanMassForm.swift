@@ -100,7 +100,7 @@ extension NutrientLeanBodyMassForm {
     var canBeSaved:Bool {
         /// If we have an existing profile—return false if the parameters are exactly the same
         if let existingProfile {
-            guard existingProfile.parameters != viewModel.bodyProfile.parameters else {
+            guard existingProfile != viewModel.bodyProfile else {
                 return false
             }
         }
@@ -110,12 +110,6 @@ extension NutrientLeanBodyMassForm {
 }
 
 extension BodyProfile {
-    var hasLBM: Bool {
-        parameters.hasLBM
-    }
-}
-
-extension BodyProfile.Parameters {
     var hasLBM: Bool {
         lbm != nil && lbmSource != nil
     }
