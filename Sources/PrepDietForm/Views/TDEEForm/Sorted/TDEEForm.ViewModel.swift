@@ -747,7 +747,7 @@ extension TDEEForm.ViewModel {
             return restingEnergyFormula.calculate(
                 age: age,
                 weightInKg: weightInKg,
-                sex: sex,
+                sexIsFemale: sex == .female,
                 energyUnit: userEnergyUnit
             )
         default:
@@ -756,7 +756,7 @@ extension TDEEForm.ViewModel {
                 age: age,
                 weightInKg: weightInKg,
                 heightInCm: heightInCm,
-                sex: sex,
+                sexIsFemale: sex == .female,
                 energyUnit: userEnergyUnit
             )
         }
