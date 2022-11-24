@@ -38,7 +38,7 @@ public enum GoalType: Hashable, Codable {
             return nutrientGoalType
         case .micro(let nutrientGoalType, _, _):
             return nutrientGoalType
-        default:
+    default:
             return nil
         }
     }

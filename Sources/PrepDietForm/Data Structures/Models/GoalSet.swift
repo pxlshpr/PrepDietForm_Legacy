@@ -10,8 +10,6 @@ public struct GoalSet: Identifiable, Hashable, Codable {
     public var goals: [Goal] = []
     public var isForMeal: Bool
 
-    public let isPreset: Bool
-
     public var syncStatus: SyncStatus
     public var updatedAt: Double
     public var deletedAt: Double?
@@ -22,7 +20,6 @@ public struct GoalSet: Identifiable, Hashable, Codable {
         emoji: String,
         goals: [Goal] = [],
         isForMeal: Bool = false,
-        isPreset: Bool = false,
         syncStatus: SyncStatus = .notSynced,
         updatedAt: Double = Date().timeIntervalSinceNow,
         deletedAt: Double? = nil
@@ -32,7 +29,6 @@ public struct GoalSet: Identifiable, Hashable, Codable {
         self.emoji = emoji
         self.goals = goals
         self.isForMeal = isForMeal
-        self.isPreset = isPreset
         self.syncStatus = syncStatus
         self.updatedAt = updatedAt
         self.deletedAt = deletedAt

@@ -67,15 +67,13 @@ public struct GoalSetForm: View {
     public init(
         isForMeal: Bool,
         existingGoalSet: GoalSet? = nil,
-        bodyProfile: BodyProfile? = nil,
-        presentedGoalId: UUID? = nil
+        bodyProfile: BodyProfile? = nil
     ) {
         let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
             isForMeal: isForMeal,
             existingGoalSet: existingGoalSet,
-            bodyProfile: bodyProfile,
-            presentedGoalId: presentedGoalId
+            bodyProfile: bodyProfile
         )
         _goalSetViewModel = StateObject(wrappedValue: goalSetViewModel)
         
@@ -256,8 +254,7 @@ public struct GoalSetForm: View {
         return Group {
             if containsFooterContent {
                 VStack(alignment: .leading, spacing: 10) {
-//                    if goalSetViewModel.containsDynamicGoal {
-                    if true {
+                    if goalSetViewModel.containsDynamicGoal {
                         HStack(alignment: .firstTextBaseline) {
                             appleHealthBolt
                                 .imageScale(.small)

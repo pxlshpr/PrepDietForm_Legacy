@@ -21,8 +21,7 @@ public class GoalSetViewModel: ObservableObject {
         userUnits: UserUnits,
         isForMeal: Bool,
         existingGoalSet existing: GoalSet?,
-        bodyProfile: BodyProfile? = nil,
-        presentedGoalId: UUID? = nil
+        bodyProfile: BodyProfile? = nil
     ) {
         self.name = existing?.name ?? ""
         self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isForMeal)
@@ -33,16 +32,9 @@ public class GoalSetViewModel: ObservableObject {
 
         self.existingGoalSet = existing
 
-
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-
         self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isForMeal) ?? []
-        
         self.createImplicitGoals()
-
-        if let presentedGoalId, let goalViewModel = goalViewModels.first(where: { $0.id == presentedGoalId }) {
-            self.path = [.goal(goalViewModel)]
-        }
     }
     
     var goalSet: GoalSet {
@@ -52,7 +44,6 @@ public class GoalSetViewModel: ObservableObject {
             emoji: emoji,
             goals: goalViewModels.map { $0.goal },
             isForMeal: isForMeal,
-            isPreset: false,
             syncStatus: .notSynced,
             updatedAt: Date().timeIntervalSince1970,
             deletedAt: nil

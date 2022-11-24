@@ -53,7 +53,7 @@ extension GoalSetForm {
     func didTapDeleteOnGoal(_ goal: GoalViewModel) {
         goalSetViewModel.path = []
         withAnimation {
-            goalSetViewModel.goalViewModels.removeAll(where: { $0.id == goal.id })
+            goalSetViewModel.goalViewModels.removeAll(where: { $0.type.identifyingHashValue == goal.type.identifyingHashValue })
         }
     }
     
