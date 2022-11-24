@@ -66,6 +66,50 @@ struct GoalCalcParams {
     let energyGoal: Goal?
 }
 
+extension Macro {
+    var minimumValueForAutoGoals: Double {
+        switch self {
+        case .carb:
+            return 10
+        case .fat:
+            return 5
+        case .protein:
+            return 10
+        }
+    }
+}
+
+extension EnergyUnit {
+    func minimumValueForAutoGoals(params: GoalCalcParams) -> Double {
+        /// Default to male in the case not being passed a value to err on the side of larger values
+        /// (as we would rather suggest larger values than is required to a female than smaller values for a male's energy)
+        let sexIsFemale = params.bodyProfile?.parameters.sexIsFemale ?? false
+        switch self {
+        case .kcal:
+            return sexIsFemale ? 1200 : 1500
+        case .kJ:
+            return sexIsFemale ? (1200 * KcalsPerKilojule) : (1500 * KcalsPerKilojule)
+        }
+    }
+}
+
+extension Goal {
+    func minimumLowerBoundForAutoGoal(with params: GoalCalcParams) -> Double? {
+        switch self.type {
+        case .energy:
+            return params.userUnits.energy.minimumValueForAutoGoals(params: params)
+        case .macro(_, let macro):
+            return macro.minimumValueForAutoGoals
+        default:
+            return nil
+        }
+    }
+    
+    func lowerBoundForAutoGoal(with params: GoalCalcParams) -> Double? {
+        calculateLowerBound(with: params) ?? minimumLowerBoundForAutoGoal(with: params)
+    }
+}
+
 func calculateMissingGoal(
     energy: Goal?,
     carb: Goal?,
@@ -76,17 +120,22 @@ func calculateMissingGoal(
     
     if energy == nil {
         guard let carb, let fat, let protein else { return nil }
-        guard let carbLower = carb.lowerOrUpper(with: params),
+        guard let carbLower = carb.lowerBoundForAutoGoal(with: params),
               let carbUpper = carb.upperOrLower(with: params),
-              let fatLower = fat.lowerOrUpper(with: params),
+              let fatLower = fat.lowerBoundForAutoGoal(with: params),
               let fatUpper = fat.upperOrLower(with: params),
-              let proteinLower = protein.lowerOrUpper(with: params),
+              let proteinLower = protein.lowerBoundForAutoGoal(with: params),
               let proteinUpper = protein.upperOrLower(with: params)
         else { return nil }
         
-        let lower = calculateEnergy(c: carbLower, f: fatLower, p: proteinLower)
-        let upper = calculateEnergy(c: carbUpper, f: fatUpper, p: proteinUpper)
+        var lower = calculateEnergy(c: carbLower, f: fatLower, p: proteinLower)
+        var upper = calculateEnergy(c: carbUpper, f: fatUpper, p: proteinUpper)
 
+        /// Now make sure the values are the minimum we would recommend for AutoGoals
+        let min = params.userUnits.energy.minimumValueForAutoGoals(params: params)
+        lower = max(lower, min)
+        upper = max(upper, min)
+        
         return createAutoGoal(
             lower: lower,
             upper: upper,
@@ -98,18 +147,23 @@ func calculateMissingGoal(
     
     if carb == nil {
         guard let energy, let fat, let protein else { return nil }
-        guard let energyLower = energy.lowerOrUpper(with: params),
+        guard let energyLower = energy.lowerBoundForAutoGoal(with: params),
               let energyUpper = energy.upperOrLower(with: params),
-              let fatLower = fat.lowerOrUpper(with: params),
+              let fatLower = fat.lowerBoundForAutoGoal(with: params),
               let fatUpper = fat.upperOrLower(with: params),
-              let proteinLower = protein.lowerOrUpper(with: params),
+              let proteinLower = protein.lowerBoundForAutoGoal(with: params),
               let proteinUpper = protein.upperOrLower(with: params)
         else { return nil }
         
         /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
         /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
-        let lower = calculateCarb(e: energyLower, f: fatUpper, p: proteinUpper)
-        let upper = calculateCarb(e: energyUpper, f: fatLower, p: proteinLower)
+        var lower = calculateCarb(e: energyLower, f: fatUpper, p: proteinUpper)
+        var upper = calculateCarb(e: energyUpper, f: fatLower, p: proteinLower)
+
+        /// Now make sure the values are the minimum we would recommend for AutoGoals
+        let min = Macro.carb.minimumValueForAutoGoals
+        lower = max(lower, min)
+        upper = max(upper, min)
 
         return createAutoGoal(
             lower: lower,
@@ -122,18 +176,23 @@ func calculateMissingGoal(
     
     if fat == nil {
         guard let energy, let carb, let protein else { return nil }
-        guard let energyLower = energy.lowerOrUpper(with: params),
+        guard let energyLower = energy.lowerBoundForAutoGoal(with: params),
               let energyUpper = energy.upperOrLower(with: params),
-              let carbLower = carb.lowerOrUpper(with: params),
+              let carbLower = carb.lowerBoundForAutoGoal(with: params),
               let carbUpper = carb.upperOrLower(with: params),
-              let proteinLower = protein.lowerOrUpper(with: params),
+              let proteinLower = protein.lowerBoundForAutoGoal(with: params),
               let proteinUpper = protein.upperOrLower(with: params)
         else { return nil }
         
         /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
         /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
-        let lower = calculateFat(e: energyLower, c: carbUpper, p: proteinUpper)
-        let upper = calculateFat(e: energyUpper, c: carbLower, p: proteinLower)
+        var lower = calculateFat(e: energyLower, c: carbUpper, p: proteinUpper)
+        var upper = calculateFat(e: energyUpper, c: carbLower, p: proteinLower)
+
+        /// Now make sure the values are the minimum we would recommend for AutoGoals
+        let min = Macro.fat.minimumValueForAutoGoals
+        lower = max(lower, min)
+        upper = max(upper, min)
 
         return createAutoGoal(
             lower: lower,
@@ -146,18 +205,23 @@ func calculateMissingGoal(
     
     if protein == nil {
         guard let energy, let fat, let carb else { return nil }
-        guard let energyLower = energy.lowerOrUpper(with: params),
+        guard let energyLower = energy.lowerBoundForAutoGoal(with: params),
               let energyUpper = energy.upperOrLower(with: params),
-              let fatLower = fat.lowerOrUpper(with: params),
+              let fatLower = fat.lowerBoundForAutoGoal(with: params),
               let fatUpper = fat.upperOrLower(with: params),
-              let carbLower = carb.lowerOrUpper(with: params),
+              let carbLower = carb.lowerBoundForAutoGoal(with: params),
               let carbUpper = carb.upperOrLower(with: params)
         else { return nil }
         
         /// For macros, we match the lower bound of energy with upper bounds of macros and vice versa to get the true range of values
         /// (since the equation dictates that we get the macro by subtracting the sum of the rest from energy)
-        let lower = calculateProtein(e: energyLower, f: fatUpper, c: carbUpper)
-        let upper = calculateProtein(e: energyUpper, f: fatLower, c: carbLower)
+        var lower = calculateProtein(e: energyLower, f: fatUpper, c: carbUpper)
+        var upper = calculateProtein(e: energyUpper, f: fatLower, c: carbLower)
+
+        /// Now make sure the values are the minimum we would recommend for AutoGoals
+        let min = Macro.protein.minimumValueForAutoGoals
+        lower = max(lower, min)
+        upper = max(upper, min)
 
         return createAutoGoal(
             lower: lower,
@@ -229,256 +293,4 @@ extension Array where Element == Goal {
         guard singleBoundedCount > 0 else { return false }
         return (Double(lowerBoundedCount) / Double(singleBoundedCount)) > 0.5
     }
-}
-
-import SwiftUI
-
-//MARK: - 👁‍🗨 Previews
-
-struct DietForm_Previews: PreviewProvider {
-    static var previews: some View {
-        DietPreview()
-    }
-}
-
-struct MealTypeForm_Previews: PreviewProvider {
-    static var previews: some View {
-        MealTypePreview()
-    }
-}
-
-
-struct EnergyForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        EnergyFormPreview()
-    }
-}
-
-struct MacroForm_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        MacroFormPreview()
-    }
-}
-
-
-//MARK: Energy Form Preview
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel: GoalSetViewModel
-    @StateObject var goalViewModel: GoalViewModel
-    
-    init() {
-        let goalSetViewModel = GoalSetViewModel(
-            userUnits:.standard,
-            isMealProfile: false,
-            existingGoalSet: nil,
-            bodyProfile: BodyProfile(
-                id: UUID(),
-                parameters: .init(energyUnit: .kcal, weightUnit: .kg, heightUnit: .cm, restingEnergy: 2000, restingEnergySource: .userEntered, activeEnergy: 1100, activeEnergySource: .userEntered),
-                syncStatus: .notSynced,
-                updatedAt: Date().timeIntervalSince1970
-            )
-        )
-        let goalViewModel = GoalViewModel(
-            goalSet: goalSetViewModel,
-            isForMeal: false,
-            type: .energy(.fromMaintenance(.kcal, .deficit)),
-            lowerBound: 500
-//            , upperBound: 750
-        )
-        _viewModel = StateObject(wrappedValue: goalSetViewModel)
-        _goalViewModel = StateObject(wrappedValue: goalViewModel)
-    }
-    
-    var body: some View {
-        NavigationView {
-            EnergyGoalForm(goal: goalViewModel, didTapDelete: { _ in
-                
-            })
-                .environmentObject(viewModel)
-        }
-    }
-}
-
-//MARK: Macro Form
-
-struct MacroFormPreview: View {
-    
-    @StateObject var goalSet: GoalSetViewModel
-    @StateObject var goal: GoalViewModel
-    
-    init() {
-        let goalSet = GoalSetViewModel(
-            userUnits: .standard,
-            isMealProfile: false,
-            existingGoalSet: GoalSet(
-                name: "Bulking",
-                emoji: "",
-                goals: [
-                    Goal(type: .energy(.fromMaintenance(.kcal, .surplus)), lowerBound: 500, upperBound: 1500)
-                ]
-            ),
-            bodyProfile: .mock(
-                restingEnergy: 1000,
-                lbm: 77
-            )
-        )
-        let goal = GoalViewModel(
-            goalSet: goalSet,
-            isForMeal: false,
-            type: .macro(.percentageOfEnergy, .carb),
-            lowerBound: 20,
-            upperBound: 30
-        )
-        _goalSet = StateObject(wrappedValue: goalSet)
-        _goal = StateObject(wrappedValue: goal)
-    }
-    
-    var body: some View {
-        NavigationView {
-            NutrientGoalForm(goal: goal, didTapDelete: { _ in
-                
-            })
-                .environmentObject(goalSet)
-        }
-    }
-}
-
-//MARK: - GoalSet Form Preview
-public struct DietPreview: View {
-    
-    static let energyGoal = Goal(
-        type: .energy(.fromMaintenance(.kcal, .deficit))
-        , lowerBound: 500
-        , upperBound: 750
-    )
-    
-    static let fatGoalPerBodyMass = Goal(
-        type: .macro(.quantityPerBodyMass(.leanMass, .kg), .fat),
-        upperBound: 1
-    )
-
-    static let fatGoalPerEnergy = Goal(
-        type: .macro(.percentageOfEnergy, .fat),
-        upperBound: 20
-    )
-
-    static let fatGoalFixed = Goal(
-        type: .macro(.fixed, .fat),
-        upperBound: 60
-    )
-
-    static let carbGoalFixed = Goal(
-        type: .macro(.fixed, .carb),
-        upperBound: 200
-    )
-
-    static let proteinGoalFixed = Goal(
-        type: .macro(.fixed, .protein),
-        lowerBound: 180
-    )
-
-    static let proteinGoalPerBodyMass = Goal(
-        type: .macro(.quantityPerBodyMass(.weight, .kg), .protein),
-        lowerBound: 1.1,
-        upperBound: 2.5
-    )
-
-    static let magnesiumGoal = Goal(
-        type: .micro(.fixed, .magnesium, .mg),
-        lowerBound: 400
-    )
-
-    static let sugarGoal = Goal(
-        type: .micro(.percentageOfEnergy, .sugars, .g),
-        upperBound: 10
-    )
-
-    static let goalSet = GoalSet(
-        name: "Cutting",
-        emoji: "🫃🏽",
-        goals: [
-            energyGoal,
-            proteinGoalPerBodyMass,
-//            proteinGoalFixed,
-            fatGoalPerEnergy,
-//            fatGoalPerBodyMass,
-//            fatGoalFixed,
-            carbGoalFixed,
-//            magnesiumGoal,
-//            sugarGoal
-        ],
-        isMealProfile: false
-    )
-    
-    public init() { }
-    
-    public var body: some View {
-        GoalSetForm(
-            isMealProfile: false,
-            existingGoalSet: Self.goalSet,
-            bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.energyGoal.id
-        )
-    }
-}
-
-public struct MealTypePreview: View {
-    
-    static let energyGoal = Goal(
-        type: .energy(.fixed(.kcal)),
-        lowerBound: 250,
-        upperBound: 350
-    )
-    
-    static let proteinGoal = Goal(
-        type: .macro(.fixed, .protein),
-        lowerBound: 20
-    )
-
-    static let carbGoal = Goal(
-        type: .macro(.quantityPerWorkoutDuration(.min), .carb),
-        lowerBound: 0.5
-    )
-
-    static let sodiumGoal = Goal(
-        type: .micro(.quantityPerWorkoutDuration(.hour), .sodium, .mg),
-        lowerBound: 300,
-        upperBound: 600
-    )
-
-    static let goalSet = GoalSet(
-        name: "Workout Fuel",
-        emoji: "🚴🏽",
-        goals: [
-            energyGoal,
-//            proteinGoal,
-//            carbGoal,
-            sodiumGoal
-        ],
-        isMealProfile: true
-    )
-    
-    public init() { }
-    
-    public var body: some View {
-        GoalSetForm(
-            isMealProfile: true,
-            existingGoalSet: Self.goalSet,
-            bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.sodiumGoal.id
-        )
-    }
-}
-
-extension BodyProfile {
-    static let mockBodyProfile = BodyProfile.mock(
-        restingEnergy: 2000,
-        activeEnergy: 1000,
-        weight: 98,
-        lbm: 65
-    )
 }

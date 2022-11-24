@@ -199,9 +199,9 @@ extension Goal {
 
 extension Goal {
 
-    func lowerOrUpper(with params: GoalCalcParams) -> Double? {
-        calculateLowerBound(with: params) ?? calculateUpperBound(with: params)
-    }
+//    func lowerOrUpper(with params: GoalCalcParams) -> Double? {
+//        calculateLowerBound(with: params) ?? calculateUpperBound(with: params)
+//    }
     
     func upperOrLower(with params: GoalCalcParams) -> Double? {
         calculateUpperBound(with: params) ?? calculateLowerBound(with: params)
