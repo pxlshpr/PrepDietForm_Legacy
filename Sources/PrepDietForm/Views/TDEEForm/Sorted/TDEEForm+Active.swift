@@ -12,7 +12,7 @@ extension TDEEForm {
             var sourceMenu: some View {
                 Menu {
                     Picker(selection: viewModel.activeEnergySourceBinding, label: EmptyView()) {
-                        ForEach(ActiveEnergySourceOption.allCases, id: \.self) {
+                        ForEach(ActiveEnergySource.allCases, id: \.self) {
                             Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
                         }
                     }

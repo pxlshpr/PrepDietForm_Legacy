@@ -1,4 +1,5 @@
 import Foundation
+import PrepDataTypes
 
 extension TDEEForm.ViewModel {
     func load(_ profile: BodyProfile) {
@@ -46,7 +47,11 @@ extension TDEEForm.ViewModel {
         }
 
         self.ageSource = profile.ageSource
-        self.dob = profile.dob
+        self.dob = DateComponents(
+            year: profile.dobYear,
+            month: profile.dobMonth,
+            day: profile.dobDay
+        )
         self.age = profile.age
         if let age = profile.age {
             self.ageTextFieldString = "\(age)"

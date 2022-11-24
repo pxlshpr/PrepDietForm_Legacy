@@ -1,4 +1,5 @@
 import SwiftUI
+import PrepDataTypes
 
 extension TDEEForm {
     
@@ -15,7 +16,7 @@ extension TDEEForm {
         viewModel.updateHealthAppDataIfNeeded()
     }
     
-    func restingEnergySourceChanged(to newSource: RestingEnergySourceOption?) {
+    func restingEnergySourceChanged(to newSource: RestingEnergySource?) {
         switch newSource {
         case .userEntered:
             restingEnergyTextFieldIsFocused = true
@@ -24,7 +25,7 @@ extension TDEEForm {
         }
     }
     
-    func activeEnergySourceChanged(to newSource: ActiveEnergySourceOption?) {
+    func activeEnergySourceChanged(to newSource: ActiveEnergySource?) {
         switch newSource {
         case .userEntered:
             activeEnergyTextFieldIsFocused = true

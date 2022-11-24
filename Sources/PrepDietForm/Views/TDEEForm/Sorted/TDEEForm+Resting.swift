@@ -133,7 +133,7 @@ extension TDEEForm {
             var sourceMenu: some View {
                 Menu {
                     Picker(selection: viewModel.restingEnergySourceBinding, label: EmptyView()) {
-                        ForEach(RestingEnergySourceOption.allCases, id: \.self) {
+                        ForEach(RestingEnergySource.allCases, id: \.self) {
                             Label($0.menuDescription, systemImage: $0.systemImage).tag($0)
                         }
                     }
@@ -606,161 +606,6 @@ extension TDEEForm {
     }
 }
 
-enum MeasurementSourceOption: Int16, Codable, CaseIterable {
-    case healthApp = 1
-    case userEntered
-    
-    var pickerDescription: String {
-        switch self {
-        case .healthApp:
-            return "Sync with Health App"
-        case .userEntered:
-            return "Enter manually"
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .healthApp:
-            return "heart.fill"
-        case .userEntered:
-            return "keyboard"
-        }
-    }
-
-    var menuDescription: String {
-        switch self {
-        case .healthApp:
-            return "Health App"
-        case .userEntered:
-            return "Enter manually"
-        }
-    }
-}
-
-enum LeanBodyMassSourceOption: Int16, Codable, CaseIterable {
-    case healthApp = 1
-    case formula
-    case fatPercentage
-    case userEntered
-    
-    var pickerDescription: String {
-        switch self {
-        case .formula:
-            return "Calculate"
-        case .healthApp:
-            return "Sync with Health App"
-        case .fatPercentage:
-            return "Convert fat percentage"
-        case .userEntered:
-            return "Enter manually"
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .healthApp:
-            return "heart.fill"
-        case .formula:
-            return "function"
-        case .fatPercentage:
-            return "percent"
-        case .userEntered:
-            return "keyboard"
-        }
-    }
-
-    var menuDescription: String {
-        switch self {
-        case .formula:
-            return "Calculate"
-        case .healthApp:
-            return "Health App"
-        case .fatPercentage:
-            return "Fat percentage"
-        case .userEntered:
-            return "Enter manually"
-        }
-    }
-    
-    var usesWeight: Bool {
-        switch self {
-        case .formula, .fatPercentage:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-enum LeanBodyMassFormula: Int16, Codable, CaseIterable {
-    case boer = 1
-    case james
-    case hume
-    
-    var pickerDescription: String {
-        switch self {
-        case .boer:
-            return "Boer • 1984"
-        case .james:
-            return "James • 1976"
-        case .hume:
-            return "Hume • 1966"
-        }
-    }
-    
-    var year: String {
-        switch self {
-        case .boer:
-            return "1984"
-        case .james:
-            return "1976"
-        case .hume:
-            return "1966"
-        }
-    }
-    
-    var menuDescription: String {
-        switch self {
-        case .boer:
-            return "Boer"
-        case .james:
-            return "James"
-        case .hume:
-            return "Hume"
-        }
-    }
-    
-    /// Formulas taken from: [here](https://www.calculator.net/lean-body-mass-calculator.html)
-    func calculate(sex: HKBiologicalSex, weightInKg weight: Double, heightInCm height: Double) -> Double {
-        guard weight > 0, height > 0 else { return 0 }
-        let lbm: Double
-        switch sex {
-        case .female:
-            switch self {
-            case .boer:
-                lbm = (0.252 * weight) + (0.473 * height) - 48.3
-            case .james:
-                lbm = (1.07 * weight) - (148.0 * pow((weight/height), 2.0))
-            case .hume:
-                lbm = (0.29569 * weight) + (0.41813 * height) - 43.2933
-            }
-        case .male:
-            switch self {
-            case .boer:
-                lbm = (0.407 * weight) + (0.267 * height) - 19.2
-            case .james:
-                lbm = (1.1 * weight) - (128.0 * pow((weight/height), 2.0))
-            case .hume:
-                lbm = (0.32810 * weight) + (0.33929 * height) - 29.5336
-            }
-        default:
-            lbm = 0
-        }
-        return max(lbm, 0)
-    }
-}
-
 func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon: Bool = false, action: (() -> ())? = nil) -> some View {
     Button {
         action?()
@@ -787,13 +632,6 @@ func emptyButton(_ string: String, systemImage: String? = nil, showHealthAppIcon
 //                .foregroundColor(Color(.secondarySystemFill))
         )
     }
-}
-
-enum HealthKitFetchStatus {
-    case notFetched
-    case fetching
-    case fetched
-    case notAuthorized
 }
 
 var permissionRequiredContent: some View  {

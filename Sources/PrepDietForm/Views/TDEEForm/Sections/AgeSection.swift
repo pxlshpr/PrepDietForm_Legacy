@@ -108,7 +108,7 @@ struct AgeSection: View {
         var sourceMenu: some View {
             Menu {
                 Picker(selection: viewModel.ageSourceBinding, label: EmptyView()) {
-                    ForEach(MeasurementSourceOption.allCases, id: \.self) {
+                    ForEach(MeasurementSource.allCases, id: \.self) {
                         Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
@@ -145,7 +145,7 @@ struct AgeSection: View {
         }
     }
     
-    func ageSourceChanged(to newSource: MeasurementSourceOption?) {
+    func ageSourceChanged(to newSource: MeasurementSource?) {
         switch newSource {
         case .userEntered:
             isFocused = true

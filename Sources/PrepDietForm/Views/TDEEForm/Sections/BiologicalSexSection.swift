@@ -109,7 +109,7 @@ struct BiologicalSexSection: View {
         var sourceMenu: some View {
             Menu {
                 Picker(selection: viewModel.sexSourceBinding, label: EmptyView()) {
-                    ForEach(MeasurementSourceOption.allCases, id: \.self) {
+                    ForEach(MeasurementSource.allCases, id: \.self) {
                         Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
@@ -146,7 +146,7 @@ struct BiologicalSexSection: View {
         }
     }
     
-    func sexSourceChanged(to newSource: MeasurementSourceOption?) {
+    func sexSourceChanged(to newSource: MeasurementSource?) {
         switch newSource {
         case .userEntered:
             break

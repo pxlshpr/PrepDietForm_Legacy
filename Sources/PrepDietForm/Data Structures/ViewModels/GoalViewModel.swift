@@ -96,7 +96,7 @@ public class GoalViewModel: ObservableObject {
         return equivalentLowerBound != nil || equivalentUpperBound != nil
     }
     
-    var energyGoalDelta: EnergyGoalType.Delta? {
+    var energyGoalDelta: EnergyGoalDelta? {
         switch type {
         case .energy(let type):
             return type.delta
@@ -193,7 +193,7 @@ public class GoalViewModel: ObservableObject {
         }
     }
     
-    var bodyMassType: NutrientGoalType.BodyMass? {
+    var bodyMassType: NutrientGoalBodyMassType? {
         guard let nutrientGoalType else { return nil }
         switch nutrientGoalType {
         case .quantityPerBodyMass(let bodyMassType, _):
@@ -851,25 +851,4 @@ extension GoalViewModel {
 //        let energyUnit = goalSet.bodyProfile?.parameters.energyUnit ?? self.goalSet.userUnits.energy
 //        return energyUnit == .kcal ? energy : energy * KcalsPerKilojule
 //    }
-}
-
-extension NutrientType {
-    func grams(equallingPercent percent: Double, of energy: Double) -> Double? {
-        guard let kcalsPerGram else { return nil }
-        guard percent >= 0, percent <= 100, energy > 0 else { return 0 }
-        let energyPortion = energy * (percent / 100)
-        return energyPortion / kcalsPerGram
-    }
-    
-    var kcalsPerGram: Double? {
-        switch self {
-        case .saturatedFat, .monounsaturatedFat, .polyunsaturatedFat, .transFat:
-            return KcalsPerGramOfFat
-        case .sugars, .addedSugars:
-            return KcalsPerGramOfCarb
-        default:
-            return nil
-        }
-    }
-
 }

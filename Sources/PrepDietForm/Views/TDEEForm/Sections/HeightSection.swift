@@ -133,7 +133,7 @@ struct HeightSection: View {
         var sourceMenu: some View {
             Menu {
                 Picker(selection: viewModel.heightSourceBinding, label: EmptyView()) {
-                    ForEach(MeasurementSourceOption.allCases, id: \.self) {
+                    ForEach(MeasurementSource.allCases, id: \.self) {
                         Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
@@ -170,7 +170,7 @@ struct HeightSection: View {
         }
     }
     
-    func heightSourceChanged(to newSource: MeasurementSourceOption?) {
+    func heightSourceChanged(to newSource: MeasurementSource?) {
         switch newSource {
         case .userEntered:
             isFocused = true

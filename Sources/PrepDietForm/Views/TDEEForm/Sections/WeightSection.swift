@@ -140,7 +140,7 @@ struct WeightSection: View {
         var sourceMenu: some View {
             Menu {
                 Picker(selection: viewModel.weightSourceBinding, label: EmptyView()) {
-                    ForEach(MeasurementSourceOption.allCases, id: \.self) {
+                    ForEach(MeasurementSource.allCases, id: \.self) {
                         Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
@@ -177,7 +177,7 @@ struct WeightSection: View {
         }
     }
     
-    func weightSourceChanged(to newSource: MeasurementSourceOption?) {
+    func weightSourceChanged(to newSource: MeasurementSource?) {
         switch newSource {
         case .userEntered:
             isFocused = true

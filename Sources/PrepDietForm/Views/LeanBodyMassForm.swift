@@ -210,7 +210,7 @@ struct LeanBodyMassForm: View {
         var sourceMenu: some View {
             Menu {
                 Picker(selection: viewModel.lbmSourceBinding, label: EmptyView()) {
-                    ForEach(LeanBodyMassSourceOption.allCases, id: \.self) {
+                    ForEach(LeanBodyMassSource.allCases, id: \.self) {
                         Label($0.pickerDescription, systemImage: $0.systemImage).tag($0)
                     }
                 }
@@ -248,7 +248,7 @@ struct LeanBodyMassForm: View {
 //        .padding(.horizontal, 17)
     }
     
-    func lbmSourceChanged(to newSource: LeanBodyMassSourceOption?) {
+    func lbmSourceChanged(to newSource: LeanBodyMassSource?) {
         switch newSource {
         case .userEntered:
             isFocused = true

@@ -14,7 +14,7 @@ struct NutrientGoalForm: View {
     
     @State var pickedMealNutrientGoal: MealNutrientGoal
     @State var pickedDietNutrientGoal: DietNutrientGoal
-    @State var pickedBodyMassType: NutrientGoalType.BodyMass
+    @State var pickedBodyMassType: NutrientGoalBodyMassType
     @State var pickedBodyMassUnit: WeightUnit
     
     @State var energyValue: Double = 1000
@@ -493,7 +493,7 @@ struct NutrientGoalForm: View {
     }
     
     var bodyMassTypePicker: some View {
-        let binding = Binding<NutrientGoalType.BodyMass>(
+        let binding = Binding<NutrientGoalBodyMassType>(
             get: { pickedBodyMassType },
             set: { newBodyMassType in
                 withAnimation {
@@ -506,7 +506,7 @@ struct NutrientGoalForm: View {
             if !goal.isForMeal, pickedDietNutrientGoal == .quantityPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
-                        ForEach(NutrientGoalType.BodyMass.allCases, id: \.self) {
+                        ForEach(NutrientGoalBodyMassType.allCases, id: \.self) {
                             Text($0.menuDescription).tag($0)
                         }
                     }
@@ -652,10 +652,10 @@ func equivalentValueText(_ string: String) -> some View {
 extension BodyProfile {
     static func mock(
         restingEnergy: Double? = nil,
-        restingEnergySource: RestingEnergySourceOption = .userEntered,
+        restingEnergySource: RestingEnergySource = .userEntered,
         restingEnergyFormula: RestingEnergyFormula? = nil,
         activeEnergy: Double? = nil,
-        activeEnergySource: ActiveEnergySourceOption = .userEntered,
+        activeEnergySource: ActiveEnergySource = .userEntered,
         weight: Double? = nil,
         lbm: Double? = nil
     ) -> BodyProfile {

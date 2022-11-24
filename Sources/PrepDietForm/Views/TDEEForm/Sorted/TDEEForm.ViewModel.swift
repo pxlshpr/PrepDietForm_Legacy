@@ -61,8 +61,8 @@ extension TDEEForm.ViewModel {
 
 //MARK: - Biological Sex
 extension TDEEForm.ViewModel {
-    var sexSourceBinding: Binding<MeasurementSourceOption> {
-        Binding<MeasurementSourceOption>(
+    var sexSourceBinding: Binding<MeasurementSource> {
+        Binding<MeasurementSource>(
             get: { self.sexSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -83,7 +83,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeSexSource(to newSource: MeasurementSourceOption) {
+    func changeSexSource(to newSource: MeasurementSource) {
         withAnimation {
             sexSource = newSource
         }
@@ -143,8 +143,8 @@ extension TDEEForm.ViewModel {
 //MARK: - Age
 
 extension TDEEForm.ViewModel {
-    var ageSourceBinding: Binding<MeasurementSourceOption> {
-        Binding<MeasurementSourceOption>(
+    var ageSourceBinding: Binding<MeasurementSource> {
+        Binding<MeasurementSource>(
             get: { self.ageSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -153,7 +153,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeAgeSource(to newSource: MeasurementSourceOption) {
+    func changeAgeSource(to newSource: MeasurementSource) {
         withAnimation {
             ageSource = newSource
         }
@@ -224,8 +224,8 @@ extension TDEEForm.ViewModel {
 
 //MARK: - Height
 extension TDEEForm.ViewModel {
-    var heightSourceBinding: Binding<MeasurementSourceOption> {
-        Binding<MeasurementSourceOption>(
+    var heightSourceBinding: Binding<MeasurementSource> {
+        Binding<MeasurementSource>(
             get: { self.heightSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -234,7 +234,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeHeightSource(to newSource: MeasurementSourceOption) {
+    func changeHeightSource(to newSource: MeasurementSource) {
         withAnimation {
             heightSource = newSource
         }
@@ -308,8 +308,8 @@ extension TDEEForm.ViewModel {
 
 //MARK: - Weight
 extension TDEEForm.ViewModel {
-    var weightSourceBinding: Binding<MeasurementSourceOption> {
-        Binding<MeasurementSourceOption>(
+    var weightSourceBinding: Binding<MeasurementSource> {
+        Binding<MeasurementSource>(
             get: { self.weightSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -318,7 +318,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeWeightSource(to newSource: MeasurementSourceOption) {
+    func changeWeightSource(to newSource: MeasurementSource) {
         withAnimation {
             weightSource = newSource
         }
@@ -399,8 +399,8 @@ extension TDEEForm.ViewModel {
 
 //MARK: - LBM
 extension TDEEForm.ViewModel {
-    var lbmSourceBinding: Binding<LeanBodyMassSourceOption> {
-        Binding<LeanBodyMassSourceOption>(
+    var lbmSourceBinding: Binding<LeanBodyMassSource> {
+        Binding<LeanBodyMassSource>(
             get: { self.lbmSource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -409,7 +409,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeLBMSource(to newSource: LeanBodyMassSourceOption) {
+    func changeLBMSource(to newSource: LeanBodyMassSource) {
         withAnimation {
             lbmSource = newSource
         }
@@ -565,7 +565,11 @@ extension TDEEForm.ViewModel {
             calculatedLBM = (1.0 - (percent/100.0)) * weight
         case .formula:
             guard let weightInKg, let heightInCm, let sex else { return nil }
-            calculatedLBM = lbmFormula.calculate(sex: sex, weightInKg: weightInKg, heightInCm: heightInCm)
+            calculatedLBM = lbmFormula.calculate(
+                sexIsFemale: sex == .female,
+                weightInKg: weightInKg,
+                heightInCm: heightInCm
+            )
         default:
             return nil
         }
@@ -780,8 +784,8 @@ extension TDEEForm.ViewModel {
         }
     }
     
-    var restingEnergySourceBinding: Binding<RestingEnergySourceOption> {
-        Binding<RestingEnergySourceOption>(
+    var restingEnergySourceBinding: Binding<RestingEnergySource> {
+        Binding<RestingEnergySource>(
             get: { self.restingEnergySource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -811,7 +815,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeRestingEnergySource(to newSource: RestingEnergySourceOption) {
+    func changeRestingEnergySource(to newSource: RestingEnergySource) {
         withAnimation {
             restingEnergySource = newSource
         }
@@ -1043,8 +1047,8 @@ extension TDEEForm.ViewModel {
         }
     }
     
-    var activeEnergySourceBinding: Binding<ActiveEnergySourceOption> {
-        Binding<ActiveEnergySourceOption>(
+    var activeEnergySourceBinding: Binding<ActiveEnergySource> {
+        Binding<ActiveEnergySource>(
             get: { self.activeEnergySource ?? .userEntered },
             set: { newSource in
                 Haptics.feedback(style: .soft)
@@ -1074,7 +1078,7 @@ extension TDEEForm.ViewModel {
         )
     }
     
-    func changeActiveEnergySource(to newSource: ActiveEnergySourceOption) {
+    func changeActiveEnergySource(to newSource: ActiveEnergySource) {
         withAnimation {
             activeEnergySource = newSource
         }
@@ -1303,7 +1307,9 @@ extension TDEEForm.ViewModel {
             sexIsFemale: sexIsFemale,
             sexSource: sexSource,
             age: age,
-            dob: dob,
+            dobDay: dob?.day,
+            dobMonth: dob?.month,
+            dobYear: dob?.year,
             ageSource: ageSource
         )
     }
@@ -1325,7 +1331,7 @@ extension TDEEForm {
         
         @Published var hasAppeared = false
 
-        @Published var restingEnergySource: RestingEnergySourceOption? = nil
+        @Published var restingEnergySource: RestingEnergySource? = nil
         @Published var restingEnergyFormula: RestingEnergyFormula = .katchMcardle
         @Published var restingEnergy: Double? = nil
         @Published var restingEnergyTextFieldString: String = ""
@@ -1334,7 +1340,7 @@ extension TDEEForm {
         @Published var restingEnergyInterval: HealthAppInterval = .week
         @Published var restingEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
-        @Published var activeEnergySource: ActiveEnergySourceOption? = nil
+        @Published var activeEnergySource: ActiveEnergySource? = nil
         @Published var activeEnergyActivityLevel: ActivityLevel = .moderatelyActive
         @Published var activeEnergy: Double? = nil
         @Published var activeEnergyTextFieldString: String = ""
@@ -1344,30 +1350,30 @@ extension TDEEForm {
         @Published var activeEnergyFetchStatus: HealthKitFetchStatus = .notFetched
 
         
-        @Published var lbmSource: LeanBodyMassSourceOption? = nil
+        @Published var lbmSource: LeanBodyMassSource? = nil
         @Published var lbmFormula: LeanBodyMassFormula = .boer
         @Published var lbmFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var lbm: Double? = nil
         @Published var lbmTextFieldString: String = ""
         @Published var lbmDate: Date? = nil
 
-        @Published var weightSource: MeasurementSourceOption? = nil
+        @Published var weightSource: MeasurementSource? = nil
         @Published var weightFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var weight: Double? = nil
         @Published var weightTextFieldString: String = ""
         @Published var weightDate: Date? = nil
 
-        @Published var heightSource: MeasurementSourceOption? = nil
+        @Published var heightSource: MeasurementSource? = nil
         @Published var heightFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var height: Double? = nil
         @Published var heightTextFieldString: String = ""
         @Published var heightDate: Date? = nil
 
-        @Published var sexSource: MeasurementSourceOption? = nil
+        @Published var sexSource: MeasurementSource? = nil
         @Published var sexFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var sex: HKBiologicalSex? = nil
 
-        @Published var ageSource: MeasurementSourceOption? = nil
+        @Published var ageSource: MeasurementSource? = nil
         @Published var dobFetchStatus: HealthKitFetchStatus = .notFetched
         @Published var dob: DateComponents? = nil
         @Published var age: Int? = nil

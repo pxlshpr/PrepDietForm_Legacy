@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
+import PrepDataTypes
 
 public enum GoalSetFormRoute: Hashable {
     case goal(GoalViewModel)

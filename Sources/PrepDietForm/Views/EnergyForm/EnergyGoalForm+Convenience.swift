@@ -7,7 +7,7 @@ extension EnergyGoalForm {
         goal.energyUnit ?? .kcal
     }
     
-    var energyDelta: EnergyGoalType.Delta {
+    var energyDelta: EnergyGoalDelta {
         switch pickedDelta {
         case .below:
             return .deficit
