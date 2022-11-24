@@ -43,7 +43,7 @@ public class GoalViewModel: ObservableObject {
     convenience init(implicitGoal goal: Goal, in goalSet: GoalSetViewModel) {
         self.init(
             goalSet: goalSet,
-            isForMeal: goalSet.isMealProfile,
+            isForMeal: goalSet.isForMeal,
             id: goal.id,
             type: goal.type,
             lowerBound: goal.lowerBound,

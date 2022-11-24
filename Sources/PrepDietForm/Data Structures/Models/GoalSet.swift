@@ -8,7 +8,7 @@ public struct GoalSet: Identifiable, Hashable, Codable {
     public var name: String
     public var emoji: String
     public var goals: [Goal] = []
-    public var isMealProfile: Bool
+    public var isForMeal: Bool
 
     public let isPreset: Bool
 
@@ -21,7 +21,7 @@ public struct GoalSet: Identifiable, Hashable, Codable {
         name: String,
         emoji: String,
         goals: [Goal] = [],
-        isMealProfile: Bool = false,
+        isForMeal: Bool = false,
         isPreset: Bool = false,
         syncStatus: SyncStatus = .notSynced,
         updatedAt: Double = Date().timeIntervalSinceNow,
@@ -31,7 +31,7 @@ public struct GoalSet: Identifiable, Hashable, Codable {
         self.name = name
         self.emoji = emoji
         self.goals = goals
-        self.isMealProfile = isMealProfile
+        self.isForMeal = isForMeal
         self.isPreset = isPreset
         self.syncStatus = syncStatus
         self.updatedAt = updatedAt

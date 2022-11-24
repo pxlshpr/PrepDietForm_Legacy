@@ -7,7 +7,7 @@ public class GoalSetViewModel: ObservableObject {
     @Published var name: String
     @Published var emoji: String
     @Published var goalViewModels: [GoalViewModel] = []
-    @Published var isMealProfile = false
+    @Published var isForMeal = false
     
     /// Used to calculate equivalent values
     let userUnits: UserUnits
@@ -19,14 +19,14 @@ public class GoalSetViewModel: ObservableObject {
     
     init(
         userUnits: UserUnits,
-        isMealProfile: Bool,
+        isForMeal: Bool,
         existingGoalSet existing: GoalSet?,
         bodyProfile: BodyProfile? = nil,
         presentedGoalId: UUID? = nil
     ) {
         self.name = existing?.name ?? ""
-        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isMealProfile)
-        self.isMealProfile = isMealProfile
+        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isForMeal)
+        self.isForMeal = isForMeal
 
         self.userUnits = userUnits
         self.bodyProfile = bodyProfile
@@ -36,7 +36,7 @@ public class GoalSetViewModel: ObservableObject {
 
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
 
-        self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isMealProfile) ?? []
+        self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isForMeal) ?? []
         
         self.createImplicitGoals()
 
@@ -51,7 +51,7 @@ public class GoalSetViewModel: ObservableObject {
             name: name,
             emoji: emoji,
             goals: goalViewModels.map { $0.goal },
-            isMealProfile: isMealProfile,
+            isForMeal: isForMeal,
             isPreset: false,
             syncStatus: .notSynced,
             updatedAt: Date().timeIntervalSince1970,
@@ -78,14 +78,14 @@ public class GoalSetViewModel: ObservableObject {
         if pickedEnergy, !goalViewModels.containsEnergy {
             newGoalViewModels.append(GoalViewModel(
                 goalSet: self,
-                isForMeal: isMealProfile, type: .energy(.fixed(userUnits.energy))
+                isForMeal: isForMeal, type: .energy(.fixed(userUnits.energy))
             ))
         }
         for macro in pickedMacros {
             if !goalViewModels.containsMacro(macro) {
                 newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
-                    isForMeal: isMealProfile,
+                    isForMeal: isForMeal,
                     type: .macro(.fixed, macro)
                 ))
             }
@@ -94,7 +94,7 @@ public class GoalSetViewModel: ObservableObject {
             if !goalViewModels.containsMicro(nutrientType) {
                 newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
-                    isForMeal: isMealProfile,
+                    isForMeal: isForMeal,
                     type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
                 ))
             }

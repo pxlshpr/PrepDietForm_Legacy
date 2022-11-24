@@ -65,14 +65,14 @@ public struct GoalSetForm: View {
     
     //TODO: Use user's units here
     public init(
-        isMealProfile: Bool,
+        isForMeal: Bool,
         existingGoalSet: GoalSet? = nil,
         bodyProfile: BodyProfile? = nil,
         presentedGoalId: UUID? = nil
     ) {
         let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
-            isMealProfile: isMealProfile,
+            isForMeal: isForMeal,
             existingGoalSet: existingGoalSet,
             bodyProfile: bodyProfile,
             presentedGoalId: presentedGoalId
@@ -121,7 +121,7 @@ public struct GoalSetForm: View {
     }
     
     var title: String {
-        let typeName = goalSetViewModel.isMealProfile ? "Meal Type": "Diet"
+        let typeName = goalSetViewModel.isForMeal ? "Meal Type": "Diet"
         return goalSetViewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
     }
     
@@ -426,7 +426,7 @@ struct EnergyFormPreview: View {
     init() {
         let goalSetViewModel = GoalSetViewModel(
             userUnits:.standard,
-            isMealProfile: false,
+            isForMeal: false,
             existingGoalSet: nil,
             bodyProfile: BodyProfile(
                 id: UUID(),
@@ -466,7 +466,7 @@ struct MacroFormPreview: View {
     init() {
         let goalSet = GoalSetViewModel(
             userUnits: .standard,
-            isMealProfile: false,
+            isForMeal: false,
             existingGoalSet: GoalSet(
                 name: "Bulking",
                 emoji: "",
@@ -579,14 +579,14 @@ public struct DietPreview: View {
 //            magnesiumGoal,
 //            sugarGoal
         ],
-        isMealProfile: false
+        isForMeal: false
     )
     
     public init() { }
     
     public var body: some View {
         GoalSetForm(
-            isMealProfile: false,
+            isForMeal: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
 //            , presentedGoalId: Self.energyGoal.id
@@ -627,14 +627,14 @@ public struct MealTypePreview: View {
 //            carbGoal,
             sodiumGoal
         ],
-        isMealProfile: true
+        isForMeal: true
     )
     
     public init() { }
     
     public var body: some View {
         GoalSetForm(
-            isMealProfile: true,
+            isForMeal: true,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
 //            , presentedGoalId: Self.sodiumGoal.id
