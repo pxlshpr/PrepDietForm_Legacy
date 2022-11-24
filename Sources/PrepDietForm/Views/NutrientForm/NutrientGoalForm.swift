@@ -63,8 +63,6 @@ struct NutrientGoalForm: View {
         .navigationTitle(goal.description)
         .navigationBarTitleDisplayMode(.large)
         .toolbar { trailingContent }
-        .toolbar { bottomContents }
-        .toolbar { keyboardContents }
         .sheet(isPresented: $showingWeightForm) { weightForm }
         .sheet(isPresented: $showingLeanMassForm) { leanMassForm }
         .onDisappear(perform: disappeared)
@@ -179,33 +177,24 @@ struct NutrientGoalForm: View {
     }
     
     //MARK: - Decorator Views
-    
-    var bottomContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
-            Spacer()
-            deleteButton
-        }
-    }
-
-    var keyboardContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-//            doneButton
-            Spacer()
-            deleteButton
-        }
-    }
 
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             dynamicIndicator
+            menu
         }
     }
     
-    var doneButton: some View {
-        Button {
-            dismiss()
+    var menu: some View {
+        Menu {
+            Button(role: .destructive) {
+                Haptics.warningFeedback()
+                didTapDelete(goal)
+            } label: {
+                Label("Remove Goal", systemImage: "minus.circle")
+            }
         } label: {
-            Text("Done")
+            Image(systemName: "ellipsis")
         }
     }
     
@@ -219,16 +208,7 @@ struct NutrientGoalForm: View {
                 .foregroundColor(Color(.tertiaryLabel))
         }
     }
-    
-    var deleteButton: some View {
-        Button(role: .destructive) {
-            Haptics.warningFeedback()
-            didTapDelete(goal)
-        } label: {
-            Text("Delete")
-                .foregroundColor(.red)
-        }
-    }
+
     var unitsFooter: some View {
         var component: String {
             switch nutrientGoalType {
