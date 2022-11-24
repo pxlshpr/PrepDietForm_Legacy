@@ -69,7 +69,7 @@ public class GoalSetViewModel: ObservableObject {
         if pickedEnergy, !goalViewModels.containsEnergy {
             newGoalViewModels.append(GoalViewModel(
                 goalSet: self,
-                isForMeal: isForMeal, type: .energy(.fixed(userUnits.energy))
+                isForMeal: isForMeal, type: .energy(.fixed(userUnits.energyUnit))
             ))
         }
         for macro in pickedMacros {
@@ -171,7 +171,7 @@ public class GoalSetViewModel: ObservableObject {
     }
 
     var implicitEnergyType: GoalType {
-        .energy(.fixed(userUnits.energy))
+        .energy(.fixed(userUnits.energyUnit))
     }
     
     var carbGoal: GoalViewModel? { goalViewModels.first { $0.type.macro == .carb } }

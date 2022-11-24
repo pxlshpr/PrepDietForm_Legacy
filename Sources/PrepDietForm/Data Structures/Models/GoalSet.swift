@@ -93,7 +93,7 @@ extension Goal {
     func minimumLowerBoundForAutoGoal(with params: GoalCalcParams) -> Double? {
         switch self.type {
         case .energy:
-            return params.userUnits.energy.minimumValueForAutoGoals(params: params)
+            return params.userUnits.energyUnit.minimumValueForAutoGoals(params: params)
         case .macro(_, let macro):
             return macro.minimumValueForAutoGoals
         default:
@@ -128,7 +128,7 @@ func calculateMissingGoal(
         var upper = calculateEnergy(c: carbUpper, f: fatUpper, p: proteinUpper)
 
         /// Now make sure the values are the minimum we would recommend for AutoGoals
-        let min = params.userUnits.energy.minimumValueForAutoGoals(params: params)
+        let min = params.userUnits.energyUnit.minimumValueForAutoGoals(params: params)
         lower = max(lower, min)
         upper = max(upper, min)
         
@@ -137,7 +137,7 @@ func calculateMissingGoal(
             upper: upper,
             existingGoals: [carb, fat, protein],
             params: params,
-            type: .energy(.fixed(params.userUnits.energy))
+            type: .energy(.fixed(params.userUnits.energyUnit))
         )
     }
     
