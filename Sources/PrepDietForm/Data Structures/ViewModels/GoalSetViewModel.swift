@@ -17,6 +17,8 @@ public class GoalSetViewModel: ObservableObject {
     @Published var path: [GoalSetFormRoute] = []
     let existingGoalSet: GoalSet?
     
+    @Published var singleGoalViewModelToPushTo: GoalViewModel? = nil
+    
     init(
         userUnits: UserUnits,
         isForMeal: Bool,
@@ -110,9 +112,8 @@ public class GoalSetViewModel: ObservableObject {
         }
         goalViewModels.append(contentsOf: newGoalViewModels)
         if newGoalViewModels.count == 1, let singleGoalViewModel = newGoalViewModels.first {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.path.append(.goal(singleGoalViewModel))
-            }
+            singleGoalViewModelToPushTo = singleGoalViewModel
+//                self.path.append(.goal(singleGoalViewModel))
         }
     }
     

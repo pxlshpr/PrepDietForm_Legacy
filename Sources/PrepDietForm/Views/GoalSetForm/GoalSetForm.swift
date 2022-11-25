@@ -107,6 +107,15 @@ public struct GoalSetForm: View {
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: goalSetViewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
             .onChange(of: canBeSaved, perform: canBeSavedChanged)
+            .onChange(of: goalSetViewModel.singleGoalViewModelToPushTo, perform: singleGoalViewModelToPushTo)
+        }
+    }
+    
+    func singleGoalViewModelToPushTo(to goalViewModel: GoalViewModel?) {
+        guard let goalViewModel else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            isFocused = false
+            goalSetViewModel.path.append(.goal(goalViewModel))
         }
     }
     
@@ -509,7 +518,7 @@ struct EnergyFormPreview: View {
             EnergyGoalForm(goal: goalViewModel, didTapDelete: { _ in
                 
             })
-                .environmentObject(viewModel)
+            .environmentObject(viewModel)
         }
     }
 }

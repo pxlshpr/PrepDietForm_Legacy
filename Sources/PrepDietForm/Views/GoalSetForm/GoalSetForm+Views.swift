@@ -41,6 +41,9 @@ extension GoalSetForm {
         if goal.type.isEnergy {
             EnergyGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(goalSetViewModel)
+//                .onDisappear {
+//                    isFocused = false
+//                }
         } else if goal.type.isMacro {
             NutrientGoalForm(goal: goal, didTapDelete: didTapDeleteOnGoal)
                 .environmentObject(goalSetViewModel)
