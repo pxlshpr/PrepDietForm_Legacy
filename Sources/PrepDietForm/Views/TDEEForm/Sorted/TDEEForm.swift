@@ -4,7 +4,7 @@ import SwiftHaptics
 import PrepDataTypes
 import HealthKit
 
-struct TDEEForm: View {
+public struct TDEEForm: View {
     
     @Namespace var namespace
     @Environment(\.scenePhase) var scenePhase
@@ -21,7 +21,7 @@ struct TDEEForm: View {
     
     @State var showingSaveButton: Bool = false
     
-    init(
+    public init(
         existingProfile: BodyProfile? = nil,
         userUnits: UserUnits,
         didTapSave: @escaping (BodyProfile) -> ()
@@ -43,7 +43,7 @@ struct TDEEForm: View {
     }
     
     @ViewBuilder
-    var body: some View {
+    public var body: some View {
         Group {
             if viewModel.hasAppeared {
                 navigationView
