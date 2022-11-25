@@ -3,7 +3,7 @@ import PrepDataTypes
 
 public class GoalSetViewModel: ObservableObject {
     
-    let id = UUID()
+    let id: UUID
     @Published var name: String
     @Published var emoji: String
     @Published var goalViewModels: [GoalViewModel] = []
@@ -23,6 +23,7 @@ public class GoalSetViewModel: ObservableObject {
         existingGoalSet existing: GoalSet?,
         bodyProfile: BodyProfile? = nil
     ) {
+        self.id = existing?.id ?? UUID()
         self.name = existing?.name ?? ""
         self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isForMeal)
         self.isForMeal = isForMeal
@@ -50,6 +51,24 @@ public class GoalSetViewModel: ObservableObject {
         )
     }
     
+    var isValid: Bool {
+        guard !name.isEmpty, !emoji.isEmpty else { return false }
+        for goalViewModel in goalViewModels {
+            if !goalViewModel.hasOneEquivalentBound {
+                return false
+            }
+        }
+        return true
+    }
+    
+    var shouldShowSaveButton: Bool {
+        guard isValid else { return false }
+        if let existingGoalSet {
+            return !existingGoalSet.equals(goalSet)
+        }
+        return true
+    }
+
     func resetNutrientTDEEFormViewModel() {
         setNutrientTDEEFormViewModel(with: bodyProfile)
     }

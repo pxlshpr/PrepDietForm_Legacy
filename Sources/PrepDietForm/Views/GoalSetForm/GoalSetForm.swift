@@ -49,6 +49,13 @@ public enum GoalSetFormRoute: Hashable {
 //    }
 //}
 
+extension GoalSet {
+    func equals(_ other: GoalSet) -> Bool {
+        name == other.name
+        && goals == other.goals
+    }
+}
+
 public struct GoalSetForm: View {
         
     @Environment(\.dismiss) var dismiss
@@ -64,11 +71,16 @@ public struct GoalSetForm: View {
 
     @FocusState var isFocused: Bool
     
+    @State var showingSaveButton: Bool = false
+
+    let didTapSave: (GoalSet, BodyProfile?) -> ()
+
     //TODO: Use user's units here
     public init(
         isForMeal: Bool,
         existingGoalSet: GoalSet? = nil,
-        bodyProfile: BodyProfile? = nil
+        bodyProfile: BodyProfile? = nil,
+        didTapSave: @escaping (GoalSet, BodyProfile?) -> ()
     ) {
         let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
@@ -77,16 +89,8 @@ public struct GoalSetForm: View {
             bodyProfile: bodyProfile
         )
         _goalSetViewModel = StateObject(wrappedValue: goalSetViewModel)
-        
         _showingEquivalentValuesToggle = State(initialValue: goalSetViewModel.containsGoalWithEquivalentValues)
-        
-//        let viewModel = ViewModel(
-//            userUnits: .standard,
-//            bodyProfile: bodyProfile,
-//            presentedGoalId: presentedGoalId,
-//            existingGoalSet: existingGoalSet
-//        )
-//        _viewModel = StateObject(wrappedValue: viewModel)
+        self.didTapSave = didTapSave
     }
     
     public var body: some View {
@@ -102,9 +106,16 @@ public struct GoalSetForm: View {
             .navigationDestination(for: GoalSetFormRoute.self, destination: navigationDestination)
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: goalSetViewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
+            .onChange(of: canBeSaved, perform: canBeSavedChanged)
         }
     }
     
+    func canBeSavedChanged(to newValue: Bool) {
+        withAnimation {
+            showingSaveButton = newValue
+        }
+    }
+
     func containsGoalWithEquivalentValuesChanged(to newValue: Bool) {
         withAnimation {
             showingEquivalentValuesToggle = newValue
@@ -125,7 +136,10 @@ public struct GoalSetForm: View {
     }
     
     var content: some View {
-        scrollView
+        ZStack {
+            scrollView
+            buttonLayer
+        }
     }
     
     var scrollView: some View {
@@ -141,7 +155,50 @@ public struct GoalSetForm: View {
             }
             .padding(.horizontal, 20)
         }
+        .safeAreaInset(edge: .bottom) { safeAreaInset }
     }
+    
+    @ViewBuilder
+    var safeAreaInset: some View {
+        if showingSaveButton {
+            Spacer()
+                .frame(height: 100)
+        }
+    }
+
+    @ViewBuilder
+    var buttonLayer: some View {
+        if showingSaveButton {
+            VStack {
+                Spacer()
+                saveButton
+            }
+            .transition(.move(edge: .bottom))
+        }
+    }
+
+    var canBeSaved: Bool {
+        goalSetViewModel.shouldShowSaveButton
+    }
+
+    var saveButton: some View {
+        var saveButton: some View {
+            FormPrimaryButton(title: "Save") {
+                didTapSave(goalSetViewModel.goalSet, goalSetViewModel.bodyProfile)
+                dismiss()
+            }
+        }
+        
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                saveButton
+                    .padding(.vertical)
+            }
+        }
+        .background(.thinMaterial)
+    }
+    
     
     @ViewBuilder
     var energyCell: some View {
@@ -590,8 +647,9 @@ public struct DietPreview: View {
             isForMeal: false,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.energyGoal.id
-        )
+        ) { goalSet, bodyProfile in
+            
+        }
     }
 }
 
@@ -638,8 +696,9 @@ public struct MealTypePreview: View {
             isForMeal: true,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-//            , presentedGoalId: Self.sodiumGoal.id
-        )
+        ) { goalSet, bodyProfile in
+            
+        }
     }
 }
 

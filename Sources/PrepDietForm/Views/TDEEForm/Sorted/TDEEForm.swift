@@ -19,7 +19,6 @@ struct TDEEForm: View {
     
     let didEnterForeground = NotificationCenter.default.publisher(for: .didEnterForeground)
     
-    
     @State var showingSaveButton: Bool = false
     
     init(
