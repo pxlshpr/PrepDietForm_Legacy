@@ -327,7 +327,7 @@ extension TDEEForm {
 //                emptyButton2("Enter", systemImage: "keyboard")
 //            }
             FlowView(alignment: .center, spacing: 10, padding: 37) {
-                emptyButton2("Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
+                emptyButton2("Sync with Health App", showHealthAppIcon: true, action: tappedSyncWithHealth)
                 emptyButton2("Activity Level", systemImage: "dial.medium.fill", action: tappedActivityLevel)
                 emptyButton2("Enter Manually", systemImage: "keyboard", action: tappedManualEntry)
             }
