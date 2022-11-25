@@ -52,12 +52,11 @@ public class GoalSetViewModel: ObservableObject {
     }
     
     var isValid: Bool {
-        guard !name.isEmpty, !emoji.isEmpty else { return false }
-        for goalViewModel in goalViewModels {
-            if !goalViewModel.hasOneEquivalentBound {
-                return false
-            }
-        }
+        
+        /// There should be a name, an emoji, and at least one goal
+        guard !name.isEmpty, !emoji.isEmpty, !goalViewModels.isEmpty else { return false }
+        
+        guard goalViewModels.allSatisfy({ $0.isValid }) else { return false }
         return true
     }
     

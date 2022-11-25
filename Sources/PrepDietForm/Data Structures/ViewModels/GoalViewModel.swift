@@ -48,6 +48,13 @@ public class GoalViewModel: ObservableObject {
         )
     }
     
+    var isValid: Bool {
+        if let nutrientGoalType, nutrientGoalType.isGramsPerMinutesOfExercise {
+            return hasOneBound
+        }
+        return hasOneEquivalentBound
+    }
+    
     //MARK: - Energy
     var energyGoalType: EnergyGoalType? {
         get {
