@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.180"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.186"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.50"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.234"),
