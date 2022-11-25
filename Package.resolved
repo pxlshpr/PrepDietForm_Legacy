@@ -10,12 +10,21 @@
       }
     },
     {
+      "identity" : "emojipicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/EmojiPicker",
+      "state" : {
+        "revision" : "06245cff8ffebdcfaa17cb493d816288d20ef273",
+        "version" : "0.0.22"
+      }
+    },
+    {
       "identity" : "prepdatatypes",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "b137d1b980a913bc9f42b5fad1fb15f9ec9441e4",
-        "version" : "0.0.175"
+        "revision" : "40f3253851129cb9e65122e3554eac05edb79f1b",
+        "version" : "0.0.184"
       }
     },
     {
@@ -23,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepViews",
       "state" : {
-        "revision" : "f19386db38d4d0dbd9a5baa0b1baac710536527f",
-        "version" : "0.0.43"
+        "revision" : "e589cfc261d233f6068ee9990353d4655644f143",
+        "version" : "0.0.52"
       }
     },
     {
