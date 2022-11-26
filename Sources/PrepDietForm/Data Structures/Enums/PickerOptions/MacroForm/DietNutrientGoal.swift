@@ -21,13 +21,14 @@ enum DietNutrientGoal: CaseIterable {
     }
     
     func menuDescription(nutrientUnit: NutrientUnit) -> String {
+        let unit = nutrientUnit.shortDescription
         switch self {
         case .fixed:
-            return "\(nutrientUnit.shortDescription)"
+            return unit
         case .quantityPerBodyMass:
-            return "\(nutrientUnit.shortDescription) / body mass"
+            return "\(unit) / body mass"
         case .quantityPerEnergy:
-            return "\(nutrientUnit.shortDescription) / energy"
+            return "\(unit) / energy"
         case .percentageOfEnergy:
             return "% of energy"
         }
@@ -36,7 +37,7 @@ enum DietNutrientGoal: CaseIterable {
     func pickerDescription(nutrientUnit: NutrientUnit) -> String {
         switch self {
         case .fixed, .quantityPerBodyMass, .quantityPerEnergy:
-            return "\(nutrientUnit.shortDescription)"
+            return nutrientUnit.shortDescription
         case .percentageOfEnergy:
             return "% of energy"
         }

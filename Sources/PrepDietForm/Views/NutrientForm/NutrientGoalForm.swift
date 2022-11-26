@@ -165,7 +165,7 @@ struct NutrientGoalForm: View {
             Text("Your \(pickedBodyMassType.description) is being used to calculate this goal.")
         }
         return Group {
-            if pickedDietNutrientGoal == .quantityPerBodyMass {
+            if isQuantityPerBodyMass {
                 FormStyledSection(header: Text("with"), footer: footer) {
                     HStack {
                         bodyMassButton
@@ -275,6 +275,8 @@ struct NutrientGoalForm: View {
                 return .fixed
             case .quantityPerWorkoutDuration:
                 return .quantityPerWorkoutDuration(pickedWorkoutDurationUnit)
+            case .quantityPerBodyMass:
+                return .quantityPerBodyMass(pickedBodyMassType, pickedBodyMassUnit)
             }
             
         } else {
@@ -434,11 +436,13 @@ struct NutrientGoalForm: View {
         return Menu {
             Picker(selection: binding, label: EmptyView()) {
                 ForEach(MealNutrientGoal.allCases, id: \.self) {
-                    Text($0.menuDescription).tag($0)
+                    Text($0.menuDescription(nutrientUnit: nutrientUnit)).tag($0)
                 }
             }
         } label: {
-            PickerLabel(pickedMealNutrientGoal.pickerDescription)
+            PickerLabel(
+                pickedDietNutrientGoal.pickerDescription(nutrientUnit: nutrientUnit)
+            )
         }
         .animation(.none, value: pickedMealNutrientGoal)
         .simultaneousGesture(TapGesture().onEnded {
@@ -492,6 +496,9 @@ struct NutrientGoalForm: View {
         })
     }
     
+    var isQuantityPerBodyMass: Bool {
+        pickedDietNutrientGoal == .quantityPerBodyMass || pickedMealNutrientGoal == .quantityPerBodyMass
+    }
     var bodyMassTypePicker: some View {
         let binding = Binding<NutrientGoalBodyMassType>(
             get: { pickedBodyMassType },
@@ -503,7 +510,7 @@ struct NutrientGoalForm: View {
             }
         )
         return Group {
-            if !goal.isForMeal, pickedDietNutrientGoal == .quantityPerBodyMass {
+            if isQuantityPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach(NutrientGoalBodyMassType.allCases, id: \.self) {
@@ -569,7 +576,7 @@ struct NutrientGoalForm: View {
             }
         )
         return Group {
-            if !goal.isForMeal, pickedDietNutrientGoal == .quantityPerBodyMass {
+            if isQuantityPerBodyMass {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach([WeightUnit.kg, WeightUnit.lb], id: \.self) {
