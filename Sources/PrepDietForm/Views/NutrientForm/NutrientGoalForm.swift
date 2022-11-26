@@ -499,6 +499,7 @@ struct NutrientGoalForm: View {
     var isQuantityPerBodyMass: Bool {
         pickedDietNutrientGoal == .quantityPerBodyMass || pickedMealNutrientGoal == .quantityPerBodyMass
     }
+    
     var bodyMassTypePicker: some View {
         let binding = Binding<NutrientGoalBodyMassType>(
             get: { pickedBodyMassType },
