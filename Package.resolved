@@ -23,8 +23,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "fb489abd0231fe9fd428905ff27399e1431cf061",
-        "version" : "0.0.186"
+        "revision" : "fece3d904d36f080c783b9b93c65c667d4f187b5",
+        "version" : "0.0.207"
+      }
+    },
+    {
+      "identity" : "prepmocks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/PrepMocks",
+      "state" : {
+        "revision" : "ecf161115522677d7b28a47f7bf2b4ac50831251",
+        "version" : "0.0.3"
       }
     },
     {
@@ -32,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepViews",
       "state" : {
-        "revision" : "e589cfc261d233f6068ee9990353d4655644f143",
-        "version" : "0.0.52"
+        "revision" : "c6f80e3d4c8544aa8fa98315241fcdda5b237375",
+        "version" : "0.0.123"
       }
     },
     {
@@ -55,12 +64,21 @@
       }
     },
     {
+      "identity" : "swiftuipager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fermoya/SwiftUIPager",
+      "state" : {
+        "revision" : "4ddc04c801aac143090bb14cf26603a3bf9c74cb",
+        "version" : "2.5.0"
+      }
+    },
+    {
       "identity" : "swiftuisugar",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "9abad170d0994caf1fbcb8436ed301160a63be8f",
-        "version" : "0.0.234"
+        "revision" : "8a268c9ce9b1f6f53376a99d0807b22b7d142790",
+        "version" : "0.0.235"
       }
     }
   ],
