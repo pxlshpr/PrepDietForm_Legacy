@@ -1,11 +1,12 @@
 import SwiftUI
 import SwiftHaptics
+import PrepDataTypes
 
 extension EnergyGoalForm {
     
     @ViewBuilder
     var typePicker: some View {
-        if goal.isForMeal {
+        if goal.goalSetType == .meal {
             mealTypePicker
         } else {
             dietTypePicker

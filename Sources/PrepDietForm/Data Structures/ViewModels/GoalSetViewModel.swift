@@ -7,7 +7,7 @@ public class GoalSetViewModel: ObservableObject {
     @Published var name: String
     @Published var emoji: String
     @Published var goalViewModels: [GoalViewModel] = []
-    @Published var isForMeal = false
+    @Published var type: GoalSetType = .day
     
     /// Used to calculate equivalent values
     let userUnits: UserUnits
@@ -21,14 +21,14 @@ public class GoalSetViewModel: ObservableObject {
     
     init(
         userUnits: UserUnits,
-        isForMeal: Bool,
+        type: GoalSetType,
         existingGoalSet existing: GoalSet?,
         bodyProfile: BodyProfile? = nil
     ) {
         self.id = existing?.id ?? UUID()
         self.name = existing?.name ?? ""
-        self.emoji = existing?.emoji ?? randomEmoji(forMealProfile: isForMeal)
-        self.isForMeal = isForMeal
+        self.emoji = existing?.emoji ?? randomEmoji(forGoalSetType: type)
+        self.type = type
 
         self.userUnits = userUnits
         self.bodyProfile = bodyProfile
@@ -36,17 +36,17 @@ public class GoalSetViewModel: ObservableObject {
         self.existingGoalSet = existing
 
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-        self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, isForMeal: isForMeal) ?? []
+        self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, goalSetType: type) ?? []
         self.createImplicitGoals()
     }
     
     var goalSet: GoalSet {
         GoalSet(
             id: id,
+            type: type,
             name: name,
             emoji: emoji,
             goals: goalViewModels.map { $0.goal },
-            isForMeal: isForMeal,
             syncStatus: .notSynced,
             updatedAt: Date().timeIntervalSince1970,
             deletedAt: nil
@@ -89,14 +89,15 @@ public class GoalSetViewModel: ObservableObject {
         if pickedEnergy, !goalViewModels.containsEnergy {
             newGoalViewModels.append(GoalViewModel(
                 goalSet: self,
-                isForMeal: isForMeal, type: .energy(.fixed(userUnits.energy))
+                goalSetType: type,
+                type: .energy(.fixed(userUnits.energy))
             ))
         }
         for macro in pickedMacros {
             if !goalViewModels.containsMacro(macro) {
                 newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
-                    isForMeal: isForMeal,
+                    goalSetType: type,
                     type: .macro(.fixed, macro)
                 ))
             }
@@ -105,7 +106,7 @@ public class GoalSetViewModel: ObservableObject {
             if !goalViewModels.containsMicro(nutrientType) {
                 newGoalViewModels.append(GoalViewModel(
                     goalSet: self,
-                    isForMeal: isForMeal,
+                    goalSetType: type,
                     type: .micro(.fixed, nutrientType, nutrientType.units.first ?? .g)
                 ))
             }
@@ -293,8 +294,9 @@ extension Macro {
 let dietEmojis = "⤵️⤴️🍽️⚖️🏝🏋🏽🚴🏽🍩🍪🥛"
 let mealProfileEmojis = "🤏🙌🏋🏽🚴🏽🍩🍪⚖️🥛"
 
-func randomEmoji(forMealProfile: Bool) -> String {
-    let array = forMealProfile ? mealProfileEmojis : dietEmojis
+func randomEmoji(forGoalSetType type: GoalSetType) -> String {
+    
+    let array = type == .meal ? mealProfileEmojis : dietEmojis
     guard let character = array.randomElement() else {
         return "⚖️"
     }

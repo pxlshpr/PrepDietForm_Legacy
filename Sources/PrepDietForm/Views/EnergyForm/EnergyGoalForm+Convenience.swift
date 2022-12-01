@@ -17,7 +17,7 @@ extension EnergyGoalForm {
     }
     
     var energyGoalType: EnergyGoalType? {
-        if goal.isForMeal {
+        if goal.goalSetType == .meal {
             switch pickedMealEnergyGoalType {
             case .fixed:
                 return .fixed(energyUnit)
@@ -35,6 +35,7 @@ extension EnergyGoalForm {
     }
     
     var shouldShowEnergyDeltaElements: Bool {
-        !goal.isForMeal && pickedDietEnergyGoalType != .fixed
+        goal.goalSetType != .meal  && pickedDietEnergyGoalType != .fixed
     }
 }
+

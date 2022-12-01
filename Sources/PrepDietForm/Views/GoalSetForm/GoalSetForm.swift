@@ -77,14 +77,14 @@ public struct GoalSetForm: View {
 
     //TODO: Use user's units here
     public init(
-        isForMeal: Bool,
+        type: GoalSetType,
         existingGoalSet: GoalSet? = nil,
         bodyProfile: BodyProfile? = nil,
         didTapSave: @escaping (GoalSet, BodyProfile?) -> ()
     ) {
         let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
-            isForMeal: isForMeal,
+            type: type,
             existingGoalSet: existingGoalSet,
             bodyProfile: bodyProfile
         )
@@ -140,7 +140,7 @@ public struct GoalSetForm: View {
     }
     
     var title: String {
-        let typeName = goalSetViewModel.isForMeal ? "Meal Type": "Diet"
+        let typeName = goalSetViewModel.type.description
         return goalSetViewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
     }
     
@@ -490,7 +490,7 @@ struct EnergyFormPreview: View {
     init() {
         let goalSetViewModel = GoalSetViewModel(
             userUnits:.standard,
-            isForMeal: false,
+            type: .day,
             existingGoalSet: nil,
             bodyProfile: BodyProfile(
                 energyUnit: .kcal,
@@ -504,7 +504,7 @@ struct EnergyFormPreview: View {
         )
         let goalViewModel = GoalViewModel(
             goalSet: goalSetViewModel,
-            isForMeal: false,
+            goalSetType: .day,
             type: .energy(.fromMaintenance(.kcal, .deficit)),
             lowerBound: 500
 //            , upperBound: 750
@@ -533,7 +533,7 @@ struct MacroFormPreview: View {
     init() {
         let goalSet = GoalSetViewModel(
             userUnits: .standard,
-            isForMeal: false,
+            type: .day,
             existingGoalSet: GoalSet(
                 name: "Bulking",
                 emoji: "",
@@ -548,7 +548,7 @@ struct MacroFormPreview: View {
         )
         let goal = GoalViewModel(
             goalSet: goalSet,
-            isForMeal: false,
+            goalSetType: .day,
             type: .macro(.percentageOfEnergy, .carb),
             lowerBound: 20,
             upperBound: 30
@@ -631,6 +631,7 @@ public struct DietPreview: View {
     )
 
     static let goalSet = GoalSet(
+        type: .day,
         name: "Cutting",
         emoji: "🫃🏽",
         goals: [
@@ -645,15 +646,14 @@ public struct DietPreview: View {
 //            highCarbGoalFixed,
 //            magnesiumGoal,
 //            sugarGoal
-        ],
-        isForMeal: false
+        ]
     )
     
     public init() { }
     
     public var body: some View {
         GoalSetForm(
-            isForMeal: false,
+            type: .day,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
         ) { goalSet, bodyProfile in
@@ -687,6 +687,7 @@ public struct MealTypePreview: View {
     )
 
     static let goalSet = GoalSet(
+        type: .meal,
         name: "Workout Fuel",
         emoji: "🚴🏽",
         goals: [
@@ -694,15 +695,14 @@ public struct MealTypePreview: View {
 //            proteinGoal,
 //            carbGoal,
             sodiumGoal
-        ],
-        isForMeal: true
+        ]
     )
     
     public init() { }
     
     public var body: some View {
         GoalSetForm(
-            isForMeal: true,
+            type: .meal,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
         ) { goalSet, bodyProfile in

@@ -1,11 +1,11 @@
 import PrepDataTypes
 
 public extension Array where Element == Goal {
-    func goalViewModels(goalSet: GoalSetViewModel, isForMeal: Bool) -> [GoalViewModel] {
+    func goalViewModels(goalSet: GoalSetViewModel, goalSetType: GoalSetType) -> [GoalViewModel] {
         map {
             GoalViewModel(
                 goalSet: goalSet,
-                isForMeal: isForMeal,
+                goalSetType: goalSetType,
 //                id: $0.id,
                 type: $0.type,
                 lowerBound: $0.lowerBound,

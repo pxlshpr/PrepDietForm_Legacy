@@ -268,7 +268,7 @@ struct NutrientGoalForm: View {
     //MARK: - Convenience
 
     var nutrientGoalType: NutrientGoalType? {
-        if goal.isForMeal {
+        if goal.goalSetType == .meal {
             
             switch pickedMealNutrientGoal {
             case .fixed:
@@ -416,7 +416,7 @@ struct NutrientGoalForm: View {
     
     @ViewBuilder
     var typePicker: some View {
-        if goal.isForMeal {
+        if goal.goalSetType == .meal {
             mealTypePicker
         } else {
             dietTypePicker
@@ -543,7 +543,7 @@ struct NutrientGoalForm: View {
             }
         )
         return Group {
-            if goal.isForMeal, pickedMealNutrientGoal == .quantityPerWorkoutDuration {
+            if goal.goalSetType == .meal, pickedMealNutrientGoal == .quantityPerWorkoutDuration {
                 Menu {
                     Picker(selection: binding, label: EmptyView()) {
                         ForEach(WorkoutDurationUnit.allCases, id: \.self) {
