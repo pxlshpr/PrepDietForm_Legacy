@@ -46,11 +46,12 @@ extension TDEEForm.ViewModel {
     
     var maintenanceEnergyInKcal: Double? {
         guard let maintenanceEnergy else { return nil }
-        if userEnergyUnit == .kcal {
-            return maintenanceEnergy
-        } else {
-            return maintenanceEnergy / KcalsPerKilojule
-        }
+        return userEnergyUnit.convert(maintenanceEnergy, to: .kcal)
+//        if userEnergyUnit == .kcal {
+//            return maintenanceEnergy
+//        } else {
+//            return maintenanceEnergy / KcalsPerKilojule
+//        }
     }
     
     var maintenanceEnergyFormatted: String {
