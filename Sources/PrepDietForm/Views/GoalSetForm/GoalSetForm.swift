@@ -141,7 +141,8 @@ public struct GoalSetForm: View {
     
     var title: String {
         let typeName = goalSetViewModel.type.description
-        return goalSetViewModel.existingGoalSet == nil ? "New \(typeName)" : typeName
+        let prefix = goalSetViewModel.existingGoalSet == nil ? "New" : "Edit"
+        return "\(prefix) \(typeName)"
     }
     
     var content: some View {
@@ -211,6 +212,8 @@ public struct GoalSetForm: View {
                     .transition(.move(edge: .bottom))
             }
         }
+        .padding(.bottom, 34)
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     var canBeSaved: Bool {
@@ -460,7 +463,7 @@ public struct GoalSetForm: View {
             }
             Spacer().frame(height: 7)
         }
-    }    
+    }
 }
 
 
