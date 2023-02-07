@@ -67,7 +67,7 @@ public class GoalSetViewModel: ObservableObject {
     
     var shouldShowSaveButton: Bool {
         guard isValid else { return false }
-        if let existingGoalSet {
+        if let existingGoalSet, !isDuplicating {
             return !existingGoalSet.equals(goalSet)
         }
         return true

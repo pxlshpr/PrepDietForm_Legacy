@@ -23,6 +23,8 @@ public struct GoalSetForm: View {
 
     let didTapSave: (GoalSet, BodyProfile?) -> ()
 
+    @State var showingNameForm: Bool = false
+    
     //TODO: Use user's units here
     public init(
         type: GoalSetType,
@@ -57,7 +59,12 @@ public struct GoalSetForm: View {
             .onChange(of: goalSetViewModel.containsGoalWithEquivalentValues, perform: containsGoalWithEquivalentValuesChanged)
             .onChange(of: canBeSaved, perform: canBeSavedChanged)
             .onChange(of: goalSetViewModel.singleGoalViewModelToPushTo, perform: singleGoalViewModelToPushTo)
+            .sheet(isPresented: $showingNameForm) { nameForm }
         }
+    }
+    
+    var nameForm: some View {
+        NameForm(name: $goalSetViewModel.name )
     }
     
     func singleGoalViewModelToPushTo(to goalViewModel: GoalViewModel?) {
@@ -277,18 +284,36 @@ public struct GoalSetForm: View {
     }
     
     var detailsCell: some View {
-        HStack {
-            emojiButton
-            nameTextField
-            Spacer()
+        var label: some View {
+            HStack {
+                emojiButton
+                Group {
+                    if goalSetViewModel.name.isEmpty {
+                        Text("Enter a name")
+                            .foregroundColor(Color(.tertiaryLabel))
+                    } else {
+                        Text(goalSetViewModel.name)
+                            .foregroundColor(.primary)
+                    }
+                }
+                .font(.title3)
+                .multilineTextAlignment(.leading)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 13)
+            .padding(.top, 13)
+            .background(Color(.secondarySystemGroupedBackground))
+            .cornerRadius(10)
+            .padding(.bottom, 10)
         }
-        .foregroundColor(.primary)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 13)
-        .padding(.top, 13)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(10)
-        .padding(.bottom, 10)
+        
+        return Button {
+            Haptics.feedback(style: .soft)
+            showingNameForm = true
+        } label: {
+            label
+        }
     }
     
     var footerInfoContent: some View {
@@ -353,7 +378,7 @@ public struct GoalSetForm: View {
             .multilineTextAlignment(.leading)
             .focused($isFocused)
     }
-    
+
     func titleCell(_ title: String) -> some View {
         Group {
             Spacer().frame(height: 15)
