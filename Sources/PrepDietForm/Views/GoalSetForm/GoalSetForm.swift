@@ -58,6 +58,7 @@ extension GoalSet {
 
 public struct GoalSetForm: View {
         
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
     @StateObject var goalSetViewModel: GoalSetViewModel
@@ -100,7 +101,6 @@ public struct GoalSetForm: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar { trailingContent }
-            .toolbar { leadingContent }
             .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
             .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
             .navigationDestination(for: GoalSetFormRoute.self, destination: navigationDestination)
@@ -175,17 +175,44 @@ public struct GoalSetForm: View {
         }
     }
 
-    @ViewBuilder
-    var buttonLayer: some View {
-        if showingSaveButton {
-            VStack {
-                Spacer()
-                saveButton
-            }
-            .transition(.move(edge: .bottom))
+    var addHeroButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            presentNutrientsPicker()
+        } label: {
+            Image(systemName:  "plus")
+                .font(.system(size: 25))
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+                .frame(width: 48, height: 48)
+                .background(
+                    ZStack {
+                        Circle()
+                            .foregroundStyle(Color.accentColor.gradient)
+                    }
+                    .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                )
         }
     }
 
+    var buttonLayer: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                if !goalSetViewModel.goalViewModels.isEmpty {
+                    addHeroButton
+                        .transition(.move(edge: .trailing))
+                }
+            }
+            .padding(.horizontal, 20)
+            if showingSaveButton {
+                saveButton
+                    .transition(.move(edge: .bottom))
+            }
+        }
+    }
+    
     var canBeSaved: Bool {
         goalSetViewModel.shouldShowSaveButton
     }
@@ -433,18 +460,7 @@ public struct GoalSetForm: View {
             }
             Spacer().frame(height: 7)
         }
-    }
-    
-    var leadingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                closeButtonLabel
-            }
-        }
-    }
+    }    
 }
 
 

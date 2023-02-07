@@ -16,10 +16,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.235"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.129"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.250"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.139"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.249"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.361"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

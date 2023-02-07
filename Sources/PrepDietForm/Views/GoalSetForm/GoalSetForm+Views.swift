@@ -3,6 +3,7 @@ import PrepDataTypes
 import PrepViews
 import SwiftHaptics
 import EmojiPicker
+import SwiftUISugar
 
 extension GoalSetForm {
     
@@ -63,10 +64,16 @@ extension GoalSetForm {
     
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            HStack {
-                //                calculatedButton
-                addButton
-            }
+            closeButton
+        }
+    }
+    
+    var closeButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            dismiss()
+        } label: {
+            CloseButtonLabel(forNavigationBar: true)
         }
     }
     
@@ -92,6 +99,14 @@ extension GoalSetForm {
             }
         }
     }
+
+    @ViewBuilder
+    var addCell: some View {
+        if !goalSetViewModel.goalViewModels.isEmpty {
+            addGoalsButton
+        }
+    }
+
     
     @ViewBuilder
     var emptyContent: some View {
@@ -106,22 +121,7 @@ extension GoalSetForm {
                 .font(.title3)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Color(.tertiaryLabel))
-            Button {
-                presentNutrientsPicker()
-            } label: {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Add Goals")
-                }
-                .foregroundColor(.white)
-                .padding(.horizontal)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .foregroundColor(Color.accentColor)
-                )
-            }
-            .buttonStyle(.borderless)
+            addGoalsButton
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 30)
@@ -132,6 +132,55 @@ extension GoalSetForm {
         )
         .cornerRadius(10)
         .padding(.bottom, 10)
+    }
+    
+    var addGoalsButton: some View {
+        var label: some View {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                Text("Add Goals")
+                    .fontWeight(.bold)
+            }
+            .foregroundColor(.accentColor)
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(Color.accentColor.opacity(
+                        colorScheme == .dark ? 0.1 : 0.15
+                    ))
+            )
+        }
+        
+        var button: some View {
+            Button {
+                presentNutrientsPicker()
+            } label: {
+                label
+            }
+            .buttonStyle(.borderless)
+        }
+        
+        return button
+    }
+    
+    var addGoalsButton_legacy: some View {
+        Button {
+            presentNutrientsPicker()
+        } label: {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                Text("Add Goals")
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .foregroundColor(Color.accentColor)
+            )
+        }
+        .buttonStyle(.borderless)
     }
     
     func presentNutrientsPicker() {
