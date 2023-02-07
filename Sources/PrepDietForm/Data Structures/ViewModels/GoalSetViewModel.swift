@@ -16,6 +16,7 @@ public class GoalSetViewModel: ObservableObject {
     @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
     @Published var path: [GoalSetFormRoute] = []
     let existingGoalSet: GoalSet?
+    let isDuplicating: Bool
     
     @Published var singleGoalViewModelToPushTo: GoalViewModel? = nil
     
@@ -23,6 +24,7 @@ public class GoalSetViewModel: ObservableObject {
         userUnits: UserUnits,
         type: GoalSetType,
         existingGoalSet existing: GoalSet?,
+        isDuplicating: Bool = false,
         bodyProfile: BodyProfile? = nil
     ) {
         self.id = existing?.id ?? UUID()
@@ -34,6 +36,7 @@ public class GoalSetViewModel: ObservableObject {
         self.bodyProfile = bodyProfile
 
         self.existingGoalSet = existing
+        self.isDuplicating = isDuplicating
 
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
         self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, goalSetType: type) ?? []

@@ -3,59 +3,6 @@ import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
 
-public enum GoalSetFormRoute: Hashable {
-    case goal(GoalViewModel)
-}
-
-//extension GoalSetForm {
-//    public class ViewModel: ObservableObject {
-//        @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
-//        @Published var path: [GoalSetFormRoute] = []
-//        let existingGoalSet: GoalSet?
-//
-//        init(
-//            userUnits: UserUnits,
-//            bodyProfile: BodyProfile?,
-//            presentedGoalId: UUID? = nil,
-//            existingGoalSet: GoalSet?
-//        ) {
-//            self.existingGoalSet = existingGoalSet
-//
-//            self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(
-//                existingProfile: bodyProfile,
-//                userUnits: userUnits
-//            )
-//
-//            self.path = []
-//            //TODO: Bring this back
-////            if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
-////                self.path = [.goal(goalViewModel)]
-////            }
-//        }
-//    }
-//
-//    func resetNutrientTDEEFormViewModel() {
-//        setNutrientTDEEFormViewModel(with: bodyProfile)
-//    }
-//
-//    func setNutrientTDEEFormViewModel(with bodyProfile: BodyProfile?) {
-//        nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
-//    }
-//
-//    func setBodyProfile(_ bodyProfile: BodyProfile) {
-//        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetViewModel (or at least the relevant fields for weight and lbm)
-//        self.bodyProfile = bodyProfile
-//        setNutrientTDEEFormViewModel(with: bodyProfile)
-//    }
-//}
-
-extension GoalSet {
-    func equals(_ other: GoalSet) -> Bool {
-        name == other.name
-        && goals == other.goals
-    }
-}
-
 public struct GoalSetForm: View {
         
     @Environment(\.colorScheme) var colorScheme
@@ -80,6 +27,7 @@ public struct GoalSetForm: View {
     public init(
         type: GoalSetType,
         existingGoalSet: GoalSet? = nil,
+        isDuplicating: Bool = false,
         bodyProfile: BodyProfile? = nil,
         didTapSave: @escaping (GoalSet, BodyProfile?) -> ()
     ) {
@@ -87,6 +35,7 @@ public struct GoalSetForm: View {
             userUnits: .standard,
             type: type,
             existingGoalSet: existingGoalSet,
+            isDuplicating: isDuplicating,
             bodyProfile: bodyProfile
         )
         _goalSetViewModel = StateObject(wrappedValue: goalSetViewModel)
@@ -141,7 +90,12 @@ public struct GoalSetForm: View {
     
     var title: String {
         let typeName = goalSetViewModel.type.description
-        let prefix = goalSetViewModel.existingGoalSet == nil ? "New" : "Edit"
+        let prefix: String
+        if goalSetViewModel.existingGoalSet == nil {
+            prefix = "New"
+        } else {
+            prefix = goalSetViewModel.isDuplicating ? "New" : "Edit"
+        }
         return "\(prefix) \(typeName)"
     }
     
@@ -737,4 +691,57 @@ extension BodyProfile {
         weight: 98,
         lbm: 65
     )
+}
+
+public enum GoalSetFormRoute: Hashable {
+    case goal(GoalViewModel)
+}
+
+//extension GoalSetForm {
+//    public class ViewModel: ObservableObject {
+//        @Published var nutrientTDEEFormViewModel: TDEEForm.ViewModel
+//        @Published var path: [GoalSetFormRoute] = []
+//        let existingGoalSet: GoalSet?
+//
+//        init(
+//            userUnits: UserUnits,
+//            bodyProfile: BodyProfile?,
+//            presentedGoalId: UUID? = nil,
+//            existingGoalSet: GoalSet?
+//        ) {
+//            self.existingGoalSet = existingGoalSet
+//
+//            self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(
+//                existingProfile: bodyProfile,
+//                userUnits: userUnits
+//            )
+//
+//            self.path = []
+//            //TODO: Bring this back
+////            if let presentedGoalId, let goalViewModel = goals.first(where: { $0.id == presentedGoalId }) {
+////                self.path = [.goal(goalViewModel)]
+////            }
+//        }
+//    }
+//
+//    func resetNutrientTDEEFormViewModel() {
+//        setNutrientTDEEFormViewModel(with: bodyProfile)
+//    }
+//
+//    func setNutrientTDEEFormViewModel(with bodyProfile: BodyProfile?) {
+//        nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
+//    }
+//
+//    func setBodyProfile(_ bodyProfile: BodyProfile) {
+//        /// in addition to setting the current body Profile, we also update the view model (TDEEForm.ViewModel) we have  in GoalSetViewModel (or at least the relevant fields for weight and lbm)
+//        self.bodyProfile = bodyProfile
+//        setNutrientTDEEFormViewModel(with: bodyProfile)
+//    }
+//}
+
+extension GoalSet {
+    func equals(_ other: GoalSet) -> Bool {
+        name == other.name
+        && goals == other.goals
+    }
 }
