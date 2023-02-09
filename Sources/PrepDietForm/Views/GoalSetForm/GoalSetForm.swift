@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 import PrepDataTypes
+import PrepCoreDataStack
 
 public struct GoalSetForm: View {
         
@@ -19,11 +20,14 @@ public struct GoalSetForm: View {
 
     @FocusState var isFocused: Bool
     
-    @State var showingSaveButton: Bool = false
+    @State var showingSaveButton: Bool
 
-    let didTapSave: (GoalSet, BodyProfile?) -> ()
+    let didTapSave: (GoalSet, BodyProfile?, Bool) -> ()
 
     @State var showingNameForm: Bool = false
+    
+    @State var showingEditConfirmation: Bool = false
+    @State var numberOfPreviousUses: Int = 0
     
     //TODO: Use user's units here
     public init(
@@ -31,7 +35,7 @@ public struct GoalSetForm: View {
         existingGoalSet: GoalSet? = nil,
         isDuplicating: Bool = false,
         bodyProfile: BodyProfile? = nil,
-        didTapSave: @escaping (GoalSet, BodyProfile?) -> ()
+        didTapSave: @escaping (GoalSet, BodyProfile?, Bool) -> ()
     ) {
         let goalSetViewModel = GoalSetViewModel(
             userUnits: .standard,
@@ -43,6 +47,8 @@ public struct GoalSetForm: View {
         _goalSetViewModel = StateObject(wrappedValue: goalSetViewModel)
         _showingEquivalentValuesToggle = State(initialValue: goalSetViewModel.containsGoalWithEquivalentValues)
         self.didTapSave = didTapSave
+        
+        _showingSaveButton = State(initialValue: isDuplicating)
     }
     
     public var body: some View {
@@ -60,9 +66,29 @@ public struct GoalSetForm: View {
             .onChange(of: canBeSaved, perform: canBeSavedChanged)
             .onChange(of: goalSetViewModel.singleGoalViewModelToPushTo, perform: singleGoalViewModelToPushTo)
             .sheet(isPresented: $showingNameForm) { nameForm }
+            .confirmationDialog(
+                editConfirmationTitle,
+                isPresented: $showingEditConfirmation,
+                titleVisibility: .visible,
+                actions: editConfirmationActions
+            )
         }
     }
     
+    var editConfirmationTitle: String {
+        "Do you want to apply this change only to future uses of this, or to the past \(numberOfPreviousUses) use\(numberOfPreviousUses > 1 ? "s" : "") as well?"
+    }
+    
+    @ViewBuilder
+    func editConfirmationActions() -> some View {
+        Button("Only Future Uses") {
+            saveAndDismiss()
+        }
+        Button("Past and Future Uses") {
+            saveAndDismiss(overwritingPreviousUses: true)
+        }
+    }
+
     var nameForm: some View {
         NameForm(name: $goalSetViewModel.name )
     }
@@ -180,12 +206,32 @@ public struct GoalSetForm: View {
     var canBeSaved: Bool {
         goalSetViewModel.shouldShowSaveButton
     }
+    
+    func tappedSave() {
+        if goalSetViewModel.isEditing,
+           let existing = goalSetViewModel.existingGoalSet
+        {
+            self.numberOfPreviousUses = DataManager.shared.numberOfNonDeletedUsesForGoalSet(existing)
+            if numberOfPreviousUses > 0 {
+                Haptics.warningFeedback()
+                showingEditConfirmation = true
+            } else {
+                saveAndDismiss()
+            }
+        } else {
+            saveAndDismiss()
+        }
+    }
+    
+    func saveAndDismiss(overwritingPreviousUses: Bool = false) {
+        didTapSave(goalSetViewModel.goalSet, goalSetViewModel.bodyProfile, overwritingPreviousUses)
+        dismiss()
+    }
 
     var saveButton: some View {
         var saveButton: some View {
             FormPrimaryButton(title: "Save") {
-                didTapSave(goalSetViewModel.goalSet, goalSetViewModel.bodyProfile)
-                dismiss()
+                tappedSave()
             }
         }
         
@@ -654,7 +700,7 @@ public struct DietPreview: View {
             type: .day,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-        ) { goalSet, bodyProfile in
+        ) { goalSet, bodyProfile, overwritingPastUses in
             
         }
     }
@@ -703,7 +749,7 @@ public struct MealTypePreview: View {
             type: .meal,
             existingGoalSet: Self.goalSet,
             bodyProfile: BodyProfile.mockBodyProfile
-        ) { goalSet, bodyProfile in
+        ) { goalSet, bodyProfile, overwritingPastUses in
             
         }
     }
@@ -766,7 +812,8 @@ public enum GoalSetFormRoute: Hashable {
 
 extension GoalSet {
     func equals(_ other: GoalSet) -> Bool {
-        name == other.name
+        emoji == other.emoji
+        && name == other.name
         && goals == other.goals
     }
 }

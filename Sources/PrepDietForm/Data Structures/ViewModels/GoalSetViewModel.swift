@@ -27,7 +27,10 @@ public class GoalSetViewModel: ObservableObject {
         isDuplicating: Bool = false,
         bodyProfile: BodyProfile? = nil
     ) {
-        self.id = existing?.id ?? UUID()
+        /// Always generate a new `UUID`, even if we're duplicating or editing (as we soft-delete the previous ones)
+//        self.id = existing?.id ?? UUID()
+        self.id = UUID()
+        
         self.name = existing?.name ?? ""
         self.emoji = existing?.emoji ?? randomEmoji(forGoalSetType: type)
         self.type = type
@@ -35,14 +38,18 @@ public class GoalSetViewModel: ObservableObject {
         self.userUnits = userUnits
         self.bodyProfile = bodyProfile
 
-        self.existingGoalSet = existing
         self.isDuplicating = isDuplicating
+        self.existingGoalSet = isDuplicating ? nil : existing
 
         self.nutrientTDEEFormViewModel = TDEEForm.ViewModel(existingProfile: bodyProfile, userUnits: userUnits)
         self.goalViewModels = existing?.goals.goalViewModels(goalSet: self, goalSetType: type) ?? []
         self.createImplicitGoals()
     }
     
+    var isEditing: Bool {
+        existingGoalSet != nil && !isDuplicating
+    }
+        
     var goalSet: GoalSet {
         GoalSet(
             id: id,
