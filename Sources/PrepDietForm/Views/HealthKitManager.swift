@@ -71,7 +71,7 @@ class HealthKitManager: ObservableObject {
             try await store.requestAuthorization(toShare: Set(), read: Set(readTypes))
             return true
         } catch {
-            print("Error requesting authorization: \(error)")
+            cprint("Error requesting authorization: \(error)")
             return false
         }
 
@@ -92,7 +92,7 @@ class HealthKitManager: ObservableObject {
 //               println("Enabled background delivery of weight changes")
 //           } else {
 //               if let theError = error{
-//                   print("Failed to enable background delivery of weight changes. ")
+//                   cprint("Failed to enable background delivery of weight changes. ")
 //                   println("Error = \(theError)")
 //               }
 //           }
@@ -175,7 +175,7 @@ extension HealthKitManager {
             try await HealthKitManager.shared.requestPermission(for: .biologicalSex)
             return try store.biologicalSex().biologicalSex
         } catch {
-            print("Error getting biological sex")
+            cprint("Error getting biological sex")
             return nil
         }
     }
@@ -184,7 +184,7 @@ extension HealthKitManager {
         do {
             return try store.dateOfBirthComponents()
         } catch {
-            print("Error getting date of birth")
+            cprint("Error getting date of birth")
             return nil
         }
     }
@@ -211,7 +211,7 @@ extension HealthKitManager {
             return (quantity, date)
         } catch {
             //TODO: This might be an indiciator of needing permissions
-            print("Error getting quantity")
+            cprint("Error getting quantity")
             return nil
         }
     }
@@ -220,7 +220,7 @@ extension HealthKitManager {
         do {
             return try store.biologicalSex().biologicalSex
         } catch {
-            print("Error getting biological sex")
+            cprint("Error getting biological sex")
             return .notSet
         }
     }
@@ -229,7 +229,7 @@ extension HealthKitManager {
         do {
             return try store.dateOfBirthComponents().date
         } catch {
-            print("Error getting age")
+            cprint("Error getting age")
             return nil
         }
     }
@@ -291,7 +291,7 @@ extension HealthKitManager {
                 throw HealthKitManagerError.couldNotGetStatistics
             }
             guard let sumQuantity = statistics.sumQuantity() else {
-                print("Could not get sumQuantity for \(day)")
+                cprint("Could not get sumQuantity for \(day)")
                 continue
             }
             sumQuantities[day] = sumQuantity

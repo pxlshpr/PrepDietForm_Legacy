@@ -947,7 +947,7 @@ extension TDEEForm.ViewModel {
                 }
                 await MainActor.run {
                     withAnimation {
-                        print("🔥 setting average: \(average)")
+                        cprint("🔥 setting average: \(average)")
                         restingEnergy = average
                         restingEnergyTextFieldString = "\(Int(average.rounded()))"
                         restingEnergyFetchStatus = .fetched
@@ -1184,7 +1184,7 @@ extension TDEEForm.ViewModel {
                 }
                 await MainActor.run {
                     withAnimation {
-                        print("🔥 setting average: \(average)")
+                        cprint("🔥 setting average: \(average)")
                         activeEnergy = average
                         activeEnergyTextFieldString = "\(Int(average.rounded()))"
                         activeEnergyFetchStatus = .fetched

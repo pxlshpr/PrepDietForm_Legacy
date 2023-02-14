@@ -253,7 +253,6 @@ struct LeftAlignedFlowLayout: Layout {
             }
             
             let thisPosition = nextPosition
-            print(thisPosition)
             nextPosition.x += nextHSpacing + size.width
             return CGRect(origin: thisPosition, size: size)
         }

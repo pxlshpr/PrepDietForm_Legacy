@@ -310,7 +310,7 @@ extension TDEEForm {
                     }
                     viewModel.fetchActiveEnergyFromHealth()
                 } catch {
-                    print("Error syncing with Health: \(error)")
+                    cprint("Error syncing with Health: \(error)")
                 }
             }
         }

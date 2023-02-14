@@ -85,7 +85,7 @@ public struct TDEEForm: View {
     }
     
     func navigationDestinationForm(for route: TDEEFormRoute) -> some View {
-        print("We getting: \(route)")
+        cprint("We getting: \(route)")
         return Group {
             switch route {
             case .profileForm:
