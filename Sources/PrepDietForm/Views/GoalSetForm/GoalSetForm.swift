@@ -28,6 +28,7 @@ public struct GoalSetForm: View {
     
     @State var showingEditConfirmation: Bool = false
     @State var numberOfPreviousUses: Int = 0
+    @State var showingDuplicateAlert = false
     
     //TODO: Use user's units here
     public init(
@@ -72,21 +73,30 @@ public struct GoalSetForm: View {
                 titleVisibility: .visible,
                 actions: editConfirmationActions
             )
+            .alert(isPresented: $showingDuplicateAlert) { duplicateAlert }
         }
     }
     
+    var duplicateAlert: Alert {
+        Alert(
+            title: Text("Existing \(goalSetViewModel.type.description)"),
+            message: Text("Please choose a different name than ‘\(goalSetViewModel.name)’, as this one has already been used."),
+            dismissButton: .default(Text("OK"))
+        )
+    }
+    
     var editConfirmationTitle: String {
-        "Do you want to apply this change only to future uses of this, or to the past \(numberOfPreviousUses) use\(numberOfPreviousUses > 1 ? "s" : "") as well?"
+        "This \(goalSetViewModel.type.description) has been used \(numberOfPreviousUses) times. Are you sure you want to modify all of them?"
     }
     
     @ViewBuilder
     func editConfirmationActions() -> some View {
-        Button("Only Future Uses") {
+        Button("Save") {
             saveAndDismiss()
         }
-        Button("Past and Future Uses") {
-            saveAndDismiss(overwritingPreviousUses: true)
-        }
+//        Button("Past and Future Uses") {
+//            saveAndDismiss(overwritingPreviousUses: true)
+//        }
     }
 
     var nameForm: some View {
@@ -208,6 +218,14 @@ public struct GoalSetForm: View {
     }
     
     func tappedSave() {
+        
+        if !goalSetViewModel.isEditing || goalSetViewModel.isDuplicating {
+            guard !DataManager.shared.hasGoalSet(named: goalSetViewModel.name, type: goalSetViewModel.type) else {
+                showingDuplicateAlert = true
+                return
+            }
+        }
+        
         if goalSetViewModel.isEditing,
            let existing = goalSetViewModel.existingGoalSet
         {
