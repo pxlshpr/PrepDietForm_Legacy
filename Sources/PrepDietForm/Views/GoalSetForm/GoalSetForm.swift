@@ -174,11 +174,8 @@ public struct GoalSetForm: View {
     }
 
     var addHeroButton: some View {
-        Button {
-            Haptics.feedback(style: .soft)
-            presentNutrientsPicker()
-        } label: {
-            Image(systemName:  "plus")
+        var label: some View {
+            Image(systemName: "plus")
                 .font(.system(size: 25))
                 .fontWeight(.medium)
                 .foregroundColor(.white)
@@ -190,6 +187,20 @@ public struct GoalSetForm: View {
                     }
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
                 )
+        }
+        
+        var button: some View {
+            Button {
+                Haptics.feedback(style: .soft)
+                presentNutrientsPicker()
+            } label: {
+                label
+            }
+        }
+        
+        return ZStack {
+            label
+            button
         }
     }
 
